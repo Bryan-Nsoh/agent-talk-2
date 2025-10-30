@@ -1,0 +1,19 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+.envrc
+.venv/
+.idea/
+.vscode/
+dist/
+build/
+logs/
+*.egg-info/
+/.tmp/
+tmp/
+# Local tooling / runtime artifacts
+*.pyc
+tmux_input.txt
+experiments/*/runs/*/logs/
