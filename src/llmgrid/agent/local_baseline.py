@@ -39,3 +39,16 @@ class GreedyBaseline:
             "NW": self.rng.choice([Direction.N, Direction.W]),
         }
         return mapping.get(bearing)
+
+    async def decide_async(self, observation: Observation) -> Decision:
+        return self.decide(observation)
+
+    def get_state(self) -> tuple:
+        """Expose RNG state so simulations can checkpoint baselines."""
+
+        return self.rng.getstate()
+
+    def set_state(self, state: tuple) -> None:
+        """Restore RNG state when resuming a simulation."""
+
+        self.rng.setstate(state)

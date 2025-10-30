@@ -1,47 +1,63 @@
 # Two Agents – Bearing Sensor – Radius 1
 
-**Last updated:** 2025-10-30  
-**Status:** ⏳ running  
-**Outcome:** -  
+**Last updated:** 2025-10-30
+**Status:** ✅ complete
+**Outcome:** ❌ not useful (timed out)
 **Started:** 2025-10-28
 
-## Scope
+## Question
 
-This study tracks two LLM-driven agents with radius-1 visibility, a noisy bearing sensor, and range-two radio coordination. The shared goal and all agents now operate on curated mazes instead of ad-hoc obstacle fields.
+Can LLM agents with partial observability (radius-1 vision, bearing sensor, range-2 comms) navigate cooperatively to a shared goal on curated maze layouts?
 
-## Baseline Maze
+## Setup
 
-- Default preset: `long_corridor` (seed 606, 30×10 maze with wide corridors).
-- CLI command template:
-  ```
-  PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
-    --model openrouter:openai/gpt-5-nano \
-    --maze-preset long_corridor \
-    --log-prompts --log-movements \
-    --emit-config experiments/.../runs/<run_id>/config.yaml
-  ```
-- The CLI automatically applies the preset’s width, height, style, and seed; remove the preset (`--maze-preset none`) to supply custom parameters.
+- **Maze:** `long_corridor` (seed 606, 30×10 maze with wide horizontal corridors)
+- **Agents:** 2-5 agents with radius-1 visibility
+- **Sensors:** Bearing-based goal sensor (FAR/CLOSE), local patch observation
+- **Communication:** Range-2 radio, max 1 message/turn, 96 chars
+- **Models tested:** OpenRouter `gpt-5-nano`, Azure `gpt-5-mini`
 
-## Alternate Presets
+## Completed Runs
 
-Use any of the curated options when we want variety:
+| Run | Model | Agents | Turns | Status | Result |
+|-----|-------|--------|-------|--------|--------|
+| `long-corridor-nano_20251029T211939Z` | gpt-5-nano | 2 | 45 | ✅ complete | Goal reached, 0 collisions, 0 messages |
+| `azure_parallel_fix_20251030T215123Z` | gpt-4.1-mini (Azure) | 5 | 60 | ✅ complete | Goal not reached (timed out), 0 collisions, 0 comms |
 
-- `open_sparse` — 20×12 grid, 12 % scatter, light congestion.
-- `open_dense` — 20×12 grid, 25 % scatter, tighter routes.
-- `maze_tight` — 21×13 classic maze with minimal shortcuts.
-- `maze_loops` — 21×13 maze with many alternate paths.
-- `mixed_medium` — 24×14 hybrid scatter/corridor layout.
+## Current Status
 
-Preview PNGs live under `experiments/maze_previews/batch/`. All presets share the same start/goal placement logic and are generated deterministically from their documented seeds.
+**Latest run:** `azure_parallel_fix_20251030T215123Z`
+- 5 agents on `long_corridor`, Azure `gpt-4.1-mini`, 60-turn budget
+- Concurrency window sustained at 5 without stalls after async refactor
+- Timed out at 60 turns (0 collisions, no comms) — requires strategy tweaks for goal capture
+- No active runs at the moment
 
-## Run Logging
+## Key Findings
 
-- Run folders are only created once a curated preset is executed.
-- Each run should capture `command.txt`, `config.yaml`, a stream transcript, the EpisodeLog JSON, and rendered GIFs.
-- Current baseline: `long-corridor-nano_20251029T211939Z` — success in 45 turns, zero collisions/messages, adjacency + 5-turn history enabled.
+**Async refactor (2025-10-30):**
+- Problem: Multi-agent runs stalled after turn 0 when concurrency >1.
+- Root cause: mixing `asyncio.run()` inside thread workers with shared async locks caused cross-loop deadlocks.
+- Fix: Policy/driver fully async (`run_episode` keeps single loop) and rate limiter semaphores are loop-scoped.
+- Result: 5-agent Azure run completed 60 turns with `concurrency_start=5` without hanging.
+
+**Baseline Performance:**
+- 2 agents: Goal reached in 45 turns (OpenRouter gpt-5-nano).
+- 5 agents: Stable execution on Azure `gpt-4.1-mini` at full concurrency, but strategy timed out → need improved policy/planning.
+
+## Alternate Presets Available
+
+When ready to test other environments:
+- `open_sparse` — 20×12 grid, 12% scatter, light congestion
+- `open_dense` — 20×12 grid, 25% scatter, tighter routes
+- `maze_tight` — 21×13 classic maze with minimal shortcuts
+- `maze_loops` — 21×13 maze with many alternate paths
+- `mixed_medium` — 24×14 hybrid scatter/corridor layout
+
+Preview PNGs: `experiments/presets/batch/`
 
 ## Next Steps
 
-- Track additional runs across other presets once needed (all baselines complete for `long_corridor`).
-- Compare performance across the other five presets on demand.
-- Extend the documentation with metrics once baseline runs are recorded.
+- [ ] Analyse 60-turn Azure run to improve goal-seeking behaviour
+- [ ] Re-run with enhanced policy (comm plans, artifact use) to beat 60-turn cap
+- [ ] Sweep other presets (`open_sparse`, `maze_tight`, etc.) with new async stack
+- [ ] Compare performance across different agent counts (2, 5, 10) once policy updated

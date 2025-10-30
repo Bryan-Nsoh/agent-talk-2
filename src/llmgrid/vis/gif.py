@@ -12,10 +12,12 @@ WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
 GRID_LINE = (220, 220, 220, 255)
 GOAL_GOLD = (255, 215, 0, 255)
-AURA_ALPHA = 110
+AURA_ALPHA = 90
 GRADIENT_ALPHA = 80
 GRADIENT_INTENSITY = 0.45
 LEGEND_WIDTH = 160
+
+AGENT_ALPHA = 200
 
 DEFAULT_AGENT_COLORS = {
     "a1": "#1f77b4",
@@ -63,10 +65,15 @@ class GifRenderer:
         for style in self.episode.meta.agent_styles:
             colors[style.agent_id] = hex_to_rgb(style.color_hex)
         palette = list(DEFAULT_AGENT_COLORS.values())
-        for idx, frame in enumerate(self.episode.frames):
+        # Collect all unique agent IDs
+        agent_ids: List[str] = []
+        for frame in self.episode.frames:
             for agent in frame.agents:
-                if agent.agent_id not in colors:
-                    colors[agent.agent_id] = hex_to_rgb(palette[idx % len(palette)])
+                if agent.agent_id not in colors and agent.agent_id not in agent_ids:
+                    agent_ids.append(agent.agent_id)
+        # Assign colors by agent index, not frame index
+        for idx, agent_id in enumerate(agent_ids):
+            colors[agent_id] = hex_to_rgb(palette[idx % len(palette)])
         return colors
 
     def _load_font(self, size: int) -> ImageFont.ImageFont:
@@ -123,7 +130,7 @@ class GifRenderer:
             if self.opts.show_auras:
                 self._draw_auras(canvas, frame)
             self._draw_goal(draw)
-            self._draw_agents(draw, frame)
+            self._draw_agents(canvas, frame)
             self._draw_hud(draw, frame.t)
             if self.opts.show_legend:
                 self._draw_legend(draw, frame)
@@ -211,7 +218,7 @@ class GifRenderer:
             if status == "FINISHED":
                 continue
             base = self.agent_colors.get(agent.agent_id, (80, 80, 80))
-            lighten = 0.05
+            lighten = 0.3
             tinted = (
                 int(base[0] * (1 - lighten) + WHITE[0] * lighten),
                 int(base[1] * (1 - lighten) + WHITE[1] * lighten),
@@ -227,15 +234,75 @@ class GifRenderer:
                 overlay_draw.rectangle(self._cell_rect(cx, cy), fill=aura_color)
         canvas.alpha_composite(overlay)
 
-    def _draw_agents(self, draw: ImageDraw.ImageDraw, frame) -> None:
+    def _draw_agents(self, canvas: Image.Image, frame) -> None:
         agents = frame.agents
         turn = frame.t
+
+        from collections import defaultdict
+
+        pos_to_agents: Dict[Tuple[int, int], List[AgentState]] = defaultdict(list)
         for agent in agents:
             if self._agent_status(agent, turn) == "FINISHED":
                 continue
+            pos_to_agents[(agent.pos.x, agent.pos.y)].append(agent)
+
+        draw = ImageDraw.Draw(canvas, "RGBA")
+        cell_size = self.opts.cell_size
+        inset = max(2, cell_size // 5)
+
+        for (x, y), grouped_agents in pos_to_agents.items():
+            tile = self._compose_agent_tile(grouped_agents)
+            if tile is None:
+                continue
+
+            rect = self._cell_rect(x, y)
+            dest = (rect[0], rect[1])
+
+            base_is_goal = (x, y) == self.goal
+            base_is_wall = (x, y) in self.walls
+
+            tile_to_paste = tile
+            if base_is_goal or base_is_wall:
+                inner_size = max(1, cell_size - inset * 2)
+                if inner_size > 0:
+                    inner_tile = tile.resize((inner_size, inner_size), Image.BILINEAR)
+                    trimmed = Image.new("RGBA", (cell_size, cell_size), (0, 0, 0, 0))
+                    trimmed.paste(inner_tile, (inset, inset), inner_tile)
+                    tile_to_paste = trimmed
+
+            canvas.paste(tile_to_paste, dest, tile_to_paste)
+            draw.rectangle(rect, outline=BLACK, width=2)
+
+    def _compose_agent_tile(self, agents: List[AgentState]) -> Optional[Image.Image]:
+        if not agents:
+            return None
+        size = self.opts.cell_size
+        tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        for agent in sorted(agents, key=lambda a: a.agent_id):
             color = self.agent_colors.get(agent.agent_id, (0, 0, 0))
-            rect = self._cell_rect(agent.pos.x, agent.pos.y)
-            draw.rectangle(rect, fill=(*color, 255), outline=BLACK, width=2)
+            layer = Image.new("RGBA", (size, size), (*color, AGENT_ALPHA))
+            tile = Image.alpha_composite(tile, layer)
+        return self._normalize_alpha(tile, AGENT_ALPHA)
+
+    @staticmethod
+    def _normalize_alpha(tile: Image.Image, target_alpha: int) -> Image.Image:
+        if target_alpha >= 255:
+            return tile
+        pixels = tile.load()
+        width, height = tile.size
+        for y in range(height):
+            for x in range(width):
+                r, g, b, a = pixels[x, y]
+                if a == 0:
+                    continue
+                if a == target_alpha:
+                    continue
+                scale = target_alpha / a
+                r = min(255, int(r * scale))
+                g = min(255, int(g * scale))
+                b = min(255, int(b * scale))
+                pixels[x, y] = (r, g, b, target_alpha)
+        return tile
 
     def _draw_hud(self, draw: ImageDraw.ImageDraw, turn: int) -> None:
         # HUD content rendered in legend; nothing extra here.

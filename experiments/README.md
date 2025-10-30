@@ -2,6 +2,8 @@
 
 **Last updated:** 2025-10-30
 
+This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
+
 ## Curated Maze Presets
 
 We now standardise all navigation experiments on six hand-picked mazes generated with the new runtime maze generator. They live under `experiments/presets/batch/` as PNG previews and are reproduced deterministically at run time from their seeds.
@@ -21,8 +23,89 @@ Preview images can be regenerated or extended with:
 PYTHONPATH=src uv run python -m llmgrid.cli.generate_maze --help
 ```
 
+## How to Run Experiments
+
+### Quick Test (verify setup)
+
+```bash
+PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
+  --model openrouter:openai/gpt-5-nano \
+  --turns 5
+```
+
+### Standard Run Command
+
+**ALL experiments MUST use this pattern:**
+
+```bash
+PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
+  --model <MODEL> \
+  --maze-preset <PRESET> \
+  --agents <N> \
+  --turns <T> \
+  --log-prompts \
+  --log-movements \
+  --emit-config experiments/<experiment-dir>/runs/$(date -u +%Y%m%dT%H%M%SZ)/config.yaml
+```
+
+**Required:** Both `--log-prompts` and `--log-movements` REQUIRE `--emit-config`. The CLI will fail fast if you forget.
+
+**Models:**
+- OpenRouter: `--model openrouter:openai/gpt-5-nano`
+- Azure: `--model azure:gpt-5-mini` (or your deployment name)
+
+**Environment:** Ensure `~/.env` contains:
+- `OPENROUTER_API_KEY` (for OpenRouter)
+- `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT` (for Azure)
+
+**Concurrency:** The episode driver is now fully async. Use `--concurrency-start`/`--concurrency-max` to control parallelism. Azure `gpt-4.1-mini` has been validated at 5 concurrent agents after the 2025-10-30 refactor.
+
+### Using tmux for Long Runs
+
+```bash
+./scripts/run_experiment_tmux.sh \
+  --model azure:gpt-5-mini \
+  --maze-preset long_corridor \
+  --agents 5 \
+  --turns 120 \
+  --log-prompts \
+  --log-movements
+```
+
+Monitor: `tmux attach -t run_<timestamp>` or `tail -f logs/run_<timestamp>.log`
+
+**Performance:** With serialized execution (default), expect:
+- 2 agents: ~15-20 seconds per turn
+- 5 agents: ~30-40 seconds per turn
+- 50-turn run with 5 agents: ~25-35 minutes
+
+## Visualization
+
+Render an `episode.json` trace to annotated GIF:
+
+```bash
+PYTHONPATH=src uv run python -m llmgrid.cli.render_gif \
+  experiments/.../results/episode.json \
+  --out experiments/.../results/rollout.gif \
+  --cell-size 40 --fps 6
+```
+
+Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility overlays.
+
 ## Active Workstream
 
-- `two-agents-bearing-r1_20251028T120000Z/` — proof-of-concept experiment re-based on the curated mazes. All legacy diagnostic runs were archived; future runs will reference the presets above.
+- `two-agents-bearing-r1_20251028T120000Z/` — Multi-agent bearing-mode navigation on curated mazes
 
-We only create new run folders once a curated preset run is executed. Historical ad-hoc runs have been removed to keep the repository focused on the new workflow.
+**Current baseline:** 
+- `long_corridor` with 2 agents, visibility=1, completed in 45 turns (OpenRouter gpt-5-nano).
+- 5-agent Azure `gpt-4.1-mini` run completed 60 turns at concurrency 5 (timed out at goal; see run `azure_parallel_fix_20251030T215123Z`).
+
+## Key Fix: Connection Pool Exhaustion (2025-10-30)
+
+**Problem:** 5-agent runs failed with `APIConnectionError: Connection error` on Azure.
+
+**Root cause:** Default `concurrency_start = len(agent_ids)` meant 5 agents triggered 5 simultaneous `asyncio.run()` calls in separate threads, exhausting Azure connection pool.
+
+**Fix:** Rebuilt `LlmPolicy`/`run_episode` to stay on one event loop (no nested `asyncio.run`) and loop-scoped limiter semaphores. Concurrency can safely be >1 without hanging.
+
+**Result:** 5-agent Azure runs now complete with `concurrency_start=5`. The stack no longer stalls after the first turn.

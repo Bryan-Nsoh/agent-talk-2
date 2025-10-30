@@ -1,0 +1,82 @@
+# BioQueryous LLM configuration for Azure GPT-5 mini experiments
+
+providers:
+  azure:
+    type: "azure"
+    base_url: "https://aoai-eastus-biology.openai.azure.com"
+    api_version: "2025-03-01-preview"
+    api_key_env: "AZURE_API_KEY"
+    responses_endpoint: "/openai/v1/responses"
+  openrouter:
+    type: "openrouter"
+    api_key_env: "OPENROUTER_API_KEY"
+  openai:
+    type: "openai"
+    base_url: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+
+model_pricing:
+  "gpt-5": {input: 1.25, output: 10.0}
+  "gpt-5-mini": {input: 0.25, output: 2.0}
+  "gpt-4.1-mini": {input: 0.35, output: 3.0}
+
+model_pools:
+  gpt-5:
+    - provider: "azure"
+      deployment: "gpt-5"
+      mode: "sdk"
+  gpt-5-mini:
+    - provider: "azure"
+      deployment: "gpt-5-mini"
+      mode: "sdk"
+    - provider: "azure"
+      deployment: "gpt-5-mini-2"
+      mode: "sdk"
+  gpt-4.1-mini:
+    - provider: "azure"
+      deployment: "gpt-4.1-mini"
+      mode: "responses"
+    - provider: "azure"
+      deployment: "gpt-4.1-mini-BQ1"
+      mode: "responses"
+
+limits:
+  adaptive:
+    enabled: true
+    initial_utilization: 0.85
+    reduction_factor: 0.8
+    recovery_increment_pct: 0.05
+    recovery_interval_s: 60
+    cooldown_s: 30
+    min_utilization: 0.5
+    max_utilization: 0.95
+
+  defaults:
+    concurrency: 4
+    rpm: 600
+    tpm: 120000
+    estimate_tokens_per_call: 4000
+
+  providers:
+    azure:
+      concurrency: 12
+      rpm: 720
+      tpm: 2700000  # combined safe budget (approx 90% of 3M TPM)
+
+  models:
+    "azure:gpt-5-mini":
+      rpm: 360
+      tpm: 1426500  # 90% of 1,585,000 TPM
+      estimate_tokens_per_call: 6000
+    "azure:gpt-5-mini-2":
+      rpm: 330
+      tpm: 1273500  # 90% of 1,415,000 TPM
+      estimate_tokens_per_call: 6000
+    "azure:gpt-4.1-mini":
+      rpm: 540
+      tpm: 2000000
+      estimate_tokens_per_call: 4500
+    "azure:gpt-4.1-mini-BQ1":
+      rpm: 540
+      tpm: 2000000
+      estimate_tokens_per_call: 4500

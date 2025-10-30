@@ -9,6 +9,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 from llmgrid.schema import (
     AgentSelf,
     ArtifactClaim,
+    ArtifactBearingSample,
     ArtifactGoalHint,
     ArtifactNoGo,
     ArtifactTrail,
@@ -59,6 +60,9 @@ class GridWorld:
         seed: int = 0,
         bearing_flip_p: float = 0.15,
         bearing_drop_p: float = 0.10,
+        bearing_bias_seed: Optional[int] = None,
+        bearing_bias_p: float = 0.0,
+        bearing_bias_wall_bonus: float = 0.0,
     ) -> None:
         self.size = GridSize(width=width, height=height)
         self.goal = goal
@@ -66,6 +70,9 @@ class GridWorld:
         self.rng = random.Random(seed)
         self.bearing_flip_p = bearing_flip_p
         self.bearing_drop_p = bearing_drop_p
+        self.bearing_bias_seed = bearing_bias_seed
+        self.bearing_bias_p = bearing_bias_p
+        self.bearing_bias_wall_bonus = bearing_bias_wall_bonus
 
         self.occupancy: Dict[str, Tuple[int, int]] = {}
         self.orientation: Dict[str, Direction] = {}
@@ -260,6 +267,16 @@ class GridWorld:
             ]
             idx = int((angle + 22.5) // 45) % 8
             bearing = bins[idx]
+        if self.bearing_bias_seed is not None:
+            steps = self._bias_steps(
+                x,
+                y,
+                self.bearing_bias_seed,
+                self.bearing_bias_p,
+                self.bearing_bias_wall_bonus,
+            )
+            if steps != 0:
+                bearing = self._rotate_octant(bearing, steps)
         if self.rng.random() < self.bearing_flip_p:
             order = [
                 Octant.N,
@@ -282,6 +299,47 @@ class GridWorld:
         else:
             strength = StrengthBucket.FAR
         return GoalSensorBearing(bearing=bearing, strength=strength, available=True)
+
+    def _neighbor_has_wall(self, x: int, y: int) -> bool:
+        for dx, dy in ((0, -1), (1, 0), (0, 1), (-1, 0)):
+            nx, ny = x + dx, y + dy
+            if (nx, ny) in self.walls:
+                return True
+        return False
+
+    def _bias_steps(
+        self,
+        x: int,
+        y: int,
+        seed: int,
+        base_prob: float,
+        wall_bonus: float,
+    ) -> int:
+        if base_prob <= 0 and wall_bonus <= 0:
+            return 0
+        h = ((x * 73856093) ^ (y * 19349663) ^ (seed * 83492791)) & 0xFFFFFFFF
+        primary = ((h >> 8) & 0xFFFF) / 65535.0
+        secondary = (h & 0xFF) / 255.0
+        bias_p = base_prob + (wall_bonus if self._neighbor_has_wall(x, y) else 0.0)
+        bias_p = max(0.0, min(bias_p, 0.49))
+        if primary < bias_p:
+            return 1 if secondary < 0.5 else -1
+        return 0
+
+    @staticmethod
+    def _rotate_octant(bearing: Octant, steps: int) -> Octant:
+        order = [
+            Octant.N,
+            Octant.NE,
+            Octant.E,
+            Octant.SE,
+            Octant.S,
+            Octant.SW,
+            Octant.W,
+            Octant.NW,
+        ]
+        idx = order.index(bearing)
+        return order[(idx + steps) % len(order)]
 
     # ------------------------------------------------------------------
     # Messaging

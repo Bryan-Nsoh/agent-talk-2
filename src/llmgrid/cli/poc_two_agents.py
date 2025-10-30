@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import json
+import math
 import random
 from pathlib import Path
-from typing import List, Optional, TextIO
+from typing import Dict, List, Optional, TextIO
 from collections import deque
 
 import typer
 
-from llmgrid.env.simulate import EpisodeMetrics, run_episode
+from llmgrid.env.simulate import EpisodeCheckpoint, EpisodeMetrics, run_episode
 from llmgrid.env.maze_generator import MazeConfig, MazeGenerator
 from llmgrid.schema import Position
 from llmgrid.logging.episode_log import (
@@ -119,6 +120,25 @@ def main(
         "--obstacle-seed",
         help="Seed for random obstacle placement (defaults to --seed when generating random obstacles).",
     ),
+    bearing_bias_seed: Optional[int] = typer.Option(
+        None,
+        "--bearing-bias-seed",
+        help="Enable Gold Drift by setting a deterministic seed (default: disabled).",
+    ),
+    bearing_bias_p: float = typer.Option(
+        0.0,
+        "--bearing-bias-p",
+        min=0.0,
+        max=0.49,
+        help="Baseline probability of rotating the bearing by ±45° when bias is enabled.",
+    ),
+    bearing_bias_wall_bonus: float = typer.Option(
+        0.0,
+        "--bearing-bias-wall-bonus",
+        min=0.0,
+        max=0.49,
+        help="Additional probability added when the cell touches a wall.",
+    ),
     maze_preset: str = typer.Option(
         "long_corridor",
         "--maze-preset",
@@ -159,39 +179,109 @@ def main(
         "--emit-config",
         help="Optional path to dump the resolved configuration YAML.",
     ),
+    checkpoint_json: Optional[Path] = typer.Option(
+        None,
+        "--checkpoint-json",
+        help="Path to write periodic checkpoints for resuming interrupted runs.",
+    ),
+    checkpoint_interval: int = typer.Option(
+        1,
+        "--checkpoint-interval",
+        min=1,
+        help="Turns between checkpoint writes (default: every turn).",
+    ),
+    resume_from: Optional[Path] = typer.Option(
+        None,
+        "--resume-from",
+        help="Resume a partially completed run from an existing checkpoint JSON file.",
+    ),
+    agents: int = typer.Option(
+        2,
+        "--agents",
+        min=1,
+        max=8,
+        help="Number of controllable agents to spawn (default: 2).",
+    ),
 ) -> None:
-    if not model.startswith("openrouter:"):
+    # Validate model prefix
+    if not (model.startswith("openrouter:") or model.startswith("azure:")):
         typer.secho(
-            "Error: only OpenRouter models are allowed. Use --model 'openrouter:openai/gpt-oss-20b:free'.",
+            "Error: use --model with openrouter: or azure: prefix (e.g. azure:gpt-5-mini).",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=2)
 
-    if emit_config:
-        _write_config(
-            emit_config,
-            {
-                "model": model,
-                "width": width,
-                "height": height,
-                "visibility": visibility,
-                "radio_range": radio_range,
-                "turns": turns,
-                "seed": seed,
-                "obstacle_density": obstacle_density,
-                "obstacle_count": obstacle_count,
-                "obstacle_seed": obstacle_seed,
-                "maze_preset": preset_name,
-                "maze_style": maze_style,
-                "maze_extra_connection": maze_extra_connection,
-                "dry_run": dry_run,
-                "no_obstacles": no_obstacles,
-            },
+    # Validate logging flags require output paths
+    if log_prompts and emit_config is None:
+        typer.secho(
+            "Error: --log-prompts requires --emit-config to specify where transcript.jsonl should be written.",
+            fg=typer.colors.RED,
         )
+        typer.secho(
+            "Example: --emit-config experiments/my-run/config.yaml",
+            fg=typer.colors.YELLOW,
+        )
+        raise typer.Exit(code=2)
+
+    if log_movements and emit_config is None and episode_json is None:
+        typer.secho(
+            "Error: --log-movements requires --emit-config or --episode-json to specify where episode logs should be written.",
+            fg=typer.colors.RED,
+        )
+        typer.secho(
+            "Example: --emit-config experiments/my-run/config.yaml",
+            fg=typer.colors.YELLOW,
+        )
+        raise typer.Exit(code=2)
 
     preset_name = maze_preset.lower()
+    resume_checkpoint: Optional[EpisodeCheckpoint] = None
+    if resume_from is not None:
+        try:
+            resume_checkpoint = EpisodeCheckpoint.load(resume_from)
+        except FileNotFoundError as exc:
+            typer.secho(f"Checkpoint not found: {resume_from}", fg=typer.colors.RED)
+            raise typer.Exit(code=2) from exc
+
+        if model != resume_checkpoint.model_id:
+            typer.secho(
+                f"Model mismatch: checkpoint expects '{resume_checkpoint.model_id}', got '{model}'.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+
+        expected_dry_run = not resume_checkpoint.use_llm
+        if dry_run != expected_dry_run:
+            mode_msg = "dry-run" if expected_dry_run else "LLM-backed"
+            typer.secho(
+                f"Checkpoint was recorded for a {mode_msg} run. Adjust --dry-run accordingly.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+
+        width = resume_checkpoint.world.width
+        height = resume_checkpoint.world.height
+        visibility = resume_checkpoint.visibility
+        radio_range = resume_checkpoint.radio_range
+        turns = resume_checkpoint.turns_total
+        seed = resume_checkpoint.seed
+        preset_name = resume_checkpoint.maze_metadata.get("preset", preset_name)
+        maze_style = resume_checkpoint.maze_metadata.get("maze_style", maze_style)
+        maze_extra_connection = resume_checkpoint.maze_metadata.get("maze_extra_connection", maze_extra_connection)
+        no_obstacles = resume_checkpoint.maze_metadata.get("no_obstacles", no_obstacles)
+        obstacle_density = resume_checkpoint.maze_metadata.get("obstacle_density", obstacle_density)
+        obstacle_count = resume_checkpoint.maze_metadata.get("obstacle_count", obstacle_count)
+        obstacle_seed = resume_checkpoint.maze_metadata.get("obstacle_seed", obstacle_seed)
+        bearing_bias_seed = resume_checkpoint.maze_metadata.get("bearing_bias_seed", bearing_bias_seed)
+        bearing_bias_p = resume_checkpoint.maze_metadata.get("bearing_bias_p", bearing_bias_p)
+        bearing_bias_wall_bonus = resume_checkpoint.maze_metadata.get("bearing_bias_wall_bonus", bearing_bias_wall_bonus)
+        typer.secho(
+            f"Resuming from {resume_from} at turn {resume_checkpoint.turn_next}/{turns}",
+            fg=typer.colors.BLUE,
+        )
+
     preset_details = None
-    if preset_name != "none":
+    if resume_checkpoint is None and preset_name != "none":
         preset_details = MAZE_PRESETS.get(preset_name)
         if preset_details is None:
             typer.secho(
@@ -212,9 +302,92 @@ def main(
             fg=typer.colors.BLUE,
         )
 
+    checkpoint_path = checkpoint_json if checkpoint_json is not None else resume_from
+
+    maze_metadata: Dict[str, Optional[float | int | str | bool]] = {
+        "preset": preset_name,
+        "maze_style": maze_style,
+        "maze_extra_connection": maze_extra_connection,
+        "no_obstacles": no_obstacles,
+        "obstacle_density": obstacle_density,
+        "obstacle_count": obstacle_count,
+        "obstacle_seed": obstacle_seed,
+        "bearing_bias_seed": bearing_bias_seed,
+        "bearing_bias_p": bearing_bias_p,
+        "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
+        "agents": agents,
+    }
+
+    if emit_config and resume_checkpoint is None:
+        _write_config(
+            emit_config,
+            {
+                "model": model,
+                "width": width,
+                "height": height,
+                "visibility": visibility,
+                "radio_range": radio_range,
+                "turns": turns,
+                "seed": seed,
+                "obstacle_density": obstacle_density,
+                "obstacle_count": obstacle_count,
+                "obstacle_seed": obstacle_seed,
+                "maze_preset": preset_name,
+                "maze_style": maze_style,
+                "maze_extra_connection": maze_extra_connection,
+                "dry_run": dry_run,
+                "no_obstacles": no_obstacles,
+                "bearing_bias_seed": bearing_bias_seed,
+                "bearing_bias_p": bearing_bias_p,
+                "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
+                "agents": agents,
+            },
+        )
+
+    if resume_checkpoint is not None:
+        start_positions = resume_checkpoint.start_positions
+        goal = resume_checkpoint.goal
+        obstacles = [Position(x=p.x, y=p.y) for p in resume_checkpoint.world.walls]
+    else:
+        goal = _default_goal(width, height)
+        start_positions = _default_start_positions(width, height, goal, agents, seed=seed)
+        obstacles = _resolve_obstacles(
+            width=width,
+            height=height,
+            start_positions=start_positions,
+            goal=goal,
+            no_obstacles=no_obstacles,
+            obstacle_count=obstacle_count,
+            obstacle_density=obstacle_density,
+            obstacle_seed=obstacle_seed if obstacle_seed is not None else seed,
+            maze_style=maze_style,
+            maze_extra_connection=maze_extra_connection,
+            agent_count=agents,
+            start_seed=seed,
+        )
+
     capture_transcript = log_prompts or transcript_jsonl is not None
-    transcript_records: Optional[List[dict]] = [] if capture_transcript else None
+    if capture_transcript:
+        if resume_checkpoint and resume_checkpoint.transcript is not None:
+            transcript_records = list(resume_checkpoint.transcript)
+        else:
+            transcript_records = []
+    else:
+        transcript_records = None
+
     transcript_path: Optional[Path] = transcript_jsonl
+    if resume_checkpoint and resume_checkpoint.transcript_path:
+        checkpoint_transcript_path = Path(resume_checkpoint.transcript_path).expanduser()
+        if transcript_path is None:
+            transcript_path = checkpoint_transcript_path
+        else:
+            if transcript_path.expanduser().resolve(strict=False) != checkpoint_transcript_path.resolve(strict=False):
+                typer.secho(
+                    "Transcript path differs from checkpoint. Re-run without --transcript-jsonl to reuse the stored path.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+
     if capture_transcript and transcript_path is None and emit_config is not None:
         transcript_path = emit_config.parent / "results" / "transcript.jsonl"
     if capture_transcript and transcript_path is None:
@@ -225,8 +398,27 @@ def main(
         raise typer.Exit(code=2)
 
     capture_movement = log_movements or episode_json is not None
-    movement_records: Optional[List[dict]] = [] if capture_movement else None
+    if capture_movement:
+        if resume_checkpoint and resume_checkpoint.movement is not None:
+            movement_records = list(resume_checkpoint.movement)
+        else:
+            movement_records = []
+    else:
+        movement_records = None
+
     episode_path: Optional[Path] = episode_json
+    if resume_checkpoint and resume_checkpoint.episode_path:
+        checkpoint_episode_path = Path(resume_checkpoint.episode_path).expanduser()
+        if episode_path is None:
+            episode_path = checkpoint_episode_path
+        else:
+            if episode_path.expanduser().resolve(strict=False) != checkpoint_episode_path.resolve(strict=False):
+                typer.secho(
+                    "Episode log path differs from checkpoint. Re-run without --episode-json to reuse the stored path.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+
     if capture_movement and episode_path is None and emit_config is not None:
         episode_path = emit_config.parent / "results" / "episode.json"
     if capture_movement and episode_path is None:
@@ -236,33 +428,26 @@ def main(
         )
         raise typer.Exit(code=2)
 
-    start_positions = _default_start_positions(width, height)
-    goal = _default_goal(width, height)
-    obstacles = _resolve_obstacles(
-        width=width,
-        height=height,
-        start_positions=start_positions,
-        goal=goal,
-        no_obstacles=no_obstacles,
-        obstacle_count=obstacle_count,
-        obstacle_density=obstacle_density,
-        obstacle_seed=obstacle_seed if obstacle_seed is not None else seed,
-        maze_style=maze_style,
-        maze_extra_connection=maze_extra_connection,
-    )
+    movement_stream_path: Optional[Path] = None
+    if resume_checkpoint and resume_checkpoint.movement_stream_path:
+        movement_stream_path = Path(resume_checkpoint.movement_stream_path).expanduser()
+
+    agent_order = resume_checkpoint.agent_ids if resume_checkpoint else list(start_positions.keys())
 
     transcript_handle: Optional[TextIO] = None
     movement_stream_handle: Optional[TextIO] = None
-    movement_stream_path: Optional[Path] = None
     try:
         if transcript_path is not None:
             transcript_path.parent.mkdir(parents=True, exist_ok=True)
-            transcript_handle = transcript_path.open("w", encoding="utf-8")
+            mode = "a" if resume_checkpoint is not None else "w"
+            transcript_handle = transcript_path.open(mode, encoding="utf-8")
 
         if capture_movement and episode_path is not None:
-            movement_stream_path = episode_path.with_name(episode_path.stem + "_stream.jsonl")
+            if movement_stream_path is None:
+                movement_stream_path = episode_path.with_name(episode_path.stem + "_stream.jsonl")
             movement_stream_path.parent.mkdir(parents=True, exist_ok=True)
-            movement_stream_handle = movement_stream_path.open("w", encoding="utf-8")
+            mode = "a" if resume_checkpoint is not None else "w"
+            movement_stream_handle = movement_stream_path.open(mode, encoding="utf-8")
 
         metrics = run_episode(
             use_llm=not dry_run,
@@ -280,6 +465,17 @@ def main(
             movement=movement_records,
             transcript_writer=transcript_handle,
             movement_writer=movement_stream_handle,
+            agent_order=agent_order,
+            resume=resume_checkpoint,
+            checkpoint_path=checkpoint_path,
+            checkpoint_interval=checkpoint_interval,
+            transcript_path=str(transcript_path) if transcript_path is not None else None,
+            movement_stream_path=str(movement_stream_path) if movement_stream_path is not None else None,
+            episode_path=str(episode_path) if episode_path is not None else None,
+            maze_metadata={k: v for k, v in maze_metadata.items() if v is not None},
+            bearing_bias_seed=bearing_bias_seed,
+            bearing_bias_p=bearing_bias_p,
+            bearing_bias_wall_bonus=bearing_bias_wall_bonus,
         )
     finally:
         if transcript_handle is not None:
@@ -360,10 +556,18 @@ def _resolve_obstacles(
     obstacle_seed: int,
     maze_style: str,
     maze_extra_connection: float,
+    agent_count: int,
+    start_seed: Optional[int],
     max_attempts: int = 100,
 ) -> list[Position]:
     style = maze_style.lower()
-    start_positions = start_positions or _default_start_positions(width, height)
+    start_positions = start_positions or _default_start_positions(
+        width,
+        height,
+        goal or _default_goal(width, height),
+        agent_count,
+        seed=start_seed,
+    )
     goal = goal or _default_goal(width, height)
 
     if style == "maze" and not no_obstacles:
@@ -486,10 +690,64 @@ def _default_obstacles(width: int, height: int) -> list[Position]:
     return [p for p in raw if p.x < width and p.y < height]
 
 
-def _default_start_positions(width: int, height: int) -> dict[str, Position]:
-    a1 = Position(x=min(1, max(0, width - 1)), y=min(1, max(0, height - 1)))
-    a2 = Position(x=max(0, width - 2), y=max(0, height - 2))
-    return {"a1": a1, "a2": a2}
+def _default_start_positions(
+    width: int,
+    height: int,
+    goal: Position,
+    agent_count: int,
+    *,
+    seed: Optional[int] = None,
+) -> dict[str, Position]:
+    min_distance = math.ceil((width + height) / 2)
+
+    def manhattan(p: Position) -> int:
+        return abs(goal.x - p.x) + abs(goal.y - p.y)
+
+    candidates: List[Position] = []
+    for y in range(height - 1, -1, -1):
+        for x in range(0, width):
+            if (x, y) == (goal.x, goal.y):
+                continue
+            pos = Position(x=x, y=y)
+            if manhattan(pos) >= min_distance:
+                candidates.append(pos)
+
+    if len(candidates) < agent_count:
+        # Relax requirement gradually until enough positions are available
+        all_cells = [
+            Position(x=x, y=y)
+            for y in range(height - 1, -1, -1)
+            for x in range(width)
+            if (x, y) != (goal.x, goal.y)
+        ]
+        all_cells.sort(key=manhattan, reverse=True)
+        for pos in all_cells:
+            if pos not in candidates:
+                candidates.append(pos)
+            if len(candidates) >= agent_count:
+                break
+
+    rng = random.Random(seed)
+    rng.shuffle(candidates)
+
+    selection: List[Position] = []
+    min_pairwise = max(2, min_distance // 4)
+    for pos in candidates:
+        if all(abs(pos.x - chosen.x) + abs(pos.y - chosen.y) >= min_pairwise for chosen in selection):
+            selection.append(pos)
+        if len(selection) == agent_count:
+            break
+
+    if len(selection) < agent_count:
+        # Fill any remaining slots without the spacing constraint.
+        for pos in candidates:
+            if pos in selection:
+                continue
+            selection.append(pos)
+            if len(selection) == agent_count:
+                break
+
+    return {f"a{i + 1}": selection[i] for i in range(agent_count)}
 
 
 def _default_goal(width: int, height: int) -> Position:
