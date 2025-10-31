@@ -413,6 +413,10 @@ class Observation(BaseModel):
     goal_sensor: GoalSensorReading = Field(
         description="Sensing information pointing toward the goal."
     )
+    history: List["TurnHistory"] = Field(
+        default_factory=list,
+        description="Chronological record (up to 5) of this agent's recent turns.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -456,4 +460,28 @@ class Decision(BaseModel):
     action: AgentAction = Field(description="Action to execute this turn.")
     comment: Optional[str] = Field(
         default=None, description="Optional debugging note (ignored in scoring)."
+    )
+
+
+class MessageBrief(BaseModel):
+    """Compact summary of a message for inclusion in turn history."""
+
+    kind: str = Field(description="Message kind discriminator.")
+    details: Optional[str] = Field(default=None, description="Optional short description.")
+    sender: Optional[str] = Field(default=None, description="Sender id if relevant.")
+    hop: Optional[int] = Field(default=None, description="Hop distance for received messages.")
+    age: Optional[int] = Field(default=None, description="Age in turns for received messages.")
+
+
+class TurnHistory(BaseModel):
+    """Summary of the agent's own previous turns."""
+
+    turn_index: int = Field(ge=0, description="Turn number this event represents.")
+    action: str = Field(description="Action label executed on that turn (e.g., MOVE_E).")
+    comment: Optional[str] = Field(default=None, description="Comment supplied with the decision.")
+    sent_message: Optional[MessageBrief] = Field(
+        default=None, description="Message broadcast that turn, if any."
+    )
+    received_messages: List[MessageBrief] = Field(
+        default_factory=list, description="Messages delivered before this decision."
     )

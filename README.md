@@ -50,6 +50,10 @@ PYTHONPATH=src uv run python -m llmgrid.cli.render_gif \
   --cell-size 40 --fps 6
 ```
 
+### Observation Schema
+
+Each LLM observation includes a `history` array summarising up to the last five turns (action label, optional comment, sent message, and received message summaries). Use it to keep prompts grounded without reconstructing full transcripts.
+
 ## Full Documentation
 
 - **Experiment workflows, tmux setup, performance notes:** See `experiments/README.md`

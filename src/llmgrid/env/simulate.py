@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import random
+from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, TextIO
@@ -17,10 +18,13 @@ from llmgrid.env.grid import GridWorld
 from llmgrid.schema import (
     Decision,
     Direction,
+    MessageBrief,
     Observation,
+    OutgoingMessage,
     PlacedArtifact,
     Position,
     ReceivedMessage,
+    TurnHistory,
 )
 
 
@@ -166,6 +170,7 @@ class GridWorldState(BaseModel):
     artifacts: List[ArtifactRecord] = Field(default_factory=list)
     finished_agents: Dict[str, bool] = Field(default_factory=dict)
     position_history: Dict[str, List[Position]] = Field(default_factory=dict)
+    turn_history: Dict[str, List[TurnHistory]] = Field(default_factory=dict)
     rng_state: List[Any]
     bearing_flip_p: float
     bearing_drop_p: float
@@ -191,6 +196,10 @@ class GridWorldState(BaseModel):
             position_history={
                 aid: [Position(x=px, y=py) for px, py in history]
                 for aid, history in world.position_history.items()
+            },
+            turn_history={
+                aid: [TurnHistory.model_validate(item) for item in history]
+                for aid, history in world.turn_history.items()
             },
             rng_state=_freeze_random_state(world.rng.getstate()),
             bearing_flip_p=world.bearing_flip_p,
@@ -222,6 +231,13 @@ class GridWorldState(BaseModel):
         world.position_history = {
             aid: [(pos.x, pos.y) for pos in history]
             for aid, history in self.position_history.items()
+        }
+        world.turn_history = {
+            aid: deque(
+                [history.model_dump() if isinstance(history, TurnHistory) else history for history in histories],
+                maxlen=5,
+            )
+            for aid, histories in self.turn_history.items()
         }
         world.rng.setstate(_thaw_random_state(self.rng_state))
         return world
@@ -480,6 +496,10 @@ async def _run_episode_async(
                 }
             )
 
+        for aid in active_agents:
+            history_payload = _build_history_entry(turn, decisions[aid], observations[aid])
+            world.record_history(aid, history_payload)
+
         if use_llm:
             if had_retry:
                 concurrency_window = max(1, concurrency_window // 2)
@@ -711,6 +731,74 @@ def _decision_action_label(decision: Optional[Decision]) -> Optional[str]:
     if kind == "MARK":
         return "MARK"
     return None
+
+
+def _truncate(text: Optional[str], limit: int = 160) -> Optional[str]:
+    if not text:
+        return None
+    trimmed = text.strip()
+    if not trimmed:
+        return None
+    if len(trimmed) <= limit:
+        return trimmed
+    return trimmed[: limit - 3].rstrip() + "..."
+
+
+def _summarise_outgoing(message: OutgoingMessage) -> MessageBrief:
+    details = None
+    kind = getattr(message, "kind", "")
+    if kind == "HERE":
+        details = f"pos=({message.pos.x},{message.pos.y})"
+    elif kind == "INTENT":
+        details = message.next_action
+    elif kind == "SENSE":
+        parts = []
+        if message.mode:
+            parts.append(message.mode)
+        if getattr(message, "bearing", None):
+            parts.append(f"bearing={message.bearing}")
+        if getattr(message, "strength", None):
+            parts.append(f"strength={message.strength}")
+        if getattr(message, "value_bin", None):
+            parts.append(f"value={message.value_bin}")
+        if getattr(message, "approx_bearing", None):
+            parts.append(f"approx={message.approx_bearing}")
+        details = " ".join(parts) if parts else None
+    elif kind == "BLOCKED":
+        details = f"({message.where.x},{message.where.y}) {message.reason}"
+    elif kind == "REQUEST":
+        parts = [message.req]
+        if message.target is not None:
+            parts.append(f"target=({message.target.x},{message.target.y})")
+        details = " ".join(parts)
+    elif kind == "MARK_INFO":
+        details = getattr(message.placed, "kind", None)
+    return MessageBrief(kind=kind, details=details)
+
+
+def _summarise_received(received: ReceivedMessage) -> MessageBrief:
+    brief = _summarise_outgoing(received.envelope)
+    brief.sender = received.envelope.sender_id
+    brief.hop = received.hop_distance
+    brief.age = received.age
+    return brief
+
+
+def _build_history_entry(turn: int, decision: Decision, observation: Observation) -> dict:
+    action_label = _decision_action_label(decision) or decision.action.kind
+    comment = _truncate(decision.comment)
+    sent_brief = None
+    if decision.action.kind == "COMMUNICATE":
+        sent_brief = _summarise_outgoing(decision.action.message)
+    received = [_summarise_received(msg) for msg in observation.inbox]
+    entry = TurnHistory(
+        turn_index=turn,
+        action=action_label,
+        comment=comment,
+        sent_message=sent_brief,
+        received_messages=received,
+    )
+    return entry.model_dump()
 
 
 def _append_snapshot(

@@ -58,7 +58,7 @@ PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
 - `OPENROUTER_API_KEY` (for OpenRouter)
 - `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT` (for Azure)
 
-**Concurrency:** The episode driver is now fully async. Use `--concurrency-start`/`--concurrency-max` to control parallelism. Azure `gpt-4.1-mini` has been validated at 5 concurrent agents after the 2025-10-30 refactor.
+**Concurrency & history:** The episode driver is fully async. Use `run_episode(..., concurrency_start/ max)` when scripting. Observations now include a `history` block (up to five prior turns with action/comment/message summaries). Azure `gpt-4.1-mini` has been validated at 5 concurrent agents after the refactor.
 
 ### Using tmux for Long Runs
 
@@ -98,7 +98,7 @@ Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility ov
 
 **Current baseline:** 
 - `long_corridor` with 2 agents, visibility=1, completed in 45 turns (OpenRouter gpt-5-nano).
-- 5-agent Azure `gpt-4.1-mini` run completed 60 turns at concurrency 5 (timed out at goal; see run `azure_parallel_fix_20251030T215123Z`).
+- 5-agent Azure `gpt-4.1-mini` runs with history enabled (`azure_history_comms_20251031T163231Z`) and with radio disabled (`azure_history_no_comms_20251031T163443Z`) both finish 60 turns (timed out; collisions increase when comms are disabled).
 
 ## Key Fix: Connection Pool Exhaustion (2025-10-30)
 
@@ -106,6 +106,6 @@ Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility ov
 
 **Root cause:** Default `concurrency_start = len(agent_ids)` meant 5 agents triggered 5 simultaneous `asyncio.run()` calls in separate threads, exhausting Azure connection pool.
 
-**Fix:** Rebuilt `LlmPolicy`/`run_episode` to stay on one event loop (no nested `asyncio.run`) and loop-scoped limiter semaphores. Concurrency can safely be >1 without hanging.
+**Fix:** Rebuilt `LlmPolicy`/`run_episode` to stay on one event loop (no nested `asyncio.run`), loop-scoped limiter semaphores, and added a per-agent turn history injected into each observation.
 
-**Result:** 5-agent Azure runs now complete with `concurrency_start=5`. The stack no longer stalls after the first turn.
+**Result:** 5-agent Azure runs now complete with `concurrency_start=5`. History can be surfaced to the LLM; comms-enabled run remained collision-free, whereas a no-radio baseline accumulated 8 collisions.

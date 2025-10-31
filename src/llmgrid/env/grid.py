@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import math
 import random
-from typing import Dict, Iterable, List, Optional, Tuple
+from collections import deque
+from typing import Deque, Dict, Iterable, List, Optional, Tuple
 
 from llmgrid.schema import (
     AgentSelf,
@@ -33,6 +34,7 @@ from llmgrid.schema import (
     RelativeOffset,
     StrengthBucket,
     CommLimits,
+    TurnHistory,
 )
 
 TileChar = str  # ".", "#", "G", "A", "*"
@@ -80,6 +82,7 @@ class GridWorld:
         self.artifacts: Dict[Tuple[int, int], PlacedArtifact] = {}
         self.finished_agents: Dict[str, bool] = {}
         self.position_history: Dict[str, List[Tuple[int, int]]] = {}
+        self.turn_history: Dict[str, Deque[dict]] = {}
 
     # ------------------------------------------------------------------
     # Agent placement and utility helpers
@@ -98,6 +101,7 @@ class GridWorld:
         self.inboxes[agent_id] = []
         self.finished_agents[agent_id] = False
         self.position_history[agent_id] = [key]
+        self.turn_history[agent_id] = deque(maxlen=5)
 
     def _in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.size.width and 0 <= y < self.size.height
@@ -151,6 +155,10 @@ class GridWorld:
             ),
             mark_limits=MarkLimits(max_ttl=12, allow_mark_info_broadcast=True),
             goal_sensor=self._bearing_sensor(ax, ay),
+            history=[
+                TurnHistory.model_validate(item)
+                for item in list(self.turn_history.get(agent_id, []))
+            ],
         )
         return obs
 
@@ -360,6 +368,11 @@ class GridWorld:
             history.insert(0, (self.goal.x, self.goal.y))
             if len(history) > 5:
                 del history[5:]
+
+    def record_history(self, agent_id: str, payload: dict) -> None:
+        if agent_id not in self.turn_history:
+            self.turn_history[agent_id] = deque(maxlen=5)
+        self.turn_history[agent_id].append(payload)
 
     # ------------------------------------------------------------------
     # Movement and artifacts

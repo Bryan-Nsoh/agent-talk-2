@@ -1,0 +1,1479 @@
+{
+  "turns": 60,
+  "success": false,
+  "messages_sent": 0,
+  "marks_placed": 0,
+  "collisions": 8,
+  "reasoning_log": [
+    {
+      "turn": 0,
+      "agent_id": "a1",
+      "comment": "Moving east is a safe choice given the adjacent cells: east, south, and west are free while north is a wall. The goal sensor showing the bearing NE with far strength suggests progressing eastward aligns well with moving closer to the goal without backtracking or collisions."
+    },
+    {
+      "turn": 0,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the east at a far distance. The eastern adjacent cell is free, making it a safe move forward toward the goal. Other directions are either blocked by a wall or not aligned with the goal bearing."
+    },
+    {
+      "turn": 0,
+      "agent_id": "a3",
+      "comment": "All adjacent cells are free, and the goal sensor indicates the goal is bearing east with far strength. Moving east is the safest and most direct action toward the goal to maximize team progress."
+    },
+    {
+      "turn": 0,
+      "agent_id": "a4",
+      "comment": "The agent is surrounded by a wall to the north and east, and out of bounds to the west. The only free adjacent cell is to the south, so the safest and valid action is to move south to progress."
+    },
+    {
+      "turn": 0,
+      "agent_id": "a5",
+      "comment": "Moving east is the safest valid option as the north and south cells are walls and the west cell is free but moving east aligns with the goal sensor reading indicating the bearing of the goal is east, so this move maximizes team progress towards the goal."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a1",
+      "comment": "The adjacent cells to the North, South, and West are free while East is a wall. The recent position indicates moving West was just done, so avoiding immediate backtracking is preferred. The goal bearing is NE, and moving North advances closer to that direction. Therefore, moving North is the safest and most goal-oriented move."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the east, which is blocked by a wall. Moving east is not possible. Moving north is a free cell and not recently visited, so it maximizes progress while avoiding backtracking and collisions."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a3",
+      "comment": "All adjacent cells are free. Previously, the goal was indicated to be eastward and moving east now is consistent with past intent and safe given no obstacles or agents. This advances the team toward the goal while avoiding backtracking."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a4",
+      "comment": "The agent should move east towards the goal bearing detected in that direction. Moving back north is discouraged by recent_positions, and west is out of bounds. East is a free cell and aligns with the goal sensor reading."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a5",
+      "comment": "The agent chooses to move east as the goal sensor indicates the goal is in that direction with far strength, and the east cell is free according to the patch. Moving west would be backtracking to the recent position, and north and south are walls, so east is the safest valid action that maximizes progress towards the goal."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a1",
+      "comment": "The adjacent cells show that north and west are walls, east is free, and south is free. Recent positions indicate that moving north was done previously, so avoiding immediate backtracking favors moving south over east to maximize safe advancement. The goal bearing is north, but since north is blocked, moving south is the best safe option available."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a2",
+      "comment": "The agent is facing south and the cell to the south is free, so moving south is a valid and safe option. Moving east towards the goal is also free, but given the recent positions, moving south allows exploration without immediate backtracking. Moving north or west is blocked by walls."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a3",
+      "comment": "Moving east aligns with the goal sensor indicating the goal is to the east with far strength. All adjacent cells are free, so this move maximizes progress toward the goal safely without backtracking."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a4",
+      "comment": "The agent detects a far goal bearing to the east and observes that the eastern cell is free. Given the recent positions, moving east aligns with progress toward the goal without immediate backtracking or collisions."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a5",
+      "comment": "The agent chooses to move east as the goal sensor indicates the goal is to the east with far strength, the east cell is free, and movement aligns with the recent trajectory without backtracking. Walls block north and south, and west is free but moving back is less preferable."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a1",
+      "comment": "Moving north is the safest and most logical choice since the cell to the north is free and it does not immediately backtrack to the recent positions. East is blocked by a wall, and south and west moves would be backtracking or less optimal. This movement progresses the agent without collision risk."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a2",
+      "comment": "The southern cell is free and not recently visited, allowing safe progress without backtracking. Moving south maintains potential flexibility to navigate around the wall to the east, where the goal sensor indicates the goal direction. Avoiding backtracking and walls helps progress toward the goal efficiently."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a3",
+      "comment": "Moving east is the best action as the adjacent eastern cell is free. The walls and agents block other directions and the last positions discourage backtracking. Continuing east is consistent with previous movement and likely progress towards the goal."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a4",
+      "comment": "The agent is currently at position (2,3) oriented west. The north and south cells are walls, so moving north or south is not possible. The east cell is free, but the agent just moved east previously and recent positions discourage immediate backtracking east to avoid oscillation. The west cell is free, so moving west is the safest valid option that does not involve backtracking to the immediate previous cell."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a5",
+      "comment": "The agent should move east as the goal sensor indicates the goal is to the east with far strength, and the east cell is free. Moving east continues to align with the goal sensor reading and avoids walls and agents."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a1",
+      "comment": "The cell to the east is free while north and west are walls and south is free. Recent positions show immediate backtracking to the south cell, so moving east is the safest valid action that avoids collision and respects the goal sensor bearing north (goal is far). Thus, moving east advances progress while avoiding backtracking."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a2",
+      "comment": "Continuing to move south is the safest and most reasonable action as the southern cell is free and not recently visited. Moving east is blocked by a wall, and other directions lead to recently visited or blocked cells. This move aligns with maintaining flexibility and progress in navigation."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a3",
+      "comment": "All adjacent cells are free, and the goal sensor indicates the goal is towards the southeast but already moving east aligns well with the goal direction and previous moves. Moving east maximizes progress toward the goal while avoiding immediate backtracking and collisions."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a4",
+      "comment": "The agent senses the goal bearing to the east and the adjacent cell to the east is free. Moving east aligns with the goal direction and avoids immediate backtracking, maximizing progress toward the goal."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a5",
+      "comment": "The east cell is free and moving east is consistent with the goal sensor indicating the goal is to the east. This direction continues to be the safest and most goal-aligned move given the walls to the north and south and free space to the west, which would move away from the goal."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a1",
+      "comment": "Moving east is the safest and valid choice as the adjacent cell to the east is free, and it aligns with the goal sensor bearing of NE. Avoiding backtracking to the west is preferred given recent positions, making east the best progression step."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a2",
+      "comment": "The southern cell is free and has not been recently visited in the last five positions, making it a safe and sensible choice. Moving south avoids backtracking and collisions, while moving east is blocked by a wall and moving north or west would be backtracking or less optimal."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a3",
+      "comment": "The eastern cell is free and moving east continues to align with the team's progress direction. Other directions include a wall to the south and free spaces that would require backtracking, making moving east the safest, most forward-moving option available."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a4",
+      "comment": "The agent is surrounded by walls to the north and south, and the only free cells are to the east and west. Recent positions indicate immediate backtracking is to (1,3) west, but given the goal sensor reports the goal bearing to the east, moving west is not preferred. However, moving east has been done previously and revisiting west is the only safe valid option besides moving east again. Here moving west avoids repeated back-and-forth between the same cells."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked by walls to the north and east but has free space to the south and west. The recent positions indicate the agent has just come from the west, so moving south is preferable to avoid immediate backtracking and to explore new territory."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a1",
+      "comment": "The agent is currently blocked by walls to the north and east, with free cells to the south and west. The recent positions indicate that the immediate backtrack to east is not favored. Moving west is a safe valid move, avoids immediate backtracking, and respects the agent's surroundings."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal to the east, but the east cell is blocked by a wall. The southern cell is free and has not been recently visited, making moving south the safest and most strategic action to maintain progress."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a3",
+      "comment": "All adjacent cells are free, and the goal sensor indicates the goal is to the northeast with far strength. Moving east aligns with the recent path and maintains progress toward the goal, avoiding backtracking."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the adjacent eastern cell is free. Moving east aligns with progressing towards the goal. Recent positions show some back and forth, but since the western cell is also free and the north and south are walls, moving east is the most direct and safe option to advance toward the goal without collision risk."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a5",
+      "comment": "The agent is blocked to the east and west by walls and the north cell is free but backtracking to the last position to the north is not ideal. Moving south is free and does not backtrack the agent, so moving south is the safest valid action that progresses the agent."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a1",
+      "comment": "The agent is currently blocked to the north and south by walls. The eastern cell is free but moving east would be backtracking the immediate previous position. The western cell is free and not immediate backtracking, making it the safest valid move."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a2",
+      "comment": "The agent is currently at position (9,8) facing south. All adjacent cells N, E, S, W are free. Recent positions include moving south repeatedly, indicating backtracking to the north is now safe as it avoids immediate backtracking to (9,7) which is more recent. Moving north provides a safe new position and avoids repeating the same position multiple times."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a3",
+      "comment": "The eastern adjacent cell is free and moving east continues to align with the goal sensor indicating the goal is to the northeast with far strength. Backtracking west is discouraged by recent positions, and other directions are blocked by walls or less optimal. Hence, moving east maximizes progress safely."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a4",
+      "comment": "The goal bearing is to the east with a free cell available in that direction. Although the recent positions show some back and forth movement, moving east aligns best with progressing towards the goal and avoids walls and collisions."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the northeast and far, suggesting continued movement towards the north is beneficial. The north, east, south, and west cells are all free this turn, but moving north avoids immediate backtracking and aligns with the goal bearing, making it the safest strategic move."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a1",
+      "comment": "The agent is currently blocked by walls to the north and west, with a free cell to the east and an agent to the south. Moving east is safe as it does not lead to immediate backtracking and avoids collision with the agent to the south."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a2",
+      "comment": "The southern cell is free and has not been visited recently in the last five positions, making it a safe move. The east is blocked by a wall, so moving south maximizes safe progress without backtracking."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a3",
+      "comment": "Cannot move east due to a wall, moving south is the safest option. Moving north is blocked by an agent and west is backtracking to recent positions. South is free and safe."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a4",
+      "comment": "The agent is currently facing west with the goal bearing to the northeast. The north adjacent cell is free and is a new path that avoids immediate backtracking, unlike moving west which leads to recently visited cells. Moving north progresses safely toward the goal direction and avoids collisions."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest valid option as the north cell is free. The goal sensor indicates the goal is to the east, but the east cell is a wall so moving east is not possible. Avoiding backtracking to recently occupied positions except when necessary leads to choosing north in this situation."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a1",
+      "comment": "Moving east is the safest valid action as the cell to the east is free and moving east aligns with the goal sensor indicating a bearing of NE. North and south are walls, and west would involve backtracking to a recent position which is less preferable."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the east and the east cell is free. Moving east aligns with the goal direction and is not violating any safety rules or recent position constraints, making it the optimal choice for progress."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a3",
+      "comment": "Moving north is the safest and best option towards progress since east is a wall, south is out of bounds, and west is backtracking to recent positions. The northern adjacent cell is free, aligning with the goal sensor indicating the target is to the northeast."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates that the goal is to the east and the east cell is free. Moving east aligns with the goal direction, advancing progress without immediate backtracking or risk of collision."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked by walls to the north and east, with the south and west cells free. Recent positions show backtracking north is undesirable. Moving south is the safest valid action as it avoids collisions and walls, while also exploring new territory."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and east, with a free cell to the west and south. The recent positions indicate that moving west would backtrack, but moving south is allowed. However, south is an option, but to avoid backtracking a little we choose west which is free and safe. The goal sensor shows the goal bearing east, but east is blocked by a wall. Therefore, moving west is the safest valid move toward progress."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the east with a strength of FAR, and the east adjacent cell is free. Moving east aligns directly with the goal's bearing while respecting safety and recent positions."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a3",
+      "comment": "Moving north is the safest choice given the eastern cell is a wall and moving south or west could lead to backtracking or collision. The north cell is free and aligns with the goal's bearing to the northeast, promoting steady progress."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a4",
+      "comment": "The agent's goal sensor indicates the goal is to the southeast, and the east adjacent cell is free. Moving east aligns best with the goal direction and does not cause immediate backtracking. Staying or moving west is less optimal given this information."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest valid option as the north cell is free. Although the goal sensor indicates the goal is to the east, the east cell is a wall, so moving north progresses the agent without backtracking or collision risk."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and south, with free space to the east and an agent to the west. Recent positions show repeated oscillation between x=16 and x=15, but moving east is the safest option avoiding backtracking and collision. The goal bearing is NE, so moving east also aligns roughly towards the goal."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a2",
+      "comment": "The goal sensor bearing points east and the adjacent east cell is free, making moving east the best action to progress toward the goal. Recent positions do not show an immediate risk of backtracking, so moving east is safe and aligns with the goal direction."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a3",
+      "comment": "The eastern cell is occupied by an agent and moving east is not possible. North and west are walls, and moving north again risks collision or backtracking. Since the southern cell is free and not a recent position, moving south is the safest valid action that avoids immediate backtracking and collision."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a4",
+      "comment": "The agent senses the goal is to the east but the east cell is blocked by a wall. The north and south cells are free, but moving north avoids immediate backtracking to previous positions. Heading north is the safest move that progresses without backtracking or collisions."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a5",
+      "comment": "The agent is blocked to the north and east by walls and the south cell is free, but moving south would immediately backtrack to the last position. Moving west is a free cell and avoids backtracking, making it the safest and best move toward exploring new areas given the goal is to the southeast."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and east, with a free cell to the south and west. Recent positions indicate backtracking between east and west. Moving south is the safest valid action that avoids backtracking and respects walls, while aligning with exploration given the inability to move east or north."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is toward the northeast with a far strength. The east cell is free, and moving east aligns with progressing toward the goal. Recent positions avoid immediate backtracking, making moving east the safest and most goal-progressing option."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a3",
+      "comment": "The east cell is a wall, so moving east isn't an option. The south and west cells are free but moving south risks backtracking to recent positions and west may also backtrack. Moving north is free and safe, making it the best choice to maximize progress while avoiding backtracking and collisions."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, and the east adjacent cell is free, making it the optimal move towards the goal. Moving east aligns with the goal direction and avoids backtracking."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the east, which aligns with the EAST cell being free. Moving east maximizes progress toward the goal while avoiding walls and recent backtracking. The west cell is also free but was just moved from, so moving east is preferred."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a1",
+      "comment": "The adjacent cell to the north is free, and moving north aligns closer with the goal sensor's bearing of NE. This move also avoids backtracking into recently visited positions and walls, thus maximizing progress toward the goal safely."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the northeast, which is consistent with moving north or east. However, the recent positions show I have just moved east multiple times, and moving north offers a new direction. All adjacent cells are free, so moving north is safe and diversifies the agent's path toward the goal."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a3",
+      "comment": "Moving east is the safest and best option given the east cell is free and aligns with the goal sensor bearing indicating the goal's direction. North and west are walls, and moving south would risk backtracking to previous positions."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a4",
+      "comment": "The best move is east since the adjacent cell is free and the goal sensor indicates the goal is in that direction. Moving east continues the progress toward the goal without backtracking or hitting walls."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a5",
+      "comment": "Moving west is the safest and best option, given north and east are walls and south movement would backtrack to the last position. West is free and avoids immediate backtracking, so it maximizes progress safely."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and east, an agent to the west, and the only free adjacent cell is to the south. Moving south avoids backtracking and collisions, making it the safest valid choice for progressing towards the goal."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a2",
+      "comment": "The agent is currently facing south with the northern, eastern cells blocked by walls, and the southern cell free, but the west cell is also free. The goal sensor indicates the goal is far to the east, but moving east is blocked by a wall. Moving west is the only safe option other than moving south. Recently, the agent came from the west, but to avoid immediate backtracking only if there are no other options is the rule. Since south is free, but the goal is east, moving west is a reasonable safe action to reposition for eventual progress toward the goal."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a3",
+      "comment": "Moving west is the safest and only free option as north, south are walls and east is occupied by an agent. Although west is a recent position, it's the only viable move to progress and avoid collision."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east cell is free. Moving east is the safest and most direct action advancing progress toward the goal while respecting walls and avoiding backtracking."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked to the north and south by walls, with the east and west cells free. The goal sensor indicates the goal is to the east, and moving east avoids immediate backtracking. Therefore, moving east maximizes progress toward the goal while ensuring safety."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a1",
+      "comment": "Moving north is the best option since the cell is free, aligns with the goal bearing direction (NE), and avoids backtracking. Other directions either have walls, agents, or were recently visited."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a2",
+      "comment": "The agent is facing south and the south cell is free, while the north and east cells are blocked by walls. The goal sensor indicates the goal is to the east, but since east is currently blocked, moving south is the safest valid move to avoid collisions and progress without backtracking."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a3",
+      "comment": "Moving east is the best option as the eastern cell is free and aligns with the goal sensor bearing indicating the goal's direction. North and west are walls, and south is free but moving east advances the agent towards the observed goal bearing."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, and the east adjacent cell is free. Moving east aligns with the goal direction and is a safe, valid move that continues progress toward the objective without backtracking or risking collision."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked to the north and east by walls, and the south cell is free but moving south would backtrack to the immediate previous position. Moving west is free and does not immediately backtrack, so it is the safest valid action to make progress while respecting previous positions."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and east and an agent to the west, leaving only the south cell free. Moving south is the safest valid action and avoids backtracking given the current cells states and recent positions."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is toward the northeast and the east cell is free, allowing progress in that direction. Moving east aligns with previous goal sensor bearings and maintains forward progress without collision risks."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a3",
+      "comment": "The east cell is occupied by an agent, and both north and south are walls, leaving west as the only free cell. Although moving west leads to a recent position, it is the safest available option to avoid collision and continue progress towards the goal."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east but the east cell is occupied by another agent, so moving east is not possible. North and south are walls, so the only free and safe direction is west. Moving west continues safe progress while avoiding collisions."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the east, and the east cell is free according to the adjacent list. Moving east maximizes progress toward the goal and avoids backtracking."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a1",
+      "comment": "Moving north is the best option as the cell is free, aligns with the goal sensor's bearing of NE, and avoids immediate backtracking. Other adjacent cells are either walls or would result in backtracking."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the north, and the north cell is free. Moving north avoids immediate backtracking and aligns with the goal direction, ensuring progress toward the goal."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a3",
+      "comment": "Moving east is the safest and best option as the east cell is free and moving east aligns partially with the goal sensor bearing (NE). North and west cells are walls, making them invalid choices, and moving south could lead to backtracking to recent positions. Therefore, moving east maximizes progress toward the goal safely."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, but the east cell is currently not free. The north and south cells are walls, so moving east or south is not possible. The west cell is free, making moving west the safest valid action to avoid collision and continue exploration."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a5",
+      "comment": "The north and east cells are walls and the south cell is free but would backtrack to the previous position. The west cell is free and not an immediate backtrack, making it the safest and best option for progress toward the goal."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a1",
+      "comment": "The agent is blocked by walls to the north and east and an agent to the west, leaving only the south cell free. Moving south is the safest valid action and avoids immediate backtracking as moving north or other directions are blocked or occupied."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a2",
+      "comment": "The agent is currently facing south, with north and east cells blocked by walls, and the south and west cells free. The goal sensor indicates the goal is to the east, which is blocked, so moving west is the next safest valid option that avoids immediate backtracking and collisions."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a3",
+      "comment": "The north, east, and south adjacent cells are either walls or occupied by an agent, leaving west as the only free cell. Although moving west leads to a recent position, it is the only safe option available to avoid collisions and continue making progress."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a4",
+      "comment": "The agent is currently at (7,1) facing west. The east cell is free, and the goal sensor indicates the goal is to the east with far strength. To maximize progress toward the goal, the agent should move east, continuing in the direction of the goal safely and avoiding walls and collisions."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the east with a FAR strength, and the east cell is free according to the adjacent list. Moving east maximizes progress toward the goal and avoids immediate backtracking seen to the west."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a1",
+      "comment": "Moving north is the best option as the adjacent cell to the north is free and aligns with the goal sensor's bearing towards the northeast. Moving north also avoids immediate backtracking since the previous position south is occupied, ensuring safe progress towards the goal."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a2",
+      "comment": "The agent's northern cell is blocked by a wall, and the southern cell is free but would cause backtracking since it was the previous recent position. The eastern cell is also blocked by a wall, while the western cell is free and safe to move into. Moving west avoids collisions and backtracking and is the safest valid move aligned with partial information."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a3",
+      "comment": "The north and west cells are walls, but the east cell is free and aligns with the goal sensor bearing indicating the goal's direction. Moving east is the safest and most goal-directed option."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a4",
+      "comment": "The east adjacent cell is free, and the goal sensor indicates the goal is to the east with far strength. Moving east is a valid, safe, and direct move toward the goal. Walls block north and south, so those directions are not options."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a5",
+      "comment": "The north and east cells are walls, blocking movement. The south cell is free and moving south avoids immediate backtracking and collisions. The goal sensor indicates the goal is to the southeast, so moving south is a safe step closer in that direction."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a1",
+      "comment": "Moving south is the only safe option as the north and east cells are walls and the west cell is occupied by another agent. This action avoids collisions and backtracking, prioritizing safe progress."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the east with a FAR strength. The east cell is free, making movement in that direction safe and bringing the agent closer to the goal without backtracking."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a3",
+      "comment": "The east cell is occupied by another agent, and both the north and south cells are walls, leaving only the west cell free. Moving west is the safest and only valid option, despite being a recent position, as it avoids collision and respects the agent's movement constraints."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a4",
+      "comment": "The east adjacent cell is free, and moving east aligns with the past indications of the goal direction. This move is safe and does not backtrack to the immediate previous position, maximizing progress toward the goal."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a5",
+      "comment": "Moving north is the only free adjacent cell that is not blocked by walls. Moving north maximizes progress toward the goal direction indicated by the sensor and avoids backtracking to previous positions."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a1",
+      "comment": "Moving north is the best option as the adjacent cell to the north is free and aligns with the goal sensor's bearing towards the northeast. This move also avoids backtracking repeatedly between the current and previous positions."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a2",
+      "comment": "The east adjacent cell is free and moving east aligns with the goal sensor's bearing indicating the goal is to the east with FAR strength. This move avoids backtracking and obstacles, making it the safest and most goal-progressing choice."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a3",
+      "comment": "Moving east is the safest option as the east cell is free and aligns with the goal sensor bearing towards the northeast. The north and west cells are walls, so moving east maximizes progress toward our goal while avoiding collisions and backtracking."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east cell is free. Moving east aligns with the goal direction and is safe according to the patches and adjacency information. Recent positions show that moving east is not immediate backtracking, so this move maximizes progress toward the goal."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a5",
+      "comment": "Both north and east are walls and south is free but moving south would backtrack to a previous position. West is free and does not immediately backtrack, so moving west is safest and maximizes forward progress given the goal bearing to the east is blocked by a wall."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a1",
+      "comment": "The adjacent cells show walls north and east, and an agent to the west, leaving only the south cell as free. Although recent positions suggest moving between (17,7) and (17,8), this move south is the safest valid option and avoids collision. This is consistent with the safe pattern of movement and respecting the surroundings."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a2",
+      "comment": "The agent is currently facing south with the north and east cells blocked by walls. The south and west cells are free. The goal sensor indicates the goal is to the east, but the east cell is a wall. The south cell is free and not an immediate backtrack, so moving south is the safest and best option to continue progressing toward the goal."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a3",
+      "comment": "The only free adjacent cell is to the west, as north and south are walls and east is occupied by another agent. Despite recent positions including west, this is the only safe move to avoid collisions and continue progress."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a4",
+      "comment": "The agent is at position (9,1) facing west. The east cell is occupied by another agent, and the north and south cells are walls. The west cell is free and safe to move into. Although the goal sensor indicates the goal is to the east, the path is currently blocked by a teammate, so moving west is the safest valid move to avoid collisions and keep progressing."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a5",
+      "comment": "The north and south cells are blocked by walls, and the west cell is occupied by an agent. The east cell is free and moving east does not immediately backtrack, which maximizes safe progress."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a1",
+      "comment": "Moving north aligns with the goal sensor bearing towards the northeast and avoids backtracking into recent positions unnecessarily. Adjacent cells to the north and east are free, while west is blocked by a wall and south is free but leads to repetitive movement. Thus, north is the safest and most progressive choice."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal is to the northeast with far strength, and the adjacent cells to the north and east are free. Moving east aligns with the sensor bearing and avoids backtracking, making it the best move to progress toward the goal safely."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a3",
+      "comment": "The east cell is free and aligns with the goal sensor's NE bearing, indicating progress toward the goal. The north and west cells are walls, and the south cell is free but does not align with the goal. Moving east is the safest option that advances the team toward the goal."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east adjacent cell is free, making it safe to move east. Although the recent position (9,1) was just visited, moving east aligns with the goal direction and avoids backtracking into less optimal directions."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a5",
+      "comment": "The north and east directions are walls, so movement there is blocked. The south cell is free but moving south would immediately backtrack to a recent position. The west cell is free and does not backtrack, making it the safest move that respects the environment constraints."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a1",
+      "comment": "The north and east cells are walls, and the west cell is occupied by another agent, leaving only the south cell free. Although moving south backtracks in the recent positions, this is the only safe option to avoid collisions and walls."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a2",
+      "comment": "Moving east is safe as the east cell is free. The goal sensor indicates the goal is to the north but with far strength, suggesting the goal is not immediately nearby. Since north is blocked by a wall and to avoid backtracking to the west which was just visited, moving east aligns with progressing towards the goal."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a3",
+      "comment": "The agent is currently blocked to the north and south by walls and the east by another agent, leaving only the west cell free. Although the west cell was recently visited, it is the safest and only viable move to avoid collision or staying in place."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by a teammate agent, and north and south are walls, so moving east is blocked. The west cell is free and provides a safe option without backtracking to the immediate last position. Moving west is the best safe action available to maintain progress without collisions."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a5",
+      "comment": "The east cell is free and aligns with the goal sensor indicating the goal is to the east. Moving east avoids immediate backtracking and collisions with the agent to the west and walls to the north and south."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a1",
+      "comment": "Moving north is the safest valid option as the west is a wall, and the south and east are free but moving north avoids immediate backtracking and maintains progress. The north cell is free and not blocked, so this move avoids collisions and adheres to execution rules."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a2",
+      "comment": "The north cell is occupied by another agent and the east cell is a wall, so moving south or west are the safe options. The goal sensor indicates the goal is northeast with far strength, so moving south picks a direct safe route without backtracking the recent westward move."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a3",
+      "comment": "The east cell is free while the north and west cells are walls and the south cell is occupied by another agent. Moving east avoids immediate backtracking and collision, maximizing safe progress."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east adjacent cell is free. Moving east aligns with the goal direction and is safe. Avoiding immediate backtracking, this move maximizes progress toward the goal."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a5",
+      "comment": "Both north and east are walls, and west is free but recently visited. Moving south is free, and although it backtracks slightly, it avoids wall collisions and follows the safest path given current options. This action also prevents stagnation given blocked alternatives."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a1",
+      "comment": "The north and east cells are walls, and the west cell is occupied by another agent, leaving only the south cell free. Although moving south backtracks in the recent positions, it is the safest move available to avoid collisions and walls, maximizing progress toward the goal under partial observability."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a2",
+      "comment": "The north adjacent cell is free and moving north avoids backtracking to the immediate previous position, unlike moving west which revisits a previous cell. The east is blocked by a wall, and south is out of bounds, making north the safest valid option."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a3",
+      "comment": "The agent is blocked north, south, and east (occupied by another agent). Only the west cell is free, despite recent positions including it. Moving west is the safest available option to avoid collisions and continue progress."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a4",
+      "comment": "The east cell is free and moving east aligns with previous successful progress toward the goal. Although recent positions alternate between (8,1) and (9,1), moving east avoids immediate backtracking and remains safe."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a5",
+      "comment": "Moving north is the best option as it is free and does not immediately backtrack, unlike moving south which leads to an immediate recent position. Both east and west are blocked by walls. This movement also progresses toward the goal sensor's indication of the goal being to the southeast."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a1",
+      "comment": "The goal sensor bearing is towards the east, which helps progress toward the goal. The east cell is free, and moving east avoids backtracking into recent positions, making it the safest and most goal-aligned move this turn."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a2",
+      "comment": "The north cell is occupied by another agent, and the east cell is a wall. The south and west cells are free. Recent positions show moving north would be backtracking, so moving south is the safest and logical step to progress with no collisions."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a3",
+      "comment": "The east cell is free and not occupied, making it the safest move. Moving east also aligns with the goal sensor's NE bearing, supporting progress toward the goal. Avoiding backtracking west and collisions south or north is prioritized."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by an agent and both north and south are walls, leaving only the west cell as a free and safe movement option. Although moving west alternates recent positions, it is the best choice available to maintain progress without collision."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a5",
+      "comment": "North and east are walls, and west is occupied by an agent. South is free and although it backtracks to a very recent position, it is the only safe option available. Moving south avoids collisions and respects all constraints."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a1",
+      "comment": "The goal sensor indicates the goal is towards the northeast with a bearing favoring east, and the east cell is free. Moving east continues progression toward the goal while avoiding walls and backtracking to recent positions, making it the safest valid move."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a2",
+      "comment": "The north cell is free and moving north aligns with the recent pattern of avoiding backtracking and exploring forward. The east is blocked by a wall and south is out of bounds, so north is the safest and best option to progress toward the goal in the northeast direction."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a3",
+      "comment": "The east cell is free and aligns with the goal sensor's NE bearing indicating the direction of the goal. The north and south cells are walls, and the west cell leads to immediate backtracking. Moving east is the safest and most goal-directed action."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is toward the east with far strength, and the east adjacent cell is free. Moving east advances team progress toward the goal safely without immediate backtracking."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a5",
+      "comment": "Moving north is the best choice because that cell is free and does not cause immediate backtracking, unlike moving south which leads to a recent position. East and west are blocked by walls, so north avoids collisions and supports progress."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a1",
+      "comment": "The adjacent cells to the east is a wall, so moving east is not possible despite the previous progress in that direction. The north and west cells are free, but moving north does not immediately backtrack into recent positions, making it safer than moving west, which is the last position visited. Moving north maximizes safe progress towards the goal given these constraints."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a2",
+      "comment": "Moving north is safe as the north cell is free and avoids immediate backtracking which occurs when moving south. The goal sensor indicates the goal is to the northeast and moving north aligns better with this direction than west or south, while east is blocked by a wall."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a3",
+      "comment": "The agent is currently blocked to the north and east by walls and another agent. The west cell is free but returning there would backtrack recently visited positions. The south cell is free and moving south is the safest option to avoid immediate backtracking and collisions."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by a teammate agent, and the north and south cells are walls, so moving west is the only free and safe movement option. Although it means moving away from the general goal direction indicated by the sensor, avoiding collisions and walls is prioritized."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a5",
+      "comment": "Both north and east are walls, and west is occupied by an agent. Moving south is the only safe option despite being a recent position. This avoids collisions and respects boundaries."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a1",
+      "comment": "The north and west cells are walls, and the south and east cells are free. Moving east is chosen to follow the goal sensor indication of the goal being to the northeast. This move avoids backtracking and maintains progress toward the goal safely."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a2",
+      "comment": "The north cell is a wall and west is also a wall, so both directions are blocked. The east cell is free but leads to immediate backtracking given recent positions. Moving south is free and does not backtrack to the most recent position, making it the safest option that respects the environment and movement history."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a3",
+      "comment": "Moving north is safe as the north cell is free. This movement aligns partially with the goal sensor's bearing towards the northeast. Moving east again or south might backtrack or run into other agents or walls. Therefore, moving north maximizes progress towards the goal while avoiding immediate backtracking."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east adjacent cell is free. Moving east aligns with the goal direction and maximizes progress toward the goal safely without backtracking."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest and most logical choice as the cell is free and does not immediately backtrack to a very recent position. East and west are blocked by walls, and south leads to backtracking to a recent position which should be avoided if possible."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a1",
+      "comment": "The north and south cells are walls, and the east cell is free but moving east would immediately backtrack to the recent position at (19,7). Moving west is safe, free, and does not backtrack the immediate last position, so it is the preferred move to continue exploring toward the goal."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a2",
+      "comment": "The north cell is free and moving north aligns with the recent pattern of avoiding immediate backtracking and further exploration. The east is blocked by a wall and south is free but leads to backtracking. The goal sensor indicates a northeast bearing, so moving north is a reasonable step."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a3",
+      "comment": "The north and east adjacent cells are walls, so moving in those directions is not possible. The south cell is free but was the last visited position, so moving west is the only safe option that avoids immediate backtracking, aligning with partial progress toward the goal bearing northeast."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by an agent, and the north and south adjacent cells are walls. The only free and safe cell to move to is west. Although moving west backtracks recent positions, it is necessary as the only valid movement option to avoid collision and continue exploring safely."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a5",
+      "comment": "Both north and east are walls, and west is occupied by an agent. Moving south is the only safe option, despite backtracking on a recent position. This avoids collisions and respects movement rules."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a1",
+      "comment": "The goal sensor indicates the goal bearing is towards the east, but the east cell is free while the south cell is also free and not a recent position, avoiding immediate backtracking. North and west are walls. Moving south is a safe option that avoids backtracking and colliding with obstacles."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a2",
+      "comment": "The north and west cells are walls, and the east cell is occupied by another agent. Only the south cell is free, so moving south is the safest and only valid option. Recent positions show moving south avoids immediate backtracking, supporting the chosen move."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a3",
+      "comment": "The east cell is free and unoccupied, making it the safest valid move. Moving east aligns well with the goal sensor's bearing of northeast, progressing toward the goal under the current constraints without backtracking."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal lies to the east with far strength, and the east adjacent cell is free. Moving east advances the team's progress toward the goal and is the safest valid action given walls block north and south and the west was just visited recently."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest option and avoids immediate backtracking compared to moving south, which leads to oscillation. East and west are blocked by walls, so north is the only free cell to progress."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a1",
+      "comment": "The north cell is free and not a recent position, making it a safe move that follows the goal sensor's indication of the goal being northeast. Moving north advances towards the goal while respecting movement rules and avoiding backtracking."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a2",
+      "comment": "The north cell is free and moving north avoids immediate backtracking since recent positions show alternating movement between (15,7) and (15,8). East is blocked by a wall, and south and west are less favorable or occupied. Moving north continues progress while respecting these constraints."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a3",
+      "comment": "The north and east cells are walls, and the recent position history shows moving west or staying would backtrack or stall. Moving south is free and avoids backtracking, providing a safe option that may better align with progress towards the goal."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by another agent, and the north and south directions are blocked by walls. The west cell is free and safe for movement. Although moving west may seem like backtracking, it is the only valid move this turn that avoids collisions and respects the environment constraints."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a5",
+      "comment": "The north and east directions are blocked by walls, and the west cell is occupied by an agent. Moving south is the only free and safe option available, despite it being a recent position, to avoid collisions and continue progressing."
+    },
+    {
+      "turn": 34,
+      "agent_id": "a1",
+      "comment": "The north and west cells are walls, and the east and south cells are free. The recent positions show an immediate backtrack is to the west, so moving east avoids backtracking and respects the goal bearing towards the northeast. Moving east is the safest valid action that progresses the team toward the goal."
+    },
+    {
+      "turn": 34,
+      "agent_id": "a2",
+      "comment": "Moving east is the safest choice as the north and west directions are blocked by walls, and the south direction leads to immediate backtracking based on recent positions. The east cell is free, so advancing east avoids collision and promotes progress despite the recent position pattern."
+    },
+    {
+      "turn": 34,
+      "agent_id": "a3",
+      "comment": "The north cell is free and aligns best with the goal sensor bearing of northeast. Moving north avoids backtracking and makes safe progress toward the goal under partial observability."
+    },
+    {
+      "turn": 34,
+      "agent_id": "a4",
+      "comment": "The north and south cells are walls, so movement there is blocked. The east cell is free and the western cell, while free, would cause immediate backtracking according to recent positions. Moving east avoids backtracking and follows a safe path."
+    },
+    {
+      "turn": 34,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest and most logical choice because the north cell is free and avoids immediate backtracking better than moving south, which would cause oscillation. East and west are blocked by walls, and south is free but leads to repeated positions recently occupied."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a1",
+      "comment": "The north and south cells are walls, and east is free but moving east would backtrack to a recent position (19,7). Moving west is free and not a recent position, so it is chosen to avoid immediate backtracking and collisions."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a2",
+      "comment": "The north, south, and east cells are blocked or occupied, with east occupied by an agent and north and south blocked by walls. The west cell is free and moving there avoids immediate backtracking based on recent positions. This move aligns with safety and exploration."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a3",
+      "comment": "All adjacent cells to move are blocked by walls or agents except the south cell, which is free but was just recently occupied, so to avoid immediate backtracking and collisions, staying in place is the safest option this turn."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a4",
+      "comment": "The east cell is occupied by an agent, and the north and south cells are walls, so movement in those directions is blocked. The only free and safe adjacent cell is west. Although moving west causes immediate backtracking, it is the only valid option to avoid collision and stay within bounds."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a5",
+      "comment": "The only free adjacent cell is to the south. Moving south is chosen despite recent visitation, as all other directions are blocked by walls or occupied by another agent. This action is the safest and ensures continuous progress."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a1",
+      "comment": "The east cell is free and aligns with the goal sensor's bearing indicating the goal is to the northeast. Moving east avoids immediate backtracking, which would be the case if moving west, and walls block north and west directions. Moving south is possible but less aligned with the goal bearing."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a2",
+      "comment": "The north and west cells are walls, so they are impassable. The south cell is free but would cause immediate backtracking to a recent position. The east cell is free and does not violate backtracking rules, making it the best and safest choice to maximize progress towards the goal."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a3",
+      "comment": "The north and east cells are walls, so moving in those directions is blocked. The south cell is free but was recently occupied, so to avoid immediate backtracking, moving west is the best safe option. Moving west is valid and does not collide with recent positions, making it the safest move to progress."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal lies to the east with far strength, and the east adjacent cell is free. Moving east advances the team's progress toward the goal. Movement west would cause immediate backtracking and the north and south directions are walls, blocking movement there."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest and most logical choice because the north cell is free and avoids immediate backtracking better than moving south, which would cause oscillation. East and west are blocked by walls, so moving north advances safely."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a1",
+      "comment": "The goal sensor indicates the goal is to the northeast and the east adjacent cell is free, aligning with the sensor reading. Moving east avoids immediate backtracking and respects walls to the north and south, making it the safest and most goal-aligned choice."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a2",
+      "comment": "The north and west cells are walls, and moving south would lead to immediate backtracking as shown in recent positions. The east cell is free and moving east is the safest valid option to progress."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a3",
+      "comment": "Moving south is the safest valid option since north and east are walls and moving west would backtrack to a recent position. The south cell is free and not a backtrack from the immediate previous position, allowing safe progress."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a4",
+      "comment": "The agent is surrounded by walls to the north and south, and an agent occupies the east cell. The only free adjacent cell is to the west, which is safe for movement. Although this causes backtracking, it is the safest option to avoid collisions and walls."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a5",
+      "comment": "The north and east cells are walls, and the west cell is occupied by another agent, leaving the south cell as the only free and safe option. Despite recent backtracking oscillation between the current and previous position, moving south is necessary to avoid collisions and maintain progress."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a1",
+      "comment": "The goal sensor indicates the goal is to the northeast, and the north cell is free according to the adjacent list. Moving north advances toward the goal without backtracking to recent positions, making it a safe and goal-aligned choice."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a2",
+      "comment": "The east cell is free and not a recent position, so moving east avoids immediate backtracking and respects walls and bounds. North and south are walls, and west would cause backtracking. Therefore, moving east maximizes safe progress toward the goal which is sensed to the northeast."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a3",
+      "comment": "Moving north is the safest valid option because the north, east, and south cells are free, but moving east or south would backtrack to recent positions. The west cell is a wall, so moving north avoids collisions and immediate backtracking while making safe progress."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, and the east adjacent cell is free. Moving east aligns with progress towards the goal and avoids backtracking, as west was recently visited repeatedly."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a5",
+      "comment": "The north cell is free and moving north avoids immediate backtracking better than moving south, which would cause cycling between positions. East and west cells are blocked by walls or an agent, so moving north is the safest and best choice."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a1",
+      "comment": "The adjacent cells reveal that the north cell is free, while east and west are blocked by walls. The goal sensor bearing is northeast, so moving north aligns well with advancing toward the goal. Staying or moving south would backtrack or deviate from the goal direction, so moving north is the best action."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a2",
+      "comment": "The goal sensor indicates the goal direction is east and the adjacent east cell is free. Moving east avoids backtracking onto recent positions and respects all walls and obstacles, making it the safest and most progress-maximizing move."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a3",
+      "comment": "Moving east is the best choice because the east cell is free and moving there aligns with the goal sensor bearing of northeast. This move also avoids immediate backtracking since the previous recent positions involve north and south moves, and the west direction is a wall."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a4",
+      "comment": "The north and south cells are walls, and the east cell is occupied by an agent, so moving east is not possible. The west cell is free and although it involves backtracking, it is the only safe adjacent move available."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a5",
+      "comment": "The only free adjacent cell is to the south. Moving south is chosen despite recent visitation since north, east, and west are blocked by walls or another agent. This move avoids collisions and respects partial observability constraints."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a1",
+      "comment": "The north cell is free according to the adjacent list and aligns with previous moves advancing toward the goal. East and west cells are blocked by walls, and south is free but moving north maximizes progress toward the goal without backtracking."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a2",
+      "comment": "The north and east directions are blocked by walls, the west direction is free but leads to immediate backtracking. The south direction is free and not recently visited, so moving south is the safest move forward. The goal sensor indicates the goal is to the north but that path is blocked, so heading south avoids backtracking and walls."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a3",
+      "comment": "The east cell is free and moving east aligns with the goal sensor bearing of northeast. This move avoids immediate backtracking and progresses toward the goal based on current sensing."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the east cell is free. Moving east advances the team's progress towards the goal. Avoiding immediate backtracking and collisions is satisfied by moving east."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a5",
+      "comment": "Moving North is the safest valid option, as East and West are blocked by walls and South is free but causes immediate backtracking. The recent positions show a cycle between moving North and South, but since the North cell is free and avoids this backtracking better than moving South again, moving North is chosen to maximize progress safely."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a1",
+      "comment": "The north cell is free and aligns with the goal sensor's bearing indicating the goal is to the north. Moving north continues advancing toward the goal while avoiding immediate backtracking and walls to the east and west."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a2",
+      "comment": "The adjacent north cell is free and moving north avoids immediate backtracking compared to moving south. East is also free but was recently moved into several turns in a row. West is blocked by a wall. Therefore, moving north is the safest valid action to maximize progress without repeating positions."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a3",
+      "comment": "The north cell is free and moving north aligns better with the goal sensor bearing of northeast. Moving north avoids colliding with the wall east and avoids backtracking to recent positions, advancing the team towards the goal safely."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a4",
+      "comment": "The agent is surrounded by walls to the north and south, and the east adjacent cell is occupied by another agent, so moving east is not possible. The only free adjacent cell is to the west, which is safe for movement despite it being a backtrack. Staying in place is less optimal than moving west as it maintains team progress."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a5",
+      "comment": "The only free adjacent cell is to the south, which aligns with avoiding walls and occupied cells. Although moving south causes immediate backtracking, it is the safest valid option given surrounding obstacles to the north, east, and west."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a1",
+      "comment": "The north adjacent cell is free and aligns with the goal sensor's bearing which indicates the goal is toward the east but slightly north. Moving north advances the agent closer to the goal while respecting the safe path. This is consistent with previous steps and avoids backtracking."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a2",
+      "comment": "The north and east cells are walls, making them impassable. The south cell is free but moving there would immediately backtrack to a recent position. The west cell is free and not present in recent positions, so moving west avoids backtracking and respects movement constraints."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a3",
+      "comment": "The east cell is free and moving east aligns with the goal sensor bearing of northeast, making it the best safe move toward the goal. Moving east avoids walls to the north and west and prevents immediate backtracking."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the east adjacent cell is free. Moving east aligns with the direction of the goal and avoids immediate backtracking, maximizing team progress under the given constraints."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a5",
+      "comment": "The north cell is free, while east and west are walls, and south is free but would cause immediate backtracking. Given the recent positions oscillate between (11,2) and (11,1), moving north is chosen to avoid cycling and maintain progress toward the goal, despite the goal sensor indicating the goal is to the east."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a1",
+      "comment": "The north cell is free and moving north aligns with the goal sensor's indication, which suggests the goal is toward the east but slightly north. Continuing north advances toward the goal while avoiding backtracking or collisions."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a2",
+      "comment": "The north and south directions are walls, so they are impassable. The east cell is free and not in the recent positions, so moving east avoids immediate backtracking. The west cell is free but would backtrack to a recent position. Hence, moving east is the safest and most progressive action."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a3",
+      "comment": "Moving east is the best choice as the east cell is free and aligns with the goal sensor bearing of northeast. The north and south directions are walls, and moving west would immediately backtrack to a recent position. Thus, moving east maximizes progress toward the goal safely."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a4",
+      "comment": "The agent is blocked to the north and south by walls, and the east is occupied by another agent. The west cell is free and is the best option to advance without collision, even though it involves some backtracking. This move respects agent safety and continues progress toward the goal."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the east, but the eastern cell is a wall, so direct progress is blocked. The north and east are walls, west is occupied by another agent, leaving south as the only free direction. Although moving south causes immediate backtracking, it is the safest and only valid move to make progress."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a1",
+      "comment": "The adjacent cells indicate the north and east are walls, and the south and west are free. Recent positions show the agent has just come from south to current position, so moving back south is safe and avoids collision with walls. The goal bearing east is blocked by a wall, so moving west is a better option, but it is blocked by free state. Hence moving south is chosen as the safest valid action."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a2",
+      "comment": "The north and east directions are walls, so they are impassable. The south cell is free and not in the recent positions, so moving south avoids immediate backtracking and respects the environment constraints."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a3",
+      "comment": "Moving north is the best choice because the north cell is free and aligns with the goal sensor bearing of northeast. This move avoids immediate backtracking and the south cell is a wall, making north safer and more aligned with the goal direction than west or east."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the east cell is free. Moving east is consistent with the goal direction and avoids immediate backtracking since the previous positions show oscillation between east and west positions, so moving east progresses towards the goal safely."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest valid action since the north cell is free and avoids immediate backtracking better than moving south, which oscillates between the two cells. East and west are walls, so no progress is possible in those directions."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a1",
+      "comment": "The north, east, and south cells are free, but the west cell is a wall. The goal sensor indicates the goal is to the east with moderate strength. Recent positions show avoiding immediate backtracking to the south. Moving east is the safest move aligning with the goal direction."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a2",
+      "comment": "Moving north is a safe choice as the north cell is free and it avoids immediate backtracking to recent positions compared to continuing south. East is free but was recently visited, and west is blocked by a wall. This move maintains progress while respecting movement constraints."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a3",
+      "comment": "I chose to move north again because the goal sensor indicates the goal is to the north and the north cell is free. Moving north avoids collisions with walls to the east and west and avoids backtracking."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a4",
+      "comment": "The agent is blocked by walls to the north and south, and the east adjacent cell is occupied by another agent, so moving east is not possible. The west cell is free and moving west avoids immediate backtracking and collision, making it the safest valid action."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a5",
+      "comment": "All adjacent cells except south are either walls or occupied by an agent, and moving south causes immediate backtracking. Since moving in any direction leads to oscillation or collision, the safest action is to stay in place this turn and reassess next turn."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a1",
+      "comment": "The east cell is free and the goal sensor indicates the goal's bearing is east with medium strength. Moving east is the safest and most direct action toward the goal while avoiding immediate backtracking."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a2",
+      "comment": "The north and east cells are walls, making them impassable. The south cell is free but would cause immediate backtracking. The west cell is free and not in the recent positions, so moving west avoids immediate backtracking and is a safe choice."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a3",
+      "comment": "The north cell is free and moving north aligns with the goal sensor bearing of northeast, making it the best move toward the goal. East and west are blocked by walls, and south would be backtracking toward previous positions."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the east cell is free. Moving east aligns with the goal direction and avoids immediate backtracking, making it the best move this turn."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a5",
+      "comment": "The agent is surrounded by walls on the north and east, with the west cell out of view or blocked. The only free adjacent cell is to the south, so moving south is the best option to avoid staying put and making progress. This move respects the constraints and avoids collisions."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a1",
+      "comment": "The goal sensor indicates the goal is toward the east, but the closest cells to the east are walls. The north adjacent cell is free and does not conflict with recent positions, providing a safe and progressive move that may help navigate around obstacles."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a2",
+      "comment": "The east cell is free and not part of the recent positions, avoiding immediate backtracking. Moving east adheres to safety by avoiding walls and agent collisions and aligns with the goal sensor suggesting a northeast bearing."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a3",
+      "comment": "The north cell is free and moving north aligns with the goal sensor bearing of northeast, maintaining progress towards the goal while avoiding walls to the east and west. Staying or moving south would not align with the goal bearing, and moving east or west is blocked by walls."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, and the east cell is free. Moving east aligns with the goal direction and avoids immediate backtracking, maximizing progress toward the goal while respecting collision rules."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a5",
+      "comment": "Moving north is the safest valid action as the north cell is free and does not cause immediate backtracking. East and west are walls, and moving south leads back to a previous position, so north advances without oscillation."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a1",
+      "comment": "The agent is currently facing north with walls to the north and west, and free cells to the east and south. The goal sensor indicates the goal is toward the east with medium strength. Moving east is a safe and direct action aligned with the goal sensor and avoids immediate backtracking."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a2",
+      "comment": "The south cell is free and although the recent positions suggest some backtracking, moving south aligns with the goal sensor bearing which is northeast and thus encouraging moving forward in this general area. Walls block north and east, and west would cause immediate backtracking."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a3",
+      "comment": "The north cell is free and aligns with the recent goal sensor bearing towards the east. Moving north continues progress towards the goal while respecting walls and avoiding backtracking."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east and the east adjacent cell is free. Moving east aligns with the goal direction and avoids immediate backtracking, making it the safest and most effective choice for progress."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a5",
+      "comment": "The north cell is free and moving there avoids immediate backtracking compared to moving south, which oscillates positions. East and west are walls, so moving north is the safest valid action that maintains team progress toward the goal despite the goal sensor indicating the goal lies to the east."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a1",
+      "comment": "The agent is currently at (24,1) facing north with walls to the north and south, and free cells to the east and west. The recent moves show the agent came from the west, so moving east avoids immediate backtracking and progresses safely. The eastern cell is free, making it the safest and most logical step toward potential goal progress."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a2",
+      "comment": "Moving east is safe and keeps us from immediate backtracking as the east cell is free and not part of the recent positions. This move aligns reasonably with the northeast bearing indicated by the goal sensor and avoids walls to the west."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a3",
+      "comment": "I chose to move north as the north cell is free and continuing north aligns with the goal sensor bearing of southeast, moving closer to the goal. East and south are also free but north preserves the progression direction without backtracking or risking collisions with walls or agents."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east with far strength, and the east adjacent cell is free. Moving east aligns with the goal direction and avoids immediate backtracking, making it the safest and most goal-directed option this turn."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a5",
+      "comment": "Both north and south cells are free; however, the last 5 recent positions indicate oscillation between current and north cells, implying immediate backtracking if moving north. Moving south avoids this oscillation and is the safer advance. East and west are walls, limiting options."
+    },
+    {
+      "turn": 50,
+      "agent_id": "a1",
+      "comment": "The adjacent east cell is free and the goal sensor indicates the goal is to the east with near strength. Moving east avoids backtracking and is the safest, most direct action toward the goal."
+    },
+    {
+      "turn": 50,
+      "agent_id": "a2",
+      "comment": "Moving east is safe as the east cell is free and not part of the last few recent positions, thus avoiding immediate backtracking. This move also aligns with the goal sensor indication towards northeast, making progress toward the target while maintaining safety."
+    },
+    {
+      "turn": 50,
+      "agent_id": "a3",
+      "comment": "The north and east cells are walls, so moving north or east is not possible. The south cell is free and moving south avoids immediate backtracking to the previous position, which was north. Moving west would backtrack into a recent position. Therefore, moving south is the safest valid action to continue progress without collision."
+    },
+    {
+      "turn": 50,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the north and east and must avoid backtracking to previous positions. The south cell is free and offers a safe option to move forward without collisions or wall obstructions."
+    },
+    {
+      "turn": 50,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the bearing to the goal is to the East and the adjacent cell in that direction is free. Moving East avoids immediate backtracking and is the safest valid action to progress toward the goal."
+    },
+    {
+      "turn": 51,
+      "agent_id": "a1",
+      "comment": "The adjacent cell to the east is free and the goal sensor indicates the goal is near toward the east. Moving east complies with the recent positions without backtracking and continues progress towards the goal safely."
+    },
+    {
+      "turn": 51,
+      "agent_id": "a2",
+      "comment": "Moving north is safe and free, and it avoids immediate backtracking by not returning to the previous position at (19, 9). The goal sensor indicates the goal is towards the northeast, so moving north aligns well with this direction. East is blocked by a wall, so going north maximizes progress towards the goal safely."
+    },
+    {
+      "turn": 51,
+      "agent_id": "a3",
+      "comment": "The east cell is free, offering a safe move that aligns with the recent goal sensor bearing towards the northeast. Moving east continues progress toward the goal while avoiding walls and immediate backtracking."
+    },
+    {
+      "turn": 51,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the east and west and the south cell is free, but moving south would be backtracking to a recent position. Moving north is safe, free, and avoids immediate backtracking, thus making progress towards the goal direction indicated as east by the goal sensor."
+    },
+    {
+      "turn": 51,
+      "agent_id": "a5",
+      "comment": "The adjacent cell to the East is free and the goal sensor indicates the bearing to the goal is East with a FAR strength. Moving East maximizes progress toward the goal while avoiding immediate backtracking and collisions with walls or agents."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a1",
+      "comment": "The adjacent cell to the east is labeled as GOAL indicating it is the target. Moving east directly achieves the goal. This move is safe, does not cause a collision, and is consistent with the recent path without backtracking."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a2",
+      "comment": "The east cell is free and not blocked by walls or agents, making it a safe option. Moving east avoids immediate backtracking and aligns with the goal sensor's indication of the goal being in the northeast direction. This move maximizes progress toward the goal under the current partial observability."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a3",
+      "comment": "The east cell is free and the goal sensor bearing is east with mid strength, indicating the goal is in that direction. Moving east aligns with the goal sensor and avoids backtracking, maximizing progress toward the goal."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a4",
+      "comment": "The agent is blocked by walls to the north and east, so it cannot move forward there. Moving west is safe and the only direction available that is not immediate backtracking, so this move optimizes progress without collision risk."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the Southeast with a far strength, and the adjacent cell to the East is free. Moving East aligns with the goal direction and avoids immediate backtracking, maximizing progress toward the goal in this partial observability context."
+    },
+    {
+      "turn": 52,
+      "agent_id": "a1",
+      "comment": "FINISHED"
+    },
+    {
+      "turn": 53,
+      "agent_id": "a2",
+      "comment": "Moving east is the best option as it is free, safe, and does not lead to immediate backtracking. The goal sensor indicates the goal is to the northeast, so moving east aligns well with progressing toward the goal."
+    },
+    {
+      "turn": 53,
+      "agent_id": "a3",
+      "comment": "The north cell is free and moving north avoids immediate backtracking into recently visited positions. Although the goal sensor bearing is east, the east cell is blocked by a wall. Moving north is the safest option to continue progress toward the goal while respecting environment constraints."
+    },
+    {
+      "turn": 53,
+      "agent_id": "a4",
+      "comment": "The goal sensor indicates the goal is to the east, and the eastern adjacent cell is free. Moving east aligns with the goal direction and is safe, maximizing team progress toward the goal."
+    },
+    {
+      "turn": 53,
+      "agent_id": "a5",
+      "comment": "The adjacent cell to the East is free, and the goal sensor indicates the bearing to the goal is Northeast with a 'FAR' strength. Moving East aligns with the goal direction and avoids immediate backtracking, maximizing progress toward the goal."
+    },
+    {
+      "turn": 54,
+      "agent_id": "a2",
+      "comment": "Moving east is the safest option as the east cell is free and not part of recent positions, thus avoiding immediate backtracking. The goal sensor indicates the goal is to the northeast, so moving east aligns well with the goal direction. Moving north or west would return to recent positions, and moving south is blocked by a wall."
+    },
+    {
+      "turn": 54,
+      "agent_id": "a3",
+      "comment": "The east cell is free and moving east aligns well with the goal sensor bearing of southeast, advancing toward the goal. North and west cells are blocked by walls, so moving east is the safest and most goal-aligned choice."
+    },
+    {
+      "turn": 54,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the north and east. The west cell is free but moving west would immediately backtrack to a recent position. Moving south is also free and does not backtrack the last 5 positions. Therefore, moving south is the safest option that avoids collision and backtracking."
+    },
+    {
+      "turn": 54,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked by walls to the North and East, with the South cell free but backtracking to the South is not favored to avoid oscillation. The West cell is free and represents a safe, non-backtracking move, thus maximizing safe progress under the current constraints."
+    },
+    {
+      "turn": 55,
+      "agent_id": "a2",
+      "comment": "Moving east is the safest and best option as the east cell is free and not part of the recent positions, thus avoiding immediate backtracking. The goal sensor also indicates the goal is to the northeast, aligning with this move."
+    },
+    {
+      "turn": 55,
+      "agent_id": "a3",
+      "comment": "The east adjacent cell is free and aligns with the goal sensor bearing of east indicating the goal is near in that direction. Moving east avoids immediate backtracking and respects all movement constraints, hence it is the safest and most progress-maximizing move."
+    },
+    {
+      "turn": 55,
+      "agent_id": "a4",
+      "comment": "The agent is surrounded by walls to the east and west, with south and north cells free. Moving south would backtrack to a recent position, so moving north is the safest valid option to advance without backtracking."
+    },
+    {
+      "turn": 55,
+      "agent_id": "a5",
+      "comment": "The agent is blocked by walls to the North and South, with the East cell free but previously moved East several times. The last move was West, avoiding backtracking to the immediate previous position. Moving West is safe and does not cause immediate oscillation, thus maximizing progress while respecting constraints."
+    },
+    {
+      "turn": 56,
+      "agent_id": "a2",
+      "comment": "The east cell is free and moving east aligns with the goal sensor's bearing to the east. It also avoids immediate backtracking given the recent positions. Other directions are either walls or risk backtracking, so moving east is the safest and most goal-progressive move."
+    },
+    {
+      "turn": 56,
+      "agent_id": "a3",
+      "comment": "The east cell is free and the recent goal sensor bearing is east with near strength, indicating the goal is very close in that direction. Moving east avoids immediate backtracking and continues strong progression toward the goal."
+    },
+    {
+      "turn": 56,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the north and east, with the west cell free but leading to immediate backtracking. The south cell is free and safe to move into, so the agent should move south to avoid backtracking and continue progress."
+    },
+    {
+      "turn": 56,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal bearing is to the East with a FAR strength, and the adjacent cell to the East is free. Moving East continues progression toward the goal while avoiding immediate backtracking."
+    },
+    {
+      "turn": 57,
+      "agent_id": "a2",
+      "comment": "The agent is currently blocked to the north and south by walls, and the west cell is free but was recently occupied, which would cause immediate backtracking. The east cell is free and not part of recent positions, making it the safest option. Moving east also aligns with the goal sensor's bearing to the northeast, maximizing progress toward the goal."
+    },
+    {
+      "turn": 57,
+      "agent_id": "a3",
+      "comment": "The east cell is free and the goal sensor bearing is east with near strength indicating the goal is very close in that direction. Continuing to move east maximizes progress toward the goal while avoiding backtracking and collisions."
+    },
+    {
+      "turn": 57,
+      "agent_id": "a4",
+      "comment": "The agent cannot move east or west due to walls. Moving south would lead to immediate backtracking, so moving north is the safest valid choice that avoids immediate backtracking and respects the observed walls."
+    },
+    {
+      "turn": 57,
+      "agent_id": "a5",
+      "comment": "The agent is currently blocked by walls to the North and South, with free cells to the East and West. The East cell was visited in the previous turn, so to avoid immediate backtracking and oscillation, moving West is selected as the safest valid action that maximizes team progress."
+    },
+    {
+      "turn": 58,
+      "agent_id": "a2",
+      "comment": "Moving north is the best choice because the north cell is free, aligned with the goal sensor's bearing to the northeast, and avoids immediate backtracking since the recent positions do not include this cell. Both east and south are blocked, and west would cause immediate backtracking, so north advances progress safely."
+    },
+    {
+      "turn": 58,
+      "agent_id": "a3",
+      "comment": "The east cell is marked as GOAL, so moving east directly reaches the objective. This aligns with the goal sensor reading indicating the goal is near and east. There are walls to the north and south, and the west cell is free but moving back there would be immediate backtracking and less optimal."
+    },
+    {
+      "turn": 58,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the north and east, with the south cell being free but leading to immediate backtracking. The west cell is free and does not lead to immediate backtracking, so moving west is the safest and most valid choice to maximize team progress toward the goal while avoiding collisions and backtracking."
+    },
+    {
+      "turn": 58,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal bearing is to the East with a FAR strength, and the adjacent cell to the East is free. Despite oscillation in previous moves, moving East now is the safest action that aligns with progressing toward the goal."
+    },
+    {
+      "turn": 58,
+      "agent_id": "a3",
+      "comment": "FINISHED"
+    },
+    {
+      "turn": 59,
+      "agent_id": "a2",
+      "comment": "Moving north is the best choice because the north cell is free, aligned with the goal sensor's bearing to the northeast, and avoids immediate backtracking since the last positions were mostly south and west. The east and west cells are blocked by walls, so north is the safest and most goal-directed option."
+    },
+    {
+      "turn": 59,
+      "agent_id": "a4",
+      "comment": "The agent is currently blocked by walls to the north and south, with the east cell free but leading to immediate backtracking. The west cell is free and does not lead to immediate backtracking, so moving west is the safest valid move to avoid backtracking while advancing."
+    },
+    {
+      "turn": 59,
+      "agent_id": "a5",
+      "comment": "The goal sensor indicates the goal is to the East with FAR strength, and the adjacent cell to the East is free. Although recent positions show oscillation, moving East aligns with the goal bearing and is the safest move to progress."
+    }
+  ]
+}

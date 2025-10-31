@@ -23,22 +23,22 @@ Can LLM agents with partial observability (radius-1 vision, bearing sensor, rang
 |-----|-------|--------|-------|--------|--------|
 | `long-corridor-nano_20251029T211939Z` | gpt-5-nano | 2 | 45 | ✅ complete | Goal reached, 0 collisions, 0 messages |
 | `azure_parallel_fix_20251030T215123Z` | gpt-4.1-mini (Azure) | 5 | 60 | ✅ complete | Goal not reached (timed out), 0 collisions, 0 comms |
+| `azure_history_comms_20251031T163231Z` | gpt-4.1-mini (Azure) | 5 | 60 | ✅ complete | Timed out, history enabled, 0 collisions, 0 comms |
+| `azure_history_no_comms_20251031T163443Z` | gpt-4.1-mini (Azure) | 5 | 60 | ✅ complete | Timed out, radio disabled, 8 collisions |
 
 ## Current Status
 
-**Latest run:** `azure_parallel_fix_20251030T215123Z`
-- 5 agents on `long_corridor`, Azure `gpt-4.1-mini`, 60-turn budget
-- Concurrency window sustained at 5 without stalls after async refactor
-- Timed out at 60 turns (0 collisions, no comms) — requires strategy tweaks for goal capture
-- No active runs at the moment
+**Latest runs:**
+- `azure_history_comms_20251031T163231Z` — 5 agents, concurrency=5, radio range 2. History payload enabled; run timed out at 60 turns with 0 collisions.
+- `azure_history_no_comms_20251031T163443Z` — identical setup but radio range 0 (no delivery). Timed out at 60 turns with 8 collisions.
+- No active runs at the moment.
 
 ## Key Findings
 
-**Async refactor (2025-10-30):**
-- Problem: Multi-agent runs stalled after turn 0 when concurrency >1.
-- Root cause: mixing `asyncio.run()` inside thread workers with shared async locks caused cross-loop deadlocks.
-- Fix: Policy/driver fully async (`run_episode` keeps single loop) and rate limiter semaphores are loop-scoped.
-- Result: 5-agent Azure run completed 60 turns with `concurrency_start=5` without hanging.
+**Async refactor + history context (2025-10-30/31):**
+- Problem (old code): multi-agent runs stalled after turn 0 when concurrency >1; agents lacked structured memory of prior turns.
+- Fix: Policy/driver now fully async with loop-scoped concurrency control, and observations expose the last five decisions/messages in `history`.
+- Result: 5-agent Azure runs complete a full 60-turn budget even at concurrency 5. History is available for prompting; comms-enabled run remained collision-free, while disabling radio increased collisions (8) and still failed to reach the goal.
 
 **Baseline Performance:**
 - 2 agents: Goal reached in 45 turns (OpenRouter gpt-5-nano).
