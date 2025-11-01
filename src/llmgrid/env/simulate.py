@@ -5,10 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import random
-from collections import deque
-from dataclasses import dataclass
+from collections import Counter, deque
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional, TextIO
+from typing import Any, Dict, Iterable, List, Literal, Optional, TextIO, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -16,14 +16,17 @@ from llmgrid.agent.llm_agent import DecisionTrace, LlmPolicy
 from llmgrid.agent.local_baseline import GreedyBaseline
 from llmgrid.env.grid import GridWorld
 from llmgrid.schema import (
+    AdjacentState,
     Decision,
     Direction,
     MessageBrief,
+    MoveOutcome,
     Observation,
     OutgoingMessage,
     PlacedArtifact,
     Position,
     ReceivedMessage,
+    StayAction,
     TurnHistory,
 )
 
@@ -36,6 +39,14 @@ class EpisodeMetrics:
     marks_placed: int
     collisions: int
     reasoning_log: List[Dict[str, Any]]
+    collision_causes: Dict[str, int] = field(default_factory=dict)
+    hazard_events: int = 0
+    comments_clamped: int = 0
+    comments_autofilled: int = 0
+    no_go_exposures: int = 0
+    contended_exposures: int = 0
+    history_limit: int = 5
+    loop_guidance: str = "passive"
 
 
 @dataclass
@@ -177,6 +188,7 @@ class GridWorldState(BaseModel):
     bearing_bias_seed: Optional[int] = None
     bearing_bias_p: float = 0.0
     bearing_bias_wall_bonus: float = 0.0
+    history_limit: int = 5
 
     @classmethod
     def capture(cls, world: GridWorld) -> "GridWorldState":
@@ -207,6 +219,7 @@ class GridWorldState(BaseModel):
             bearing_bias_seed=world.bearing_bias_seed,
             bearing_bias_p=world.bearing_bias_p,
             bearing_bias_wall_bonus=world.bearing_bias_wall_bonus,
+            history_limit=world.history_limit,
         )
 
     def restore(self) -> GridWorld:
@@ -221,6 +234,7 @@ class GridWorldState(BaseModel):
             bearing_bias_seed=self.bearing_bias_seed,
             bearing_bias_p=self.bearing_bias_p,
             bearing_bias_wall_bonus=self.bearing_bias_wall_bonus,
+            history_limit=self.history_limit,
         )
         world.walls = {(p.x, p.y) for p in self.walls}
         world.occupancy = {aid: (pos.x, pos.y) for aid, pos in self.occupancy.items()}
@@ -235,7 +249,7 @@ class GridWorldState(BaseModel):
         world.turn_history = {
             aid: deque(
                 [history.model_dump() if isinstance(history, TurnHistory) else history for history in histories],
-                maxlen=5,
+                maxlen=self.history_limit,
             )
             for aid, histories in self.turn_history.items()
         }
@@ -268,6 +282,9 @@ class EpisodeCheckpoint(BaseModel):
     movement_stream_path: Optional[str] = None
     episode_path: Optional[str] = None
     concurrency_window: int = 1
+    comm_strategy: str = "none"
+    history_limit: int = 5
+    loop_guidance: str = "passive"
 
     @classmethod
     def load(cls, path: Path) -> "EpisodeCheckpoint":
@@ -278,9 +295,16 @@ class EpisodeCheckpoint(BaseModel):
         path.write_text(self.model_dump_json(indent=2), encoding="utf-8")
 
 
-def _resolve_policy(use_llm: bool, model_id: str, seed: int) -> "PolicyProtocol":
+def _resolve_policy(
+    use_llm: bool,
+    model_id: str,
+    seed: int,
+    strategy: str,
+    loop_guidance: str,
+    history_limit: int,
+) -> "PolicyProtocol":
     if use_llm:
-        return LlmPolicy(model_id)
+        return LlmPolicy(model_id, strategy=strategy, loop_guidance=loop_guidance, history_limit=history_limit)
     return GreedyBaseline(seed=seed)
 
 
@@ -330,9 +354,21 @@ async def _run_episode_async(
     retry_max_attempts: int = 5,
     retry_base_delay: float = 1.0,
     retry_jitter: float = 0.5,
+    comm_strategy: str = "none",
+    history_limit: int = 5,
+    loop_guidance: str = "passive",
 ) -> EpisodeMetrics:
     """Simulate a single episode and return aggregate metrics."""
 
+    history_limit = max(1, history_limit)
+    loop_guidance = loop_guidance.lower()
+    comm_strategy = comm_strategy.lower()
+    collision_cause_counts: Counter[str] = Counter()
+    hazard_events = 0
+    comments_clamped = 0
+    comments_autofilled = 0
+    no_go_exposures = 0
+    contended_exposures = 0
     maze_meta = maze_metadata or {}
 
     if resume is not None:
@@ -342,6 +378,17 @@ async def _run_episode_async(
 
     if resume is not None:
         world = resume.world.restore()
+        if history_limit != world.history_limit:
+            raise ValueError(
+                f"Checkpoint recorded with history_limit={world.history_limit}; got history_limit={history_limit}."
+            )
+        history_limit = world.history_limit
+        resume_loop_guidance = getattr(resume, "loop_guidance", "passive")
+        if loop_guidance != resume_loop_guidance:
+            raise ValueError(
+                f"Checkpoint recorded with loop_guidance={resume_loop_guidance!r}; got loop_guidance={loop_guidance!r}."
+            )
+        loop_guidance = resume_loop_guidance
         messages_sent = resume.messages_sent
         marks_placed = resume.marks_placed
         collisions = resume.collisions
@@ -364,6 +411,7 @@ async def _run_episode_async(
             bearing_bias_seed=bearing_bias_seed,
             bearing_bias_p=bearing_bias_p,
             bearing_bias_wall_bonus=bearing_bias_wall_bonus,
+            history_limit=history_limit,
         )
         for idx, (agent_id, pos) in enumerate(start_positions.items()):
             orientation = [Direction.N, Direction.S, Direction.E, Direction.W][idx % 4]
@@ -380,7 +428,7 @@ async def _run_episode_async(
                 movement_writer.write("\n")
                 movement_writer.flush()
 
-    policy = _resolve_policy(use_llm, model_id, seed)
+    policy = _resolve_policy(use_llm, model_id, seed, comm_strategy, loop_guidance, history_limit)
     if resume is not None and isinstance(policy, GreedyBaseline) and resume.baseline_rng_state is not None:
         policy.set_state(_thaw_random_state(resume.baseline_rng_state))
 
@@ -428,8 +476,12 @@ async def _run_episode_async(
                 movement_stream_path=movement_stream_path,
                 episode_path=episode_path,
                 concurrency_window=concurrency_window,
+                comm_strategy=comm_strategy,
+                history_limit=history_limit,
+                loop_guidance=loop_guidance,
             )
             checkpoint.write(checkpoint_path)
+        cause_dict = dict(collision_cause_counts)
         return EpisodeMetrics(
             turns=start_turn,
             success=success_now,
@@ -437,9 +489,21 @@ async def _run_episode_async(
             marks_placed=marks_placed,
             collisions=collisions,
             reasoning_log=reasoning_log,
+            collision_causes=cause_dict,
+            hazard_events=hazard_events,
+            comments_clamped=comments_clamped,
+            comments_autofilled=comments_autofilled,
+            no_go_exposures=no_go_exposures,
+            contended_exposures=contended_exposures,
+            history_limit=history_limit,
+            loop_guidance=loop_guidance,
         )
 
     for turn in range(start_turn, turns):
+        goal_distances_before: Dict[str, int] = {
+            aid: abs(world.occupancy[aid][0] - world.goal.x) + abs(world.occupancy[aid][1] - world.goal.y)
+            for aid in agent_ids
+        }
         active_agents = [aid for aid in agent_ids if not world.is_finished(aid)]
 
         observations: Dict[str, Observation] = {}
@@ -451,6 +515,13 @@ async def _run_episode_async(
                 visibility_radius=visibility,
                 radio_range=radio_range,
             )
+
+        for obs in observations.values():
+            for adjacent in obs.adjacent:
+                if adjacent.state == AdjacentState.NO_GO:
+                    no_go_exposures += 1
+                if adjacent.state == AdjacentState.CONTENDED:
+                    contended_exposures += 1
 
         capture_trace = transcript is not None and hasattr(policy, "decide_with_trace_async")
         if use_llm:
@@ -487,7 +558,7 @@ async def _run_episode_async(
                     transcript_writer.write(json.dumps(outcome.record))
                     transcript_writer.write("\n")
                     transcript_writer.flush()
-            comment = decisions[aid].comment
+            comment = _truncate(decisions[aid].comment)
             reasoning_log.append(
                 {
                     "turn": turn,
@@ -495,10 +566,6 @@ async def _run_episode_async(
                     "comment": comment if comment is not None else "",
                 }
             )
-
-        for aid in active_agents:
-            history_payload = _build_history_entry(turn, decisions[aid], observations[aid])
-            world.record_history(aid, history_payload)
 
         if use_llm:
             if had_retry:
@@ -527,13 +594,27 @@ async def _run_episode_async(
         for aid, decision in decisions.items():
             intents[aid] = decision.action.direction if decision.action.kind == "MOVE" else None
 
-        world.resolve_moves(intents)
+        move_results = world.resolve_moves(intents)
         after = dict(world.occupancy)
         for aid, direction in intents.items():
             if direction is None:
                 continue
             if before[aid] == after[aid]:
                 collisions += 1
+
+        contested_cells = {
+            result.cause_cell
+            for result in move_results.values()
+            if result.cause_cell is not None and result.outcome in (MoveOutcome.BLOCK_AGENT, MoveOutcome.SWAP_CONFLICT)
+        }
+        for result in move_results.values():
+            if result.outcome not in (MoveOutcome.OK, MoveOutcome.FINISHED, MoveOutcome.YIELD):
+                collision_cause_counts[result.outcome.value] += 1
+        hazard_events += len(contested_cells)
+        world.contended_neighbors = {
+            aid: _compute_contended_mask(world.occupancy[aid], contested_cells)
+            for aid in world.occupancy.keys()
+        }
 
         world.decay_artifacts()
 
@@ -551,6 +632,36 @@ async def _run_episode_async(
                     "comment": "FINISHED",
                 }
             )
+
+        for aid in active_agents:
+            result = move_results[aid]
+            observation = observations[aid]
+            distance_before = goal_distances_before.get(aid, world.last_goal_distance.get(aid, 0))
+            pos = world.occupancy[aid]
+            distance_after = abs(pos[0] - world.goal.x) + abs(pos[1] - world.goal.y)
+            delta = _goal_delta(distance_before, distance_after)
+            loop_val = world.loop_counters.get(aid, 0)
+            if delta == "CLOSER":
+                loop_val = 0
+            else:
+                loop_val = min(9, loop_val + 1)
+            world.loop_counters[aid] = loop_val
+            world.last_goal_distance[aid] = distance_after
+            world.last_move_outcome[aid] = result.outcome
+            world.last_intent_target[aid] = result.target
+            peer_bits = _peer_bits(observation)
+            note = _derive_note(result, loop_val)
+            history_payload = _make_history_entry(
+                turn=turn,
+                decision=decisions[aid],
+                observation=observation,
+                result=result,
+                delta=delta,
+                loop_value=loop_val,
+                peer_bits=peer_bits,
+                note=note,
+            )
+            world.record_history(aid, history_payload)
 
         if movement is not None:
             action_map: Dict[str, Optional[str]] = {}
@@ -599,10 +710,14 @@ async def _run_episode_async(
                 movement_stream_path=movement_stream_path,
                 episode_path=episode_path,
                 concurrency_window=concurrency_window,
+                comm_strategy=comm_strategy,
+                history_limit=history_limit,
+                loop_guidance=loop_guidance,
             )
             checkpoint.write(checkpoint_path)
 
         if world.all_agents_on_goal(agent_ids):
+            cause_dict = dict(collision_cause_counts)
             return EpisodeMetrics(
                 turns=turn + 1,
                 success=True,
@@ -610,8 +725,17 @@ async def _run_episode_async(
                 marks_placed=marks_placed,
                 collisions=collisions,
                 reasoning_log=reasoning_log,
+                collision_causes=cause_dict,
+                hazard_events=hazard_events,
+                comments_clamped=comments_clamped,
+                comments_autofilled=comments_autofilled,
+                no_go_exposures=no_go_exposures,
+                contended_exposures=contended_exposures,
+                history_limit=history_limit,
+                loop_guidance=loop_guidance,
             )
 
+    cause_dict = dict(collision_cause_counts)
     return EpisodeMetrics(
         turns=turns,
         success=False,
@@ -619,6 +743,14 @@ async def _run_episode_async(
         marks_placed=marks_placed,
         collisions=collisions,
         reasoning_log=reasoning_log,
+        collision_causes=cause_dict,
+        hazard_events=hazard_events,
+        comments_clamped=comments_clamped,
+        comments_autofilled=comments_autofilled,
+        no_go_exposures=no_go_exposures,
+        contended_exposures=contended_exposures,
+        history_limit=history_limit,
+        loop_guidance=loop_guidance,
     )
 
 
@@ -655,6 +787,9 @@ def run_episode(
     retry_max_attempts: int = 5,
     retry_base_delay: float = 1.0,
     retry_jitter: float = 0.5,
+    comm_strategy: str = "none",
+    history_limit: int = 5,
+    loop_guidance: str = "passive",
 ) -> EpisodeMetrics:
     """Synchronously run the async driver in a fresh event loop."""
     return asyncio.run(
@@ -690,6 +825,9 @@ def run_episode(
             retry_max_attempts=retry_max_attempts,
             retry_base_delay=retry_base_delay,
             retry_jitter=retry_jitter,
+            comm_strategy=comm_strategy,
+            history_limit=history_limit,
+            loop_guidance=loop_guidance,
         )
     )
 
@@ -715,6 +853,31 @@ def _recipients_in_range(world: GridWorld, sender_id: str, radio_range: int) -> 
         if abs(x - sx) + abs(y - sy) <= radio_range:
             recipients.append(aid)
     return recipients
+
+
+def _compute_contended_mask(position: Tuple[int, int], contested_cells: Iterable[Optional[Tuple[int, int]]]) -> int:
+    """Return a NESW bitmask for contested neighbour cells relative to `position`."""
+
+    if not contested_cells:
+        return 0
+
+    x, y = position
+    mask = 0
+    for cell in contested_cells:
+        if cell is None:
+            continue
+        cx, cy = cell
+        dx = cx - x
+        dy = cy - y
+        if dx == 0 and dy == -1:
+            mask |= 0b0001  # north
+        elif dx == 1 and dy == 0:
+            mask |= 0b0010  # east
+        elif dx == 0 and dy == 1:
+            mask |= 0b0100  # south
+        elif dx == -1 and dy == 0:
+            mask |= 0b1000  # west
+    return mask
 
 
 def _decision_action_label(decision: Optional[Decision]) -> Optional[str]:
@@ -784,8 +947,54 @@ def _summarise_received(received: ReceivedMessage) -> MessageBrief:
     return brief
 
 
-def _build_history_entry(turn: int, decision: Decision, observation: Observation) -> dict:
-    action_label = _decision_action_label(decision) or decision.action.kind
+def _intent_token(action_label: str) -> str:
+    valid = {"MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE", "MARK"}
+    if action_label in valid:
+        return action_label
+    if action_label.startswith("MOVE_") and len(action_label) == 6 and action_label[-1] in {"N", "E", "S", "W"}:
+        return action_label
+    return "STAY"
+
+
+def _goal_delta(before: int, after: int) -> str:
+    if after < before:
+        return "CLOSER"
+    if after > before:
+        return "FARTHER"
+    return "SAME"
+
+
+def _peer_bits(observation: Observation) -> str:
+    flags = {"N": 0, "E": 0, "S": 0, "W": 0}
+    for cell in observation.adjacent:
+        if cell.state == AdjacentState.AGENT:
+            flags[cell.dir] = 1
+    bits = f"N{flags['N']}E{flags['E']}S{flags['S']}W{flags['W']}"
+    recent_intent = observation.history[0].intent if observation.history else "-"
+    return f"{bits}|intent:{recent_intent}"
+
+
+def _derive_note(result: "MoveResult", loop_value: int) -> Optional[str]:
+    if loop_value >= 3:
+        return "AVOID_LOOP"
+    if result.outcome in (MoveOutcome.BLOCK_AGENT, MoveOutcome.SWAP_CONFLICT):
+        return "TRAFFIC_CONE"
+    return None
+
+
+def _make_history_entry(
+    *,
+    turn: int,
+    decision: Decision,
+    observation: Observation,
+    result: "MoveResult",
+    delta: str,
+    loop_value: int,
+    peer_bits: str,
+    note: Optional[str],
+) -> dict:
+    action_label = _decision_action_label(decision) or decision.action.kind.upper()
+    intent_token = _intent_token(action_label)
     comment = _truncate(decision.comment)
     sent_brief = None
     if decision.action.kind == "COMMUNICATE":
@@ -793,12 +1002,23 @@ def _build_history_entry(turn: int, decision: Decision, observation: Observation
     received = [_summarise_received(msg) for msg in observation.inbox]
     entry = TurnHistory(
         turn_index=turn,
-        action=action_label,
-        comment=comment,
-        sent_message=sent_brief,
-        received_messages=received,
+        intent=intent_token,
+        outcome=result.outcome,
+        delta=delta,
+        loop=min(loop_value, 9),
+        peer_bits=peer_bits,
+        note=note,
     )
-    return entry.model_dump()
+    payload = entry.model_dump()
+    payload.update(
+        {
+            "action": action_label,
+            "comment": comment,
+            "sent_message": sent_brief,
+            "received_messages": received,
+        }
+    )
+    return payload
 
 
 def _append_snapshot(

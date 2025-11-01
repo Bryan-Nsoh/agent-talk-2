@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional, Union, Literal
+from typing import Dict, List, Optional, Tuple, Union, Literal
 
 from pydantic import BaseModel, Field
 
@@ -295,6 +295,17 @@ class MsgMarkInfo(BaseMsg):
     )
 
 
+class MsgChat(BaseMsg):
+    """Free-form message for natural-language coordination."""
+
+    kind: Literal["CHAT"] = "CHAT"
+    text: str = Field(
+        description="Short sentence (<=96 chars) intended for nearby teammates.",
+        max_length=96,
+        min_length=1,
+    )
+
+
 OutgoingMessage = Union[
     MsgHello,
     MsgHere,
@@ -305,6 +316,7 @@ OutgoingMessage = Union[
     MsgAck,
     MsgBye,
     MsgMarkInfo,
+    MsgChat,
 ]
 
 
@@ -375,13 +387,35 @@ class AgentSelf(BaseModel):
     orientation: Direction = Field(description="Current facing direction.")
 
 
+class AdjacentState(str, Enum):
+    """Categorisation for cells adjacent to the agent."""
+
+    FREE = "FREE"
+    WALL = "WALL"
+    OUT_OF_BOUNDS = "OUT_OF_BOUNDS"
+    AGENT = "AGENT"
+    GOAL = "GOAL"
+    CONTENDED = "CONTENDED"
+    NO_GO = "NO_GO"
+
+
 class AdjacentCell(BaseModel):
     """Cardinal neighbor state to remove ambiguity from ASCII patches."""
 
     dir: Literal["N", "E", "S", "W"] = Field(description="Cardinal direction from the current cell.")
-    state: Literal["FREE", "WALL", "OUT_OF_BOUNDS", "AGENT", "GOAL"] = Field(
-        description="Occupancy classification for the neighbor."
-    )
+    state: AdjacentState = Field(description="Occupancy classification for the neighbor.")
+
+
+class MoveOutcome(str, Enum):
+    """Execution result for the agent's previous action."""
+
+    OK = "OK"
+    BLOCK_WALL = "BLOCK_WALL"
+    BLOCK_OOB = "BLOCK_OOB"
+    BLOCK_AGENT = "BLOCK_AGENT"
+    SWAP_CONFLICT = "SWAP_CONFLICT"
+    YIELD = "YIELD"
+    FINISHED = "FINISHED"
 
 
 class Observation(BaseModel):
@@ -402,9 +436,7 @@ class Observation(BaseModel):
     inbox: List[ReceivedMessage] = Field(
         description="Messages delivered during this turn."
     )
-    adjacent: List[AdjacentCell] = Field(
-        description="Passability summary for the N/E/S/W neighboring cells."
-    )
+    adjacent: List[AdjacentCell] = Field(description="Passability summary for the N/E/S/W neighboring cells.")
     recent_positions: List[Position] = Field(
         description="Most recent absolute positions occupied by the agent (newest first)."
     )
@@ -412,6 +444,14 @@ class Observation(BaseModel):
     mark_limits: MarkLimits = Field(description="Artifact placement constraints.")
     goal_sensor: GoalSensorReading = Field(
         description="Sensing information pointing toward the goal."
+    )
+    last_move_outcome: MoveOutcome = Field(
+        description="Outcome of the agent's previous action."
+    )
+    contended_neighbors: int = Field(
+        ge=0,
+        le=15,
+        description="Bitmask (NESW) of neighbors targeted by multiple agents on the previous turn.",
     )
     history: List["TurnHistory"] = Field(
         default_factory=list,
@@ -477,11 +517,17 @@ class TurnHistory(BaseModel):
     """Summary of the agent's own previous turns."""
 
     turn_index: int = Field(ge=0, description="Turn number this event represents.")
-    action: str = Field(description="Action label executed on that turn (e.g., MOVE_E).")
-    comment: Optional[str] = Field(default=None, description="Comment supplied with the decision.")
-    sent_message: Optional[MessageBrief] = Field(
-        default=None, description="Message broadcast that turn, if any."
+    intent: Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE", "MARK"] = Field(
+        description="Intent chosen on that turn."
     )
-    received_messages: List[MessageBrief] = Field(
-        default_factory=list, description="Messages delivered before this decision."
+    outcome: MoveOutcome = Field(description="Result of executing the intent.")
+    delta: Literal["CLOSER", "SAME", "FARTHER"] = Field(description="Change in Manhattan distance to the goal.")
+    loop: int = Field(ge=0, le=9, description="Consecutive turns without progress (capped at 9).")
+    peer_bits: str = Field(
+        description="Compact encoding of nearby agents/intents (e.g., 'N1E0S0W0|intent:E')."
+    )
+    note: Optional[str] = Field(
+        default=None,
+        max_length=12,
+        description="Short status token (e.g., AVOID_LOOP, INTENT_SEEN, TRAFFIC_CONE).",
     )

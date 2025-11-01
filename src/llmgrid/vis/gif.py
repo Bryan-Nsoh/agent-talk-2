@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
@@ -59,6 +60,8 @@ class GifRenderer:
         self.gradient = self._compute_gradient()
         self.inferred_finished_turn: Dict[str, int] = {}
         self._infer_finished_turns()
+        self.base_sprites = self._load_base_sprites()
+        self.sprite_cache: Dict[Tuple[str, Tuple[int, int, int]], Image.Image] = {}
 
     def _build_agent_colors(self) -> Dict[str, Tuple[int, int, int]]:
         colors: Dict[str, Tuple[int, int, int]] = {}
@@ -131,6 +134,7 @@ class GifRenderer:
                 self._draw_auras(canvas, frame)
             self._draw_goal(draw)
             self._draw_agents(canvas, frame)
+            self._draw_hazards(canvas, frame)
             self._draw_hud(draw, frame.t)
             if self.opts.show_legend:
                 self._draw_legend(draw, frame)
@@ -235,74 +239,102 @@ class GifRenderer:
         canvas.alpha_composite(overlay)
 
     def _draw_agents(self, canvas: Image.Image, frame) -> None:
-        agents = frame.agents
         turn = frame.t
-
-        from collections import defaultdict
-
-        pos_to_agents: Dict[Tuple[int, int], List[AgentState]] = defaultdict(list)
-        for agent in agents:
-            if self._agent_status(agent, turn) == "FINISHED":
-                continue
-            pos_to_agents[(agent.pos.x, agent.pos.y)].append(agent)
-
-        draw = ImageDraw.Draw(canvas, "RGBA")
         cell_size = self.opts.cell_size
         inset = max(2, cell_size // 5)
 
-        for (x, y), grouped_agents in pos_to_agents.items():
-            tile = self._compose_agent_tile(grouped_agents)
-            if tile is None:
+        for agent in frame.agents:
+            if self._agent_status(agent, turn) == "FINISHED":
                 continue
-
-            rect = self._cell_rect(x, y)
+            sprite = self._sprite_for_agent(agent, cell_size)
+            if sprite is None:
+                continue
+            rect = self._cell_rect(agent.pos.x, agent.pos.y)
             dest = (rect[0], rect[1])
-
-            base_is_goal = (x, y) == self.goal
-            base_is_wall = (x, y) in self.walls
-
-            tile_to_paste = tile
+            base_is_goal = (agent.pos.x, agent.pos.y) == self.goal
+            base_is_wall = (agent.pos.x, agent.pos.y) in self.walls
+            to_paste = sprite
             if base_is_goal or base_is_wall:
                 inner_size = max(1, cell_size - inset * 2)
                 if inner_size > 0:
-                    inner_tile = tile.resize((inner_size, inner_size), Image.BILINEAR)
-                    trimmed = Image.new("RGBA", (cell_size, cell_size), (0, 0, 0, 0))
-                    trimmed.paste(inner_tile, (inset, inset), inner_tile)
-                    tile_to_paste = trimmed
-
-            canvas.paste(tile_to_paste, dest, tile_to_paste)
+                    inner = sprite.resize((inner_size, inner_size), Image.LANCZOS)
+                    framed = Image.new("RGBA", (cell_size, cell_size), (0, 0, 0, 0))
+                    framed.paste(inner, (inset, inset), inner)
+                    to_paste = framed
+            canvas.paste(to_paste, dest, to_paste)
+        draw = ImageDraw.Draw(canvas, "RGBA")
+        for agent in frame.agents:
+            rect = self._cell_rect(agent.pos.x, agent.pos.y)
             draw.rectangle(rect, outline=BLACK, width=2)
 
-    def _compose_agent_tile(self, agents: List[AgentState]) -> Optional[Image.Image]:
-        if not agents:
-            return None
-        size = self.opts.cell_size
-        tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        for agent in sorted(agents, key=lambda a: a.agent_id):
-            color = self.agent_colors.get(agent.agent_id, (0, 0, 0))
-            layer = Image.new("RGBA", (size, size), (*color, AGENT_ALPHA))
-            tile = Image.alpha_composite(tile, layer)
-        return self._normalize_alpha(tile, AGENT_ALPHA)
+    def _draw_hazards(self, canvas: Image.Image, frame) -> None:
+        hazards = getattr(frame, "hazards", None)
+        if not hazards:
+            return
+        draw = ImageDraw.Draw(canvas, "RGBA")
+        radius = max(2, self.opts.cell_size // 6)
+        fill = (128, 128, 128, 200)
+        for hazard in hazards:
+            rect = self._cell_rect(hazard.pos.x, hazard.pos.y)
+            cx = (rect[0] + rect[2]) // 2
+            cy = (rect[1] + rect[3]) // 2
+            draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=fill, outline=BLACK)
 
-    @staticmethod
-    def _normalize_alpha(tile: Image.Image, target_alpha: int) -> Image.Image:
-        if target_alpha >= 255:
-            return tile
-        pixels = tile.load()
-        width, height = tile.size
+    def _sprite_for_agent(self, agent: AgentState, cell_size: int) -> Optional[Image.Image]:
+        orientation = (agent.orientation or "E").upper()
+        orient_key = {
+            "N": "north",
+            "S": "south",
+            "E": "east",
+            "W": "west",
+        }.get(orientation, "east")
+        color = self.agent_colors.get(agent.agent_id, (80, 80, 80))
+        cache_key = (orient_key, color, cell_size)
+        if cache_key in self.sprite_cache:
+            sprite = self.sprite_cache[cache_key]
+            return sprite
+        base = self.base_sprites.get(orient_key)
+        if base is None:
+            return None
+        tinted = self._tint_sprite(base, color)
+        if tinted.size != (cell_size, cell_size):
+            tinted = tinted.resize((cell_size, cell_size), Image.LANCZOS)
+        self.sprite_cache[cache_key] = tinted
+        return tinted
+
+    def _tint_sprite(self, sprite: Image.Image, color: Tuple[int, int, int]) -> Image.Image:
+        body_main = (220, 30, 30, 255)
+        body_shadow = (150, 0, 0, 255)
+        backpack = (180, 20, 20, 255)
+        target_main = (*color, 255)
+        target_shadow = tuple(min(255, int(c * 0.65)) for c in (*color,)) + (255,)
+        target_backpack = tuple(min(255, int(c * 0.85)) for c in (*color,)) + (255,)
+
+        tinted = sprite.copy()
+        pixels = tinted.load()
+        width, height = tinted.size
         for y in range(height):
             for x in range(width):
                 r, g, b, a = pixels[x, y]
                 if a == 0:
                     continue
-                if a == target_alpha:
-                    continue
-                scale = target_alpha / a
-                r = min(255, int(r * scale))
-                g = min(255, int(g * scale))
-                b = min(255, int(b * scale))
-                pixels[x, y] = (r, g, b, target_alpha)
-        return tile
+                current = (r, g, b, a)
+                if current == body_main:
+                    pixels[x, y] = target_main
+                elif current == body_shadow:
+                    pixels[x, y] = target_shadow
+                elif current == backpack:
+                    pixels[x, y] = target_backpack
+        return tinted
+
+    def _load_base_sprites(self) -> Dict[str, Image.Image]:
+        sprites: Dict[str, Image.Image] = {}
+        base_dir = Path(__file__).resolve().parents[3] / "assets" / "sprites"
+        for orient in ("north", "south", "east", "west"):
+            path = base_dir / f"crewmate_{orient}.png"
+            if path.is_file():
+                sprites[orient] = Image.open(path).convert("RGBA")
+        return sprites
 
     def _draw_hud(self, draw: ImageDraw.ImageDraw, turn: int) -> None:
         # HUD content rendered in legend; nothing extra here.
@@ -340,6 +372,10 @@ class GifRenderer:
                 info += " FINISHED"
             draw.text((left + 36, text_y + 2), info, fill=BLACK, font=self.font)
             text_y += 24
+
+        hazard_rect = (left + 8, text_y, left + 28, text_y + 20)
+        draw.ellipse(hazard_rect, fill=(128, 128, 128, 200), outline=BLACK)
+        draw.text((left + 36, text_y + 2), "NO_GO cone", fill=BLACK, font=self.font)
 
 
 # Gradient helpers ----------------------------------------------------

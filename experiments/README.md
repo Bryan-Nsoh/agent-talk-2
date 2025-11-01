@@ -1,8 +1,21 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-10-30
+**Last updated:** 2025-10-31
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
+
+## Experiments
+
+| Date | Experiment | Status | Outcome | Result |
+|------|------------|--------|---------|--------|
+| 2025-10-31 | [loop-recovery](./loop-recovery_20251031T213232Z/) | ?running | - | Measuring history window & loop guidance |
+| 2025-10-28 | [two-agents-bearing-r1](./two-agents-bearing-r1_20251028T120000Z/) | ?running | ✖ not useful | Bearing-mode multi-agent navigation |
+
+### Status Legend
+- ?running | ✔ complete | ✖ failed | ? abandoned
+
+### Outcome Legend
+- ✔ useful | ✖ not useful | ? inconclusive | - not determined
 
 ## Curated Maze Presets
 
@@ -43,6 +56,7 @@ PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
   --maze-preset <PRESET> \
   --agents <N> \
   --turns <T> \
+  --comm-strategy <none|intent|negotiation|freeform> \
   --log-prompts \
   --log-movements \
   --emit-config experiments/<experiment-dir>/runs/$(date -u +%Y%m%dT%H%M%SZ)/config.yaml
@@ -58,7 +72,18 @@ PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
 - `OPENROUTER_API_KEY` (for OpenRouter)
 - `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT` (for Azure)
 
-**Concurrency & history:** The episode driver is fully async. Use `run_episode(..., concurrency_start/ max)` when scripting. Observations now include a `history` block (up to five prior turns with action/comment/message summaries). Azure `gpt-4.1-mini` has been validated at 5 concurrent agents after the refactor.
+**Concurrency & history:** The episode driver is fully async. Use `run_episode(..., concurrency_start/ max)` when scripting; Azure `gpt-4.1-mini` and OpenRouter `gpt-5-nano` both handle `concurrency_start=5` with the refactored loop-scoped limiter. Observations now supply:
+- `history`: up to five prior turns including action, status-prefixed comment, peers seen, and any outbound message summary.
+- `last_move_outcome`: enum flag for the previous turn (OK, BLOCK_WALL, BLOCK_AGENT, SWAP_CONFLICT, etc.).
+- `contended_neighbors`: NESW bitmask showing which adjacent tiles were contested last turn.
+- `last_move_outcome` plus `recent_positions` survive checkpoint/resume so prompts stay consistent mid-run.
+
+**History & comment guardrails:**
+- Turn 0 begins empty; once populated, the window remains capped at five entries (oldest entries roll off).
+- Comments are auto-prefixed with a status (e.g., `BLOCKED_AGENT(...)`) and clamped to 25 words; blank or whitespace-only comments get replaced with the status alone.
+- When comms are disabled or unused, `sent_message` stays `null`, but inbound radio traffic still populates `received_messages` with sender, hop distance, and age.
+- Traffic-cone artifacts (NO_GO markers) persist for three turns; agents see them as `NO_GO` adjacency entries and will find a gray dot overlay in the renderer.
+- Resume checkpoints persist both history and artifact TTLs; replays pick up with the exact same hazard context.
 
 ### Using tmux for Long Runs
 
@@ -92,13 +117,15 @@ PYTHONPATH=src uv run python -m llmgrid.cli.render_gif \
 
 Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility overlays.
 
+**Hazard overlay:** Collision-induced `NO_GO` markers now render as translucent gray dots centred in each affected cell and appear in the legend. They decay automatically (default TTL = 3), so the GIF timeline shows congestion clearing over time.
+
 ## Active Workstream
 
 - `two-agents-bearing-r1_20251028T120000Z/` — Multi-agent bearing-mode navigation on curated mazes
 
 **Current baseline:** 
 - `long_corridor` with 2 agents, visibility=1, completed in 45 turns (OpenRouter gpt-5-nano).
-- 5-agent Azure `gpt-4.1-mini` runs with history enabled (`azure_history_comms_20251031T163231Z`) and with radio disabled (`azure_history_no_comms_20251031T163443Z`) both finish 60 turns (timed out; collisions increase when comms are disabled).
+- Oct 31 Azure sweeps: `azure_history_comms_20251031T165305Z` (history + radio=2, 60-turn timeout, 43 collisions, no comms) vs `azure_history_no_comms_20251031T165744Z` (radio=0, 60-turn timeout, 5 collisions, agents `a1`/`a3` finished). Earlier attempt `azure_history_comms_20251031T165135Z` failed immediately due to a wrapper bug (kept for traceability).
 
 ## Key Fix: Connection Pool Exhaustion (2025-10-30)
 
@@ -109,3 +136,4 @@ Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility ov
 **Fix:** Rebuilt `LlmPolicy`/`run_episode` to stay on one event loop (no nested `asyncio.run`), loop-scoped limiter semaphores, and added a per-agent turn history injected into each observation.
 
 **Result:** 5-agent Azure runs now complete with `concurrency_start=5`. History can be surfaced to the LLM; comms-enabled run remained collision-free, whereas a no-radio baseline accumulated 8 collisions.
+- `results/metrics.json` now includes `collision_causes`, `hazard_events`, `comments_clamped`, `comments_autofilled`, `no_go_exposures`, and `contended_exposures` for downstream analysis. Adjust aggregators accordingly.

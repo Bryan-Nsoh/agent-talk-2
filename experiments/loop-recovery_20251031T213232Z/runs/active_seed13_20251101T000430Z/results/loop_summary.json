@@ -1,0 +1,76 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 20,
+          "end_turn": 23,
+          "turns": 4,
+          "max_loop": 9
+        },
+        {
+          "start_turn": 35,
+          "end_turn": 36,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 54,
+          "end_turn": 54,
+          "turns": 1,
+          "max_loop": 5
+        }
+      ],
+      "total_loop_turns": 7,
+      "max_loop": 9
+    },
+    "a2": {
+      "segments": [
+        {
+          "start_turn": 58,
+          "end_turn": 58,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 1,
+      "max_loop": 3
+    },
+    "a3": {
+      "segments": [
+        {
+          "start_turn": 16,
+          "end_turn": 17,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 35,
+          "end_turn": 36,
+          "turns": 2,
+          "max_loop": 4
+        }
+      ],
+      "total_loop_turns": 4,
+      "max_loop": 4
+    },
+    "a4": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 19,
+          "end_turn": 20,
+          "turns": 2,
+          "max_loop": 4
+        }
+      ],
+      "total_loop_turns": 2,
+      "max_loop": 4
+    }
+  }
+}

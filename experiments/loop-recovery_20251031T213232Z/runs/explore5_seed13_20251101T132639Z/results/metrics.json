@@ -1,0 +1,21 @@
+{
+  "model": "azure:gpt-5-mini",
+  "comm_strategy": "intent",
+  "seed": 13,
+  "agents": 5,
+  "maze_preset": "long_corridor",
+  "success": false,
+  "turns": 60,
+  "collisions": 3,
+  "messages_sent": 58,
+  "collision_causes": {
+    "BLOCK_AGENT": 4
+  },
+  "hazard_events": 2,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 3,
+  "contended_exposures": 0,
+  "history_limit": 5,
+  "loop_guidance": "explore"
+}

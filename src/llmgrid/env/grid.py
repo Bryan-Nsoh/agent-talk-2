@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import random
 from collections import deque
+from dataclasses import dataclass
 from typing import Deque, Dict, Iterable, List, Optional, Tuple
 
 from llmgrid.schema import (
@@ -15,14 +16,18 @@ from llmgrid.schema import (
     ArtifactNoGo,
     ArtifactTrail,
     AdjacentCell,
+    AdjacentState,
+    BlockReason,
+    CommLimits,
     Direction,
     GoalSensorBearing,
     GoalSensorReading,
     GridSize,
     LocalPatch,
     MarkLimits,
-    MsgIntent,
+    MoveOutcome,
     MsgHere,
+    MsgIntent,
     MsgMarkInfo,
     MsgSense,
     NeighborSummary,
@@ -33,11 +38,21 @@ from llmgrid.schema import (
     ReceivedMessage,
     RelativeOffset,
     StrengthBucket,
-    CommLimits,
     TurnHistory,
 )
 
 TileChar = str  # ".", "#", "G", "A", "*"
+
+TRAFFIC_CONE_TTL = 3
+
+
+@dataclass
+class MoveResult:
+    final: Tuple[int, int]
+    outcome: MoveOutcome
+    target: Optional[Tuple[int, int]]
+    opponents: List[str]
+    cause_cell: Optional[Tuple[int, int]]
 
 
 def _direction_delta(direction: Direction) -> Tuple[int, int]:
@@ -65,6 +80,7 @@ class GridWorld:
         bearing_bias_seed: Optional[int] = None,
         bearing_bias_p: float = 0.0,
         bearing_bias_wall_bonus: float = 0.0,
+        history_limit: int = 5,
     ) -> None:
         self.size = GridSize(width=width, height=height)
         self.goal = goal
@@ -75,6 +91,7 @@ class GridWorld:
         self.bearing_bias_seed = bearing_bias_seed
         self.bearing_bias_p = bearing_bias_p
         self.bearing_bias_wall_bonus = bearing_bias_wall_bonus
+        self.history_limit = max(1, history_limit)
 
         self.occupancy: Dict[str, Tuple[int, int]] = {}
         self.orientation: Dict[str, Direction] = {}
@@ -83,6 +100,11 @@ class GridWorld:
         self.finished_agents: Dict[str, bool] = {}
         self.position_history: Dict[str, List[Tuple[int, int]]] = {}
         self.turn_history: Dict[str, Deque[dict]] = {}
+        self.last_move_outcome: Dict[str, MoveOutcome] = {}
+        self.loop_counters: Dict[str, int] = {}
+        self.last_goal_distance: Dict[str, int] = {}
+        self.last_intent_target: Dict[str, Optional[Tuple[int, int]]] = {}
+        self.contended_neighbors: Dict[str, int] = {}
 
     # ------------------------------------------------------------------
     # Agent placement and utility helpers
@@ -101,7 +123,12 @@ class GridWorld:
         self.inboxes[agent_id] = []
         self.finished_agents[agent_id] = False
         self.position_history[agent_id] = [key]
-        self.turn_history[agent_id] = deque(maxlen=5)
+        self.turn_history[agent_id] = deque(maxlen=self.history_limit)
+        self.last_move_outcome[agent_id] = MoveOutcome.OK
+        self.loop_counters[agent_id] = 0
+        self.last_goal_distance[agent_id] = abs(self.goal.x - pos.x) + abs(self.goal.y - pos.y)
+        self.last_intent_target[agent_id] = None
+        self.contended_neighbors[agent_id] = 0
 
     def _in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.size.width and 0 <= y < self.size.height
@@ -155,6 +182,8 @@ class GridWorld:
             ),
             mark_limits=MarkLimits(max_ttl=12, allow_mark_info_broadcast=True),
             goal_sensor=self._bearing_sensor(ax, ay),
+            last_move_outcome=self.last_move_outcome.get(agent_id, MoveOutcome.OK),
+            contended_neighbors=self.contended_neighbors.get(agent_id, 0),
             history=[
                 TurnHistory.model_validate(item)
                 for item in list(self.turn_history.get(agent_id, []))
@@ -215,6 +244,10 @@ class GridWorld:
                 results.append(artifact)
         return results
 
+    def _has_active_no_go(self, x: int, y: int) -> bool:
+        artifact = self.artifacts.get((x, y))
+        return isinstance(artifact, ArtifactNoGo) and artifact.ttl_remaining > 0
+
     # ------------------------------------------------------------------
     # Sensors
     # ------------------------------------------------------------------
@@ -225,20 +258,28 @@ class GridWorld:
             for other_id, pos in self.occupancy.items()
             if not self.is_finished(other_id)
         }
+        mask = self.contended_neighbors.get(agent_id, 0)
         summary: List[AdjacentCell] = []
-        for dir_name, delta in {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}.items():
+        for idx, (dir_name, delta) in enumerate({"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}.items()):
             dx, dy = delta
             nx, ny = ax + dx, ay + dy
             if not self._in_bounds(nx, ny):
-                state = "OUT_OF_BOUNDS"
+                state = AdjacentState.OUT_OF_BOUNDS
             elif (nx, ny) in self.walls:
-                state = "WALL"
+                state = AdjacentState.WALL
             elif (nx, ny) == (self.goal.x, self.goal.y):
-                state = "GOAL"
+                state = AdjacentState.GOAL
             elif (nx, ny) in active_positions and active_positions[(nx, ny)] != agent_id:
-                state = "AGENT"
+                state = AdjacentState.AGENT
             else:
-                state = "FREE"
+                state = AdjacentState.FREE
+
+            if state == AdjacentState.FREE and mask & (1 << idx):
+                state = AdjacentState.CONTENDED
+
+            if state in (AdjacentState.FREE, AdjacentState.CONTENDED) and self._has_active_no_go(nx, ny):
+                state = AdjacentState.NO_GO
+
             summary.append(AdjacentCell(dir=dir_name, state=state))
         return summary
 
@@ -250,8 +291,8 @@ class GridWorld:
         if history and history[0] == current:
             return
         history.insert(0, current)
-        if len(history) > 5:
-            del history[5:]
+        if len(history) > self.history_limit:
+            del history[self.history_limit :]
 
     def _bearing_sensor(self, x: int, y: int) -> GoalSensorReading:
         if self.rng.random() < self.bearing_drop_p:
@@ -366,49 +407,157 @@ class GridWorld:
         history = self.position_history.get(agent_id)
         if history is not None and (self.goal.x, self.goal.y) not in history[:1]:
             history.insert(0, (self.goal.x, self.goal.y))
-            if len(history) > 5:
-                del history[5:]
+            if len(history) > self.history_limit:
+                del history[self.history_limit :]
+        self.last_move_outcome[agent_id] = MoveOutcome.FINISHED
+        self.loop_counters[agent_id] = 0
+        self.contended_neighbors[agent_id] = 0
 
     def record_history(self, agent_id: str, payload: dict) -> None:
         if agent_id not in self.turn_history:
-            self.turn_history[agent_id] = deque(maxlen=5)
+            self.turn_history[agent_id] = deque(maxlen=self.history_limit)
         self.turn_history[agent_id].append(payload)
 
     # ------------------------------------------------------------------
     # Movement and artifacts
     # ------------------------------------------------------------------
 
-    def resolve_moves(self, intents: Dict[str, Optional[Direction]]) -> None:
+    def resolve_moves(self, intents: Dict[str, Optional[Direction]]) -> Dict[str, MoveResult]:
+        start_positions = {aid: self.occupancy[aid] for aid in self.occupancy.keys()}
+        targets: Dict[str, Optional[Tuple[int, int]]] = {}
         proposed: Dict[str, Tuple[int, int]] = {}
+        results: Dict[str, MoveResult] = {}
+
+        for aid in self.occupancy.keys():
+            sx, sy = start_positions[aid]
+            if self.is_finished(aid):
+                proposed[aid] = (sx, sy)
+                targets[aid] = None
+                results[aid] = MoveResult(final=(sx, sy), outcome=MoveOutcome.FINISHED, target=None, opponents=[], cause_cell=None)
+
         for agent_id, direction in intents.items():
-            sx, sy = self.occupancy[agent_id]
+            sx, sy = start_positions[agent_id]
+            if self.is_finished(agent_id):
+                continue
             if direction is None:
                 proposed[agent_id] = (sx, sy)
+                targets[agent_id] = None
+                results[agent_id] = MoveResult(final=(sx, sy), outcome=MoveOutcome.YIELD, target=None, opponents=[], cause_cell=None)
                 continue
             dx, dy = _direction_delta(direction)
             tx, ty = sx + dx, sy + dy
-            if not self._in_bounds(tx, ty) or not self._passable(tx, ty):
+            targets[agent_id] = (tx, ty)
+            if not self._in_bounds(tx, ty):
                 proposed[agent_id] = (sx, sy)
-                continue
-            proposed[agent_id] = (tx, ty)
+                results[agent_id] = MoveResult(
+                    final=(sx, sy),
+                    outcome=MoveOutcome.BLOCK_OOB,
+                    target=(tx, ty),
+                    opponents=[],
+                    cause_cell=(tx, ty),
+                )
+            elif not self._passable(tx, ty):
+                proposed[agent_id] = (sx, sy)
+                results[agent_id] = MoveResult(
+                    final=(sx, sy),
+                    outcome=MoveOutcome.BLOCK_WALL,
+                    target=(tx, ty),
+                    opponents=[],
+                    cause_cell=(tx, ty),
+                )
+            else:
+                proposed[agent_id] = (tx, ty)
+                results[agent_id] = MoveResult(
+                    final=(tx, ty),
+                    outcome=MoveOutcome.OK,
+                    target=(tx, ty),
+                    opponents=[],
+                    cause_cell=None,
+                )
+
+        for aid in self.occupancy.keys():
+            if aid not in proposed:
+                proposed[aid] = start_positions[aid]
+                targets.setdefault(aid, None)
+                results.setdefault(
+                    aid,
+                    MoveResult(final=start_positions[aid], outcome=MoveOutcome.OK, target=None, opponents=[], cause_cell=None),
+                )
 
         occupants: Dict[Tuple[int, int], List[str]] = {}
-        for agent_id, cell in proposed.items():
-            if self.is_finished(agent_id):
-                self.occupancy[agent_id] = cell
-                continue
-            occupants.setdefault(cell, []).append(agent_id)
+        for aid, cell in proposed.items():
+            occupants.setdefault(cell, []).append(aid)
 
+        swap_lookup: Dict[str, List[str]] = {}
+        for aid, target in targets.items():
+            if target is None or self.is_finished(aid):
+                continue
+            for other, other_target in targets.items():
+                if other <= aid or self.is_finished(other):
+                    continue
+                if other_target is None:
+                    continue
+                if target == start_positions.get(other) and other_target == start_positions.get(aid):
+                    swap_lookup.setdefault(aid, []).append(other)
+                    swap_lookup.setdefault(other, []).append(aid)
+
+        contested_cells: List[Tuple[int, int]] = []
         for cell, ids in occupants.items():
             if len(ids) == 1:
-                self.occupancy[ids[0]] = cell
+                aid = ids[0]
+                if aid in swap_lookup:
+                    self.occupancy[aid] = start_positions[aid]
+                    opponents = swap_lookup[aid]
+                    results[aid] = MoveResult(
+                        final=start_positions[aid],
+                        outcome=MoveOutcome.SWAP_CONFLICT,
+                        target=targets.get(aid),
+                        opponents=opponents,
+                        cause_cell=targets.get(aid),
+                    )
+                    if targets.get(aid) is not None:
+                        contested_cells.append(targets[aid])
+                    continue
+
+                self.occupancy[aid] = cell
+                result = results[aid]
+                if result.outcome == MoveOutcome.OK and cell == (self.goal.x, self.goal.y):
+                    results[aid] = MoveResult(
+                        final=cell,
+                        outcome=MoveOutcome.FINISHED,
+                        target=result.target,
+                        opponents=result.opponents,
+                        cause_cell=result.cause_cell,
+                    )
                 continue
-            # Collision: everyone stays
+
+            swap = False
+            if len(ids) == 2:
+                a, b = ids
+                if targets.get(a) == start_positions.get(b) and targets.get(b) == start_positions.get(a):
+                    swap = True
+
             for aid in ids:
-                pass  # position unchanged
+                self.occupancy[aid] = start_positions[aid]
+                opponents = [other for other in ids if other != aid]
+                outcome = MoveOutcome.SWAP_CONFLICT if swap else MoveOutcome.BLOCK_AGENT
+                results[aid] = MoveResult(
+                    final=start_positions[aid],
+                    outcome=outcome,
+                    target=targets.get(aid),
+                    opponents=opponents,
+                    cause_cell=cell,
+                )
+            contested_cells.append(cell)
 
         for aid in intents.keys():
             self._record_position(aid)
+
+        for cell in contested_cells:
+            if self._in_bounds(*cell) and cell != (self.goal.x, self.goal.y) and cell not in self.walls:
+                self._place_congestion_marker(cell)
+
+        return results
 
     def place_artifact(self, agent_id: str, artifact: PlacedArtifact) -> None:
         ax, ay = self.occupancy[agent_id]
@@ -437,6 +586,13 @@ class GridWorld:
         elif isinstance(artifact, ArtifactGoalHint):
             located = artifact
         self.artifacts[(ax, ay)] = located
+
+    def _place_congestion_marker(self, cell: Tuple[int, int]) -> None:
+        existing = self.artifacts.get(cell)
+        ttl = TRAFFIC_CONE_TTL
+        if isinstance(existing, ArtifactNoGo):
+            ttl = max(existing.ttl_remaining, ttl)
+        self.artifacts[cell] = ArtifactNoGo(kind="NO_GO", reason=BlockReason.CONGESTION, ttl_remaining=ttl)
 
     def decay_artifacts(self) -> None:
         expired: List[Tuple[int, int]] = []

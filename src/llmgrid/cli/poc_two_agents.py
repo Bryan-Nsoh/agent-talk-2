@@ -21,6 +21,7 @@ from llmgrid.logging.episode_log import (
     EpisodeMeta,
     Frame as LogFrame,
     GridSize,
+    NoGoCell,
     Position as LogPosition,
     ViewShape,
 )
@@ -202,11 +203,45 @@ def main(
         max=8,
         help="Number of controllable agents to spawn (default: 2).",
     ),
+    comm_strategy: str = typer.Option(
+        "none",
+        "--comm-strategy",
+        help="Communication strategy: none, intent, negotiation, or freeform.",
+    ),
+    history_limit: int = typer.Option(
+        5,
+        "--history-limit",
+        min=1,
+        max=20,
+        help="Number of prior turns to include in observation history (default: 5).",
+    ),
+    loop_guidance: str = typer.Option(
+        "passive",
+        "--loop-guidance",
+        help="Loop-handling instructions: passive, active (break loops >=3), or explore (aggressive loop escape).",
+    ),
 ) -> None:
     # Validate model prefix
     if not (model.startswith("openrouter:") or model.startswith("azure:")):
         typer.secho(
             "Error: use --model with openrouter: or azure: prefix (e.g. azure:gpt-5-mini).",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=2)
+
+    comm_strategy = comm_strategy.lower()
+    loop_guidance = loop_guidance.lower()
+    allowed_strategies = {"none", "intent", "negotiation", "freeform"}
+    if comm_strategy not in allowed_strategies:
+        typer.secho(
+            f"Unknown communication strategy '{comm_strategy}'. Choose from: {', '.join(sorted(allowed_strategies))}.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=2)
+    allowed_loop_guidance = {"passive", "active", "explore"}
+    if loop_guidance not in allowed_loop_guidance:
+        typer.secho(
+            f"Unknown loop-guidance '{loop_guidance}'. Choose from: {', '.join(sorted(allowed_loop_guidance))}.",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=2)
@@ -258,6 +293,30 @@ def main(
                 fg=typer.colors.RED,
             )
             raise typer.Exit(code=2)
+
+        checkpoint_strategy = getattr(resume_checkpoint, "comm_strategy", "none")
+        if comm_strategy != checkpoint_strategy:
+            typer.secho(
+                f"Checkpoint was recorded with --comm-strategy {checkpoint_strategy!r}; got {comm_strategy!r}.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+        checkpoint_history = getattr(resume_checkpoint, "history_limit", history_limit)
+        if history_limit != checkpoint_history:
+            typer.secho(
+                f"Checkpoint was recorded with --history-limit {checkpoint_history}; got {history_limit}.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+        history_limit = checkpoint_history
+        checkpoint_loop_guidance = getattr(resume_checkpoint, "loop_guidance", loop_guidance)
+        if loop_guidance != checkpoint_loop_guidance:
+            typer.secho(
+                f"Checkpoint was recorded with --loop-guidance {checkpoint_loop_guidance!r}; got {loop_guidance!r}.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+        loop_guidance = checkpoint_loop_guidance
 
         width = resume_checkpoint.world.width
         height = resume_checkpoint.world.height
@@ -316,6 +375,9 @@ def main(
         "bearing_bias_p": bearing_bias_p,
         "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
         "agents": agents,
+        "comm_strategy": comm_strategy,
+        "history_limit": history_limit,
+        "loop_guidance": loop_guidance,
     }
 
     if emit_config and resume_checkpoint is None:
@@ -341,6 +403,9 @@ def main(
                 "bearing_bias_p": bearing_bias_p,
                 "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
                 "agents": agents,
+                "comm_strategy": comm_strategy,
+                "history_limit": history_limit,
+                "loop_guidance": loop_guidance,
             },
         )
 
@@ -476,6 +541,9 @@ def main(
             bearing_bias_seed=bearing_bias_seed,
             bearing_bias_p=bearing_bias_p,
             bearing_bias_wall_bonus=bearing_bias_wall_bonus,
+            comm_strategy=comm_strategy,
+            history_limit=history_limit,
+            loop_guidance=loop_guidance,
         )
     finally:
         if transcript_handle is not None:
@@ -486,6 +554,32 @@ def main(
             movement_stream_handle.close()
 
     typer.secho(json.dumps(metrics.__dict__, indent=2), fg=typer.colors.GREEN)
+
+    if emit_config is not None:
+        results_dir = emit_config.parent / "results"
+        results_dir.mkdir(parents=True, exist_ok=True)
+        metrics_path = results_dir / "metrics.json"
+        metrics_payload = {
+            "model": model,
+            "comm_strategy": comm_strategy,
+            "seed": seed,
+            "agents": agents,
+            "maze_preset": preset_name,
+            "success": metrics.success,
+            "turns": metrics.turns,
+            "collisions": metrics.collisions,
+            "messages_sent": metrics.messages_sent,
+            "collision_causes": metrics.collision_causes,
+            "hazard_events": metrics.hazard_events,
+            "comments_clamped": metrics.comments_clamped,
+            "comments_autofilled": metrics.comments_autofilled,
+            "no_go_exposures": metrics.no_go_exposures,
+            "contended_exposures": metrics.contended_exposures,
+            "history_limit": metrics.history_limit,
+            "loop_guidance": metrics.loop_guidance,
+        }
+        metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
+        typer.secho(f"Metrics saved to {metrics_path}", fg=typer.colors.BLUE)
 
     if transcript_records is not None and transcript_path is not None:
         if transcript_handle is None:
@@ -513,7 +607,11 @@ def main(
                         status=payload.get("status", "ACTIVE"),
                     )
                 )
-            frames.append(LogFrame(t=entry["turn"], agents=agents))
+            hazards = [
+                NoGoCell(pos=LogPosition(x=haz["x"], y=haz["y"]), ttl=haz["ttl"])
+                for haz in entry.get("hazards", [])
+            ]
+            frames.append(LogFrame(t=entry["turn"], agents=agents, hazards=hazards))
 
         agent_styles = _default_agent_styles(sorted(start_positions.keys()))
         episode_log = EpisodeLog(

@@ -1,0 +1,3944 @@
+{
+  "meta": {
+    "grid_size": {
+      "width": 30,
+      "height": 10
+    },
+    "goal": {
+      "x": 28,
+      "y": 1
+    },
+    "walls": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      },
+      {
+        "x": 8,
+        "y": 0
+      },
+      {
+        "x": 9,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 0
+      },
+      {
+        "x": 11,
+        "y": 0
+      },
+      {
+        "x": 12,
+        "y": 0
+      },
+      {
+        "x": 13,
+        "y": 0
+      },
+      {
+        "x": 14,
+        "y": 0
+      },
+      {
+        "x": 15,
+        "y": 0
+      },
+      {
+        "x": 16,
+        "y": 0
+      },
+      {
+        "x": 17,
+        "y": 0
+      },
+      {
+        "x": 18,
+        "y": 0
+      },
+      {
+        "x": 19,
+        "y": 0
+      },
+      {
+        "x": 20,
+        "y": 0
+      },
+      {
+        "x": 21,
+        "y": 0
+      },
+      {
+        "x": 22,
+        "y": 0
+      },
+      {
+        "x": 23,
+        "y": 0
+      },
+      {
+        "x": 24,
+        "y": 0
+      },
+      {
+        "x": 25,
+        "y": 0
+      },
+      {
+        "x": 26,
+        "y": 0
+      },
+      {
+        "x": 27,
+        "y": 0
+      },
+      {
+        "x": 28,
+        "y": 0
+      },
+      {
+        "x": 29,
+        "y": 0
+      },
+      {
+        "x": 12,
+        "y": 1
+      },
+      {
+        "x": 22,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 7,
+        "y": 2
+      },
+      {
+        "x": 8,
+        "y": 2
+      },
+      {
+        "x": 9,
+        "y": 2
+      },
+      {
+        "x": 10,
+        "y": 2
+      },
+      {
+        "x": 12,
+        "y": 2
+      },
+      {
+        "x": 14,
+        "y": 2
+      },
+      {
+        "x": 15,
+        "y": 2
+      },
+      {
+        "x": 16,
+        "y": 2
+      },
+      {
+        "x": 18,
+        "y": 2
+      },
+      {
+        "x": 19,
+        "y": 2
+      },
+      {
+        "x": 20,
+        "y": 2
+      },
+      {
+        "x": 24,
+        "y": 2
+      },
+      {
+        "x": 25,
+        "y": 2
+      },
+      {
+        "x": 26,
+        "y": 2
+      },
+      {
+        "x": 27,
+        "y": 2
+      },
+      {
+        "x": 28,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 8,
+        "y": 3
+      },
+      {
+        "x": 16,
+        "y": 3
+      },
+      {
+        "x": 20,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 8,
+        "y": 4
+      },
+      {
+        "x": 10,
+        "y": 4
+      },
+      {
+        "x": 12,
+        "y": 4
+      },
+      {
+        "x": 14,
+        "y": 4
+      },
+      {
+        "x": 16,
+        "y": 4
+      },
+      {
+        "x": 18,
+        "y": 4
+      },
+      {
+        "x": 20,
+        "y": 4
+      },
+      {
+        "x": 22,
+        "y": 4
+      },
+      {
+        "x": 24,
+        "y": 4
+      },
+      {
+        "x": 25,
+        "y": 4
+      },
+      {
+        "x": 26,
+        "y": 4
+      },
+      {
+        "x": 28,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 10,
+        "y": 5
+      },
+      {
+        "x": 14,
+        "y": 5
+      },
+      {
+        "x": 20,
+        "y": 5
+      },
+      {
+        "x": 22,
+        "y": 5
+      },
+      {
+        "x": 24,
+        "y": 5
+      },
+      {
+        "x": 28,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 7,
+        "y": 6
+      },
+      {
+        "x": 10,
+        "y": 6
+      },
+      {
+        "x": 12,
+        "y": 6
+      },
+      {
+        "x": 13,
+        "y": 6
+      },
+      {
+        "x": 14,
+        "y": 6
+      },
+      {
+        "x": 15,
+        "y": 6
+      },
+      {
+        "x": 16,
+        "y": 6
+      },
+      {
+        "x": 17,
+        "y": 6
+      },
+      {
+        "x": 18,
+        "y": 6
+      },
+      {
+        "x": 19,
+        "y": 6
+      },
+      {
+        "x": 20,
+        "y": 6
+      },
+      {
+        "x": 22,
+        "y": 6
+      },
+      {
+        "x": 23,
+        "y": 6
+      },
+      {
+        "x": 24,
+        "y": 6
+      },
+      {
+        "x": 26,
+        "y": 6
+      },
+      {
+        "x": 27,
+        "y": 6
+      },
+      {
+        "x": 28,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 10,
+        "y": 7
+      },
+      {
+        "x": 14,
+        "y": 7
+      },
+      {
+        "x": 18,
+        "y": 7
+      },
+      {
+        "x": 26,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 8
+      },
+      {
+        "x": 1,
+        "y": 8
+      },
+      {
+        "x": 2,
+        "y": 8
+      },
+      {
+        "x": 4,
+        "y": 8
+      },
+      {
+        "x": 5,
+        "y": 8
+      },
+      {
+        "x": 6,
+        "y": 8
+      },
+      {
+        "x": 7,
+        "y": 8
+      },
+      {
+        "x": 12,
+        "y": 8
+      },
+      {
+        "x": 14,
+        "y": 8
+      },
+      {
+        "x": 16,
+        "y": 8
+      },
+      {
+        "x": 20,
+        "y": 8
+      },
+      {
+        "x": 21,
+        "y": 8
+      },
+      {
+        "x": 24,
+        "y": 8
+      },
+      {
+        "x": 25,
+        "y": 8
+      },
+      {
+        "x": 28,
+        "y": 8
+      },
+      {
+        "x": 0,
+        "y": 9
+      },
+      {
+        "x": 12,
+        "y": 9
+      },
+      {
+        "x": 16,
+        "y": 9
+      },
+      {
+        "x": 24,
+        "y": 9
+      }
+    ],
+    "view": {
+      "kind": "square",
+      "radius": 1
+    },
+    "gradient_mode": "bfs",
+    "title": "azure:gpt-4.1-mini R=1",
+    "agent_styles": [
+      {
+        "agent_id": "a1",
+        "color_hex": "#1f77b4"
+      },
+      {
+        "agent_id": "a2",
+        "color_hex": "#d62728"
+      },
+      {
+        "agent_id": "a3",
+        "color_hex": "#2ca02c"
+      },
+      {
+        "agent_id": "a4",
+        "color_hex": "#9467bd"
+      },
+      {
+        "agent_id": "a5",
+        "color_hex": "#ff7f0e"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "t": 0,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 1,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 6
+          },
+          "orientation": "E",
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 5,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 0,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 1,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 5
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 6,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 2,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 7,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 1,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 3,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 4,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 3
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 8,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 4,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 5,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 9,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 5,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 6,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 10,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 6,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 7,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 11,
+            "y": 9
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 7,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 8,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 11,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 8,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 7
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 11,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 9,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 6
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 10,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 5
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 11,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 12,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 13,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 14,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 15,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 16,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 17,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 18,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 19,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 20,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 21,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 22,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 11,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 23,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 12,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 24,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 13,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 25,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 26,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 27,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 28,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 29,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 30,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 31,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 32,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 33,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 34,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 35,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 36,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 37,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 38,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 39,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 40,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 41,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 42,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 43,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 44,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 45,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 46,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 47,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 48,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 49,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 50,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 51,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 52,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 53,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 54,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 55,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 7,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 56,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 57,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 8
+          },
+          "orientation": "W",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 58,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 9,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 59,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 12,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 60,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 15,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 13,
+            "y": 7
+          },
+          "orientation": "W",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 8,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    }
+  ]
+}
