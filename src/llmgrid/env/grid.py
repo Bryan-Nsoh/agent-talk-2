@@ -486,6 +486,8 @@ class GridWorld:
 
         occupants: Dict[Tuple[int, int], List[str]] = {}
         for aid, cell in proposed.items():
+            if self.is_finished(aid):
+                continue
             occupants.setdefault(cell, []).append(aid)
 
         swap_lookup: Dict[str, List[str]] = {}

@@ -1,0 +1,104 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 29,
+          "end_turn": 29,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 53,
+          "end_turn": 53,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 123,
+          "end_turn": 123,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 136,
+          "end_turn": 136,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 4,
+      "max_loop": 3
+    },
+    "a2": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a3": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a4": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 24,
+          "end_turn": 24,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 30,
+          "end_turn": 30,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 53,
+          "end_turn": 54,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 78,
+          "end_turn": 78,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 113,
+          "end_turn": 113,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 128,
+          "end_turn": 128,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 167,
+          "end_turn": 167,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 199,
+          "end_turn": 199,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 9,
+      "max_loop": 4
+    }
+  }
+}

@@ -1,0 +1,14 @@
+PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
+  --model azure:gpt-4.1-mini \
+  --maze-preset long_corridor \
+  --agents 5 \
+  --turns 200 \
+  --visibility 1 \
+  --radio-range 2 \
+  --comm-strategy intent \
+  --history-limit 5 \
+  --loop-guidance explore \
+  --seed 13 \
+  --log-prompts \
+  --log-movements \
+  --emit-config $RUN_DIR/config.yaml

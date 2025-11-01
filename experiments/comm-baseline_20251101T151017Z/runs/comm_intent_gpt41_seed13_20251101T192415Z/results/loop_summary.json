@@ -1,0 +1,111 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 24,
+          "end_turn": 24,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 39,
+          "end_turn": 39,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 61,
+          "end_turn": 61,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 81,
+          "end_turn": 82,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 115,
+          "end_turn": 115,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 6,
+      "max_loop": 4
+    },
+    "a2": {
+      "segments": [
+        {
+          "start_turn": 29,
+          "end_turn": 29,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 62,
+          "end_turn": 62,
+          "turns": 1,
+          "max_loop": 4
+        }
+      ],
+      "total_loop_turns": 2,
+      "max_loop": 4
+    },
+    "a3": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a4": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 40,
+          "end_turn": 40,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 53,
+          "end_turn": 53,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 61,
+          "end_turn": 63,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 82,
+          "end_turn": 83,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 111,
+          "end_turn": 111,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 118,
+          "end_turn": 118,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 9,
+      "max_loop": 5
+    }
+  }
+}

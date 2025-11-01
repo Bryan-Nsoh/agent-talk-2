@@ -276,3 +276,32 @@ def test_block_wall_outcome():
     results = world.resolve_moves(intents)
     assert results["a1"].outcome == MoveOutcome.BLOCK_WALL
     assert results["a1"].cause_cell == (2, 1)
+
+
+def test_finished_agents_do_not_block_goal():
+    world = GridWorld(
+        width=3,
+        height=1,
+        obstacles=[],
+        goal=Position(x=2, y=0),
+        seed=0,
+    )
+    world.add_agent("a1", Position(x=1, y=0), Direction.E)
+    world.add_agent("a2", Position(x=0, y=0), Direction.E)
+
+    # First agent reaches the goal and finishes.
+    results = world.resolve_moves({"a1": Direction.E, "a2": None})
+    assert results["a1"].outcome == MoveOutcome.FINISHED
+    world.mark_finished("a1")
+    assert world.is_finished("a1")
+
+    # Second agent moves into the vacated cell.
+    results = world.resolve_moves({"a1": None, "a2": Direction.E})
+    assert results["a2"].outcome == MoveOutcome.OK
+    assert world.occupancy["a2"] == (1, 0)
+
+    # Second agent should now be able to enter the goal cell and finish.
+    results = world.resolve_moves({"a1": None, "a2": Direction.E})
+    assert results["a2"].outcome == MoveOutcome.FINISHED
+    world.mark_finished("a2")
+    assert world.is_finished("a2")
