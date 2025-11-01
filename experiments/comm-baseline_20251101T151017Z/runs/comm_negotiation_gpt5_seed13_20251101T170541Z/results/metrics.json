@@ -1,0 +1,21 @@
+{
+  "model": "azure:gpt-5-mini",
+  "comm_strategy": "negotiation",
+  "seed": 13,
+  "agents": 5,
+  "maze_preset": "long_corridor",
+  "success": false,
+  "turns": 200,
+  "collisions": 16,
+  "messages_sent": 427,
+  "collision_causes": {
+    "BLOCK_AGENT": 28
+  },
+  "hazard_events": 14,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 7,
+  "contended_exposures": 0,
+  "history_limit": 5,
+  "loop_guidance": "explore"
+}

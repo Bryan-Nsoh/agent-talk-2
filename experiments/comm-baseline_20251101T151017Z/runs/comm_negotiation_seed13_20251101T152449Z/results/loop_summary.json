@@ -1,0 +1,189 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 24,
+          "end_turn": 24,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 48,
+          "end_turn": 48,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 60,
+          "end_turn": 60,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 100,
+          "end_turn": 100,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 116,
+          "end_turn": 118,
+          "turns": 3,
+          "max_loop": 6
+        },
+        {
+          "start_turn": 137,
+          "end_turn": 138,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 146,
+          "end_turn": 146,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 156,
+          "end_turn": 156,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 177,
+          "end_turn": 177,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 188,
+          "end_turn": 190,
+          "turns": 3,
+          "max_loop": 5
+        }
+      ],
+      "total_loop_turns": 15,
+      "max_loop": 6
+    },
+    "a2": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a3": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a4": {
+      "segments": [
+        {
+          "start_turn": 69,
+          "end_turn": 69,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 77,
+          "end_turn": 77,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 117,
+          "end_turn": 118,
+          "turns": 2,
+          "max_loop": 8
+        },
+        {
+          "start_turn": 138,
+          "end_turn": 138,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 145,
+          "end_turn": 145,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 154,
+          "end_turn": 156,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 176,
+          "end_turn": 178,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 188,
+          "end_turn": 191,
+          "turns": 4,
+          "max_loop": 8
+        },
+        {
+          "start_turn": 199,
+          "end_turn": 199,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 17,
+      "max_loop": 8
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 17,
+          "end_turn": 18,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 24,
+          "end_turn": 26,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 48,
+          "end_turn": 49,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 60,
+          "end_turn": 62,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 77,
+          "end_turn": 77,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 95,
+          "end_turn": 95,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 118,
+          "end_turn": 118,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 13,
+      "max_loop": 5
+    }
+  }
+}

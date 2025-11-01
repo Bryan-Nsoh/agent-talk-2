@@ -1,0 +1,123 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 22,
+          "end_turn": 22,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 40,
+          "end_turn": 40,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 94,
+          "end_turn": 94,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 102,
+          "end_turn": 102,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 114,
+          "end_turn": 114,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 135,
+          "end_turn": 136,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 161,
+          "end_turn": 161,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 168,
+          "end_turn": 169,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 181,
+          "end_turn": 181,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 198,
+          "end_turn": 198,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 12,
+      "max_loop": 5
+    },
+    "a2": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a3": {
+      "segments": [
+        {
+          "start_turn": 28,
+          "end_turn": 28,
+          "turns": 1,
+          "max_loop": 6
+        }
+      ],
+      "total_loop_turns": 1,
+      "max_loop": 6
+    },
+    "a4": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 40,
+          "end_turn": 40,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 52,
+          "end_turn": 52,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 76,
+          "end_turn": 76,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 83,
+          "end_turn": 83,
+          "turns": 1,
+          "max_loop": 3
+        }
+      ],
+      "total_loop_turns": 4,
+      "max_loop": 3
+    }
+  }
+}

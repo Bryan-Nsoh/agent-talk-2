@@ -1,0 +1,147 @@
+{
+  "threshold": 3,
+  "agents": {
+    "a1": {
+      "segments": [
+        {
+          "start_turn": 57,
+          "end_turn": 57,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 68,
+          "end_turn": 68,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 82,
+          "end_turn": 83,
+          "turns": 2,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 93,
+          "end_turn": 93,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 100,
+          "end_turn": 100,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 122,
+          "end_turn": 123,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 130,
+          "end_turn": 132,
+          "turns": 3,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 144,
+          "end_turn": 144,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 153,
+          "end_turn": 153,
+          "turns": 1,
+          "max_loop": 5
+        },
+        {
+          "start_turn": 165,
+          "end_turn": 166,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 179,
+          "end_turn": 179,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 188,
+          "end_turn": 188,
+          "turns": 1,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 198,
+          "end_turn": 198,
+          "turns": 1,
+          "max_loop": 6
+        }
+      ],
+      "total_loop_turns": 18,
+      "max_loop": 6
+    },
+    "a2": {
+      "segments": [
+        {
+          "start_turn": 196,
+          "end_turn": 197,
+          "turns": 2,
+          "max_loop": 4
+        }
+      ],
+      "total_loop_turns": 2,
+      "max_loop": 4
+    },
+    "a3": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a4": {
+      "segments": [],
+      "total_loop_turns": 0,
+      "max_loop": 0
+    },
+    "a5": {
+      "segments": [
+        {
+          "start_turn": 25,
+          "end_turn": 26,
+          "turns": 2,
+          "max_loop": 4
+        },
+        {
+          "start_turn": 164,
+          "end_turn": 164,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 180,
+          "end_turn": 180,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 189,
+          "end_turn": 189,
+          "turns": 1,
+          "max_loop": 3
+        },
+        {
+          "start_turn": 197,
+          "end_turn": 197,
+          "turns": 1,
+          "max_loop": 4
+        }
+      ],
+      "total_loop_turns": 6,
+      "max_loop": 4
+    }
+  }
+}
