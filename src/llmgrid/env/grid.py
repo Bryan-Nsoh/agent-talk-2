@@ -10,11 +10,7 @@ from typing import Deque, Dict, Iterable, List, Optional, Tuple
 
 from llmgrid.schema import (
     AgentSelf,
-    ArtifactClaim,
-    ArtifactBearingSample,
-    ArtifactGoalHint,
     ArtifactNoGo,
-    ArtifactTrail,
     AdjacentCell,
     AdjacentState,
     BlockReason,
@@ -562,32 +558,14 @@ class GridWorld:
         return results
 
     def place_artifact(self, agent_id: str, artifact: PlacedArtifact) -> None:
+        if not isinstance(artifact, ArtifactNoGo):
+            raise ValueError("Only NO_GO artifacts are supported.")
         ax, ay = self.occupancy[agent_id]
-        allowed_kinds = {"TRAIL", "BEARING_SAMPLE", "NO_GO", "CLAIM", "GOAL_HINT"}
-        if artifact.kind not in allowed_kinds:
-            raise ValueError(f"Unsupported artifact kind: {artifact.kind}")
-
-        located = artifact
-        if isinstance(artifact, ArtifactTrail):
-            located = ArtifactTrail(
-                kind="TRAIL", dir_entered=artifact.dir_entered, ttl_remaining=artifact.ttl_remaining
-            )
-        elif isinstance(artifact, ArtifactBearingSample):
-            located = ArtifactBearingSample(
-                kind="BEARING_SAMPLE",
-                bearing=artifact.bearing,
-                strength=artifact.strength,
-                measured_at=Position(x=ax, y=ay),
-                turn_index=artifact.turn_index,
-                ttl_remaining=artifact.ttl_remaining,
-            )
-        elif isinstance(artifact, ArtifactNoGo):
-            located = artifact
-        elif isinstance(artifact, ArtifactClaim):
-            located = artifact
-        elif isinstance(artifact, ArtifactGoalHint):
-            located = artifact
-        self.artifacts[(ax, ay)] = located
+        self.artifacts[(ax, ay)] = ArtifactNoGo(
+            kind="NO_GO",
+            reason=artifact.reason,
+            ttl_remaining=artifact.ttl_remaining,
+        )
 
     def _place_congestion_marker(self, cell: Tuple[int, int]) -> None:
         existing = self.artifacts.get(cell)
@@ -603,32 +581,9 @@ class GridWorld:
             if ttl <= 0:
                 expired.append(key)
             else:
-                if isinstance(artifact, ArtifactTrail):
-                    self.artifacts[key] = ArtifactTrail(
-                        kind="TRAIL", dir_entered=artifact.dir_entered, ttl_remaining=ttl
-                    )
-                elif isinstance(artifact, ArtifactBearingSample):
-                    self.artifacts[key] = ArtifactBearingSample(
-                        kind="BEARING_SAMPLE",
-                        bearing=artifact.bearing,
-                        strength=artifact.strength,
-                        measured_at=artifact.measured_at,
-                        turn_index=artifact.turn_index,
-                        ttl_remaining=ttl,
-                    )
-                elif isinstance(artifact, ArtifactNoGo):
+                if isinstance(artifact, ArtifactNoGo):
                     self.artifacts[key] = ArtifactNoGo(
                         kind="NO_GO", reason=artifact.reason, ttl_remaining=ttl
-                    )
-                elif isinstance(artifact, ArtifactClaim):
-                    self.artifacts[key] = ArtifactClaim(
-                        kind="CLAIM",
-                        next_turn_index=artifact.next_turn_index,
-                        ttl_remaining=ttl,
-                    )
-                elif isinstance(artifact, ArtifactGoalHint):
-                    self.artifacts[key] = ArtifactGoalHint(
-                        kind="GOAL_HINT", confidence=artifact.confidence, ttl_remaining=ttl
                     )
         for key in expired:
             self.artifacts.pop(key, None)

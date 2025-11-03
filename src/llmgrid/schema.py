@@ -151,25 +151,6 @@ GoalSensorReading = Union[GoalSensorBearing, GoalSensorScalar, GoalSensorPing]
 # ---------------------------------------------------------------------------
 
 
-class ArtifactTrail(BaseModel):
-    """Breadcrumb marking the direction traversed through this cell."""
-
-    kind: Literal["TRAIL"] = "TRAIL"
-    dir_entered: Direction = Field(description="Direction used to enter the cell.")
-    ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
-
-
-class ArtifactBearingSample(BaseModel):
-    """Stored bearing measurement for delayed triangulation."""
-
-    kind: Literal["BEARING_SAMPLE"] = "BEARING_SAMPLE"
-    bearing: Octant = Field(description="Bearing recorded at this cell.")
-    strength: Optional[StrengthBucket] = Field(default=None)
-    measured_at: Position = Field(description="Absolute position where sampled.")
-    turn_index: int = Field(ge=0, description="Turn when the reading was captured.")
-    ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
-
-
 class ArtifactNoGo(BaseModel):
     """Marker indicating the cell should be avoided."""
 
@@ -178,33 +159,7 @@ class ArtifactNoGo(BaseModel):
     ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
 
 
-class ArtifactClaim(BaseModel):
-    """Reservation signalling intent to occupy this cell soon."""
-
-    kind: Literal["CLAIM"] = "CLAIM"
-    next_turn_index: int = Field(
-        ge=0, description="Turn when the placer intends to occupy the cell."
-    )
-    ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
-
-
-class ArtifactGoalHint(BaseModel):
-    """Soft guidance that the goal is nearby."""
-
-    kind: Literal["GOAL_HINT"] = "GOAL_HINT"
-    confidence: Literal["LOW", "MED", "HIGH"] = Field(
-        description="Belief strength that the goal is near."
-    )
-    ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
-
-
-PlacedArtifact = Union[
-    ArtifactTrail,
-    ArtifactBearingSample,
-    ArtifactNoGo,
-    ArtifactClaim,
-    ArtifactGoalHint,
-]
+PlacedArtifact = ArtifactNoGo
 
 
 # ---------------------------------------------------------------------------
@@ -218,12 +173,6 @@ class BaseMsg(BaseModel):
     kind: str = Field(description="Discriminator for the message type.")
     sender_id: str = Field(description="Ephemeral agent id stable for this episode.")
     seq: int = Field(ge=0, description="Monotonically increasing per-sender sequence.")
-
-
-class MsgHello(BaseMsg):
-    """Presence handshake."""
-
-    kind: Literal["HELLO"] = "HELLO"
 
 
 class MsgHere(BaseMsg):
@@ -273,20 +222,6 @@ class MsgRequest(BaseMsg):
     )
 
 
-class MsgAck(BaseMsg):
-    """Acknowledge receipt of a message."""
-
-    kind: Literal["ACK"] = "ACK"
-    ack_seq: int = Field(ge=0, description="Sequence number being acknowledged.")
-    from_sender_id: str = Field(description="Sender id of the acknowledged message.")
-
-
-class MsgBye(BaseMsg):
-    """Signal that the sender is done moving."""
-
-    kind: Literal["BYE"] = "BYE"
-
-
 class MsgMarkInfo(BaseMsg):
     """Announce that an artifact was placed."""
 
@@ -322,14 +257,11 @@ class MsgOracleSuggestion(BaseMsg):
 
 
 OutgoingMessage = Union[
-    MsgHello,
     MsgHere,
     MsgIntent,
     MsgSense,
     MsgBlocked,
     MsgRequest,
-    MsgAck,
-    MsgBye,
     MsgMarkInfo,
     MsgChat,
     MsgOracleSuggestion,
