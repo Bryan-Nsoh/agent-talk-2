@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from bioqueryous.llm_clients.unified_llm import UnifiedLLM
+from llmgrid.llm_clients.unified_llm import UnifiedLLM
 
 
 _client: Optional[UnifiedLLM] = None

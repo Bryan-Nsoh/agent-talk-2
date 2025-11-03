@@ -206,7 +206,7 @@ def main(
     comm_strategy: str = typer.Option(
         "none",
         "--comm-strategy",
-        help="Communication strategy: none, intent, negotiation, or freeform.",
+        help="Communication strategy: none, intent, negotiation, freeform, or oracle.",
     ),
     history_limit: int = typer.Option(
         5,
@@ -231,7 +231,7 @@ def main(
 
     comm_strategy = comm_strategy.lower()
     loop_guidance = loop_guidance.lower()
-    allowed_strategies = {"none", "intent", "negotiation", "freeform"}
+    allowed_strategies = {"none", "intent", "negotiation", "freeform", "oracle"}
     if comm_strategy not in allowed_strategies:
         typer.secho(
             f"Unknown communication strategy '{comm_strategy}'. Choose from: {', '.join(sorted(allowed_strategies))}.",
@@ -245,6 +245,8 @@ def main(
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=2)
+
+    oracle_enabled = comm_strategy == "oracle"
 
     # Validate logging flags require output paths
     if log_prompts and emit_config is None:
@@ -544,6 +546,7 @@ def main(
             comm_strategy=comm_strategy,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
+            oracle_enabled=oracle_enabled,
         )
     finally:
         if transcript_handle is not None:
@@ -577,6 +580,8 @@ def main(
             "contended_exposures": metrics.contended_exposures,
             "history_limit": metrics.history_limit,
             "loop_guidance": metrics.loop_guidance,
+            "oracle_requests": metrics.oracle_requests,
+            "oracle_enabled": oracle_enabled,
         }
         metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
         typer.secho(f"Metrics saved to {metrics_path}", fg=typer.colors.BLUE)

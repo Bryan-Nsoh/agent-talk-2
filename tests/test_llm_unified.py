@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from bioqueryous.llm_clients.unified_llm import ModelPool, RateLimiter, PoolsConfig, load_config
+from llmgrid.llm_clients.unified_llm import ModelPool, RateLimiter, PoolsConfig, load_config
 
 
 def test_load_config_from_models_yaml(tmp_path, monkeypatch):

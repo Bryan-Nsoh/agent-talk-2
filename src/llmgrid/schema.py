@@ -59,6 +59,7 @@ class ActionKind(str, Enum):
     STAY = "STAY"
     COMMUNICATE = "COMMUNICATE"
     MARK = "MARK"
+    ASK_ORACLE = "ASK_ORACLE"
 
 
 class GoalSensorMode(str, Enum):
@@ -306,6 +307,20 @@ class MsgChat(BaseMsg):
     )
 
 
+class MsgOracleSuggestion(BaseMsg):
+    """Oracle recommendation returned after an ASK_ORACLE action."""
+
+    kind: Literal["ORACLE"] = "ORACLE"
+    suggested_action: Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY"] = Field(
+        description="Recommended next action in MOVE_* form, or STAY."
+    )
+    reason: Optional[str] = Field(
+        default=None,
+        max_length=160,
+        description="Optional short explanation for the recommendation.",
+    )
+
+
 OutgoingMessage = Union[
     MsgHello,
     MsgHere,
@@ -317,6 +332,7 @@ OutgoingMessage = Union[
     MsgBye,
     MsgMarkInfo,
     MsgChat,
+    MsgOracleSuggestion,
 ]
 
 
@@ -491,7 +507,13 @@ class MarkAction(BaseModel):
     placement: PlacedArtifact = Field(description="Artifact definition.")
 
 
-AgentAction = Union[MoveAction, StayAction, CommunicateAction, MarkAction]
+class AskOracleAction(BaseModel):
+    """Request guidance from the global oracle (consumes the turn)."""
+
+    kind: Literal["ASK_ORACLE"] = "ASK_ORACLE"
+
+
+AgentAction = Union[MoveAction, StayAction, CommunicateAction, MarkAction, AskOracleAction]
 
 
 class Decision(BaseModel):
@@ -517,9 +539,16 @@ class TurnHistory(BaseModel):
     """Summary of the agent's own previous turns."""
 
     turn_index: int = Field(ge=0, description="Turn number this event represents.")
-    intent: Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE", "MARK"] = Field(
-        description="Intent chosen on that turn."
-    )
+    intent: Literal[
+        "MOVE_N",
+        "MOVE_E",
+        "MOVE_S",
+        "MOVE_W",
+        "STAY",
+        "COMMUNICATE",
+        "MARK",
+        "ASK_ORACLE",
+    ] = Field(description="Intent chosen on that turn.")
     outcome: MoveOutcome = Field(description="Result of executing the intent.")
     delta: Literal["CLOSER", "SAME", "FARTHER"] = Field(description="Change in Manhattan distance to the goal.")
     loop: int = Field(ge=0, le=9, description="Consecutive turns without progress (capped at 9).")

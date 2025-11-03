@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from bioqueryous.llm_clients.unified_llm import UnifiedLLM
+from llmgrid.llm_clients.unified_llm import UnifiedLLM
 from llmgrid.prompts import STATIC_HEADER
 from llmgrid.schema import Decision, Observation
 
@@ -57,6 +57,12 @@ class LlmPolicy:
             strategy_rules = [
                 "If a neighbor within 2 cells could collide with your intended move next turn, COMMUNICATE one <=96-char sentence with your plan and a simple request.",
                 "When no conflict is likely, MOVE and do not communicate.",
+            ]
+        elif strategy == "oracle":
+            strategy_rules = [
+                "Peer radio is disabled; do not choose COMMUNICATE.",
+                "You may choose ASK_ORACLE when uncertain or when history.loop indicates you are stuck.",
+                "After receiving an oracle suggestion, either follow it or briefly justify any override in your comment.",
             ]
         else:
             strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]

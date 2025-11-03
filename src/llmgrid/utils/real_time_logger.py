@@ -13,7 +13,7 @@ def get_logger() -> logging.Logger:
 
     global _LOGGER
     if _LOGGER is None:
-        _LOGGER = logging.getLogger("bioqueryous")
+        _LOGGER = logging.getLogger("llmgrid")
         if not _LOGGER.handlers:
             handler = logging.StreamHandler()
             handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))

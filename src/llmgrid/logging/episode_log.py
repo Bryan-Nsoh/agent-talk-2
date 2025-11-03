@@ -40,7 +40,16 @@ class AgentState(BaseModel):
     pos: Position
     orientation: Optional[Literal["N", "E", "S", "W"]] = None
     action: Optional[
-        Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE", "MARK"]
+        Literal[
+            "MOVE_N",
+            "MOVE_E",
+            "MOVE_S",
+            "MOVE_W",
+            "STAY",
+            "COMMUNICATE",
+            "MARK",
+            "ASK_ORACLE",
+        ]
     ] = None
     status: Literal["ACTIVE", "FINISHED"] = Field(
         "ACTIVE",

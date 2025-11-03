@@ -38,7 +38,7 @@ The loop-recovery work showed that prompt tweaks alone leave large gaps: weaker 
 
 ## Results
 
-- `azure:gpt-4.1-mini` still times out on the 200-turn cap for all comm modes, but collisions have fallen into the single digits/low twenties and multiple agents finish—the goal is no longer blocked by earlier arrivals.
+- `azure:gpt-4.1-mini` still times out on the 200-turn cap for all comm modes, with collisions ranging from 8 (negotiation) to 30 (intent). Multiple agents now finish, confirming the goal is no longer blocked by earlier arrivals.
 - `azure:gpt-5-mini` succeeds under `none` (turn 95, 4 collisions), `intent` (turn 70, 0 collisions), and `freeform` (turn 132, 0 collisions, 65 CHAT messages). The negotiation protocol remains problematic: despite 332 structured messages, two agents linger near the exit and the run times out at 200 turns.
 - Loop summaries show GPT-5 mini aggressively placing NO_GO markers and broadcasting reroutes near congestion, while GPT-4.1 mini rarely communicates even with channels enabled.
 

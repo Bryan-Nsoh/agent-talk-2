@@ -17,3 +17,4 @@ tmp/
 *.pyc
 tmux_input.txt
 experiments/*/runs/*/logs/
+experiments/*/runs/*/results/*.gif

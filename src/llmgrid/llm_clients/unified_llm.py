@@ -34,8 +34,8 @@ try:  # pragma: no cover - optional dependency
 except Exception:  # pragma: no cover
     AzureProvider = None  # type: ignore[assignment]
 
-from bioqueryous.utils.errors import APIError, CircuitBreakerOpenError
-from bioqueryous.utils.real_time_logger import get_logger
+from llmgrid.utils.errors import APIError, CircuitBreakerOpenError
+from llmgrid.utils.real_time_logger import get_logger
 
 LOGGER = get_logger()
 
@@ -74,9 +74,9 @@ def _first_existing(paths: List[Path]) -> Optional[Path]:
 
 
 DEFAULT_CONFIG_LOCATIONS: List[Path] = [
-    Path(os.environ.get("BIOQUERYOUS_MODELS_CONFIG", "")),
+    Path(os.environ.get("LLMGRID_MODELS_CONFIG", "")),
     Path.cwd() / "models.yaml",
-    Path.home() / ".bioqueryous" / "models.yaml",
+    Path.home() / ".llmgrid" / "models.yaml",
 ]
 DEFAULT_CONFIG_LOCATIONS = [p for p in DEFAULT_CONFIG_LOCATIONS if str(p).strip()]
 
@@ -113,7 +113,7 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> Tuple[FullCon
     config_file = _first_existing(search_locations)
     if config_file is None:
         raise FileNotFoundError(
-            "models.yaml not found. Set BIOQUERYOUS_MODELS_CONFIG or place the file in the repo root or ~/.bioqueryous/."
+            "models.yaml not found. Set LLMGRID_MODELS_CONFIG or place the file in the repo root or ~/.llmgrid/."
         )
 
     with config_file.open("r", encoding="utf-8") as handle:
