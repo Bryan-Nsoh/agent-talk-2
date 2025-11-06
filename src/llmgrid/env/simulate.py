@@ -529,6 +529,8 @@ async def _run_episode_async(
         }
         active_agents = [aid for aid in agent_ids if not world.is_finished(aid)]
 
+        world.increment_inbox_ages()
+
         observations: Dict[str, Observation] = {}
         for aid in active_agents:
             observations[aid] = world.build_observation(
@@ -573,7 +575,22 @@ async def _run_episode_async(
         decisions: Dict[str, Decision] = {}
         for aid in active_agents:
             outcome = outcomes[aid]
-            decisions[aid] = outcome.decision
+            decision = outcome.decision
+            if decision.action.kind == "COMMUNICATE":
+                message = decision.action.message
+                sender_id = getattr(message, "sender_id", None) or aid
+                seq_value = world.next_message_seq(sender_id)
+                if hasattr(message, "model_copy"):
+                    message = message.model_copy(update={"seq": seq_value})
+                else:
+                    message.seq = seq_value  # type: ignore[union-attr]
+                decision.action.message = message  # type: ignore[assignment]
+                if outcome.record is not None:
+                    try:
+                        outcome.record["decision"]["action"]["message"]["seq"] = seq_value
+                    except (KeyError, TypeError):
+                        pass
+            decisions[aid] = decision
             if outcome.record is not None:
                 if transcript is not None:
                     transcript.append(outcome.record)

@@ -101,6 +101,7 @@ class GridWorld:
         self.last_goal_distance: Dict[str, int] = {}
         self.last_intent_target: Dict[str, Optional[Tuple[int, int]]] = {}
         self.contended_neighbors: Dict[str, int] = {}
+        self.message_seq: Dict[str, int] = {}
 
     # ------------------------------------------------------------------
     # Agent placement and utility helpers
@@ -125,6 +126,7 @@ class GridWorld:
         self.last_goal_distance[agent_id] = abs(self.goal.x - pos.x) + abs(self.goal.y - pos.y)
         self.last_intent_target[agent_id] = None
         self.contended_neighbors[agent_id] = 0
+        self.message_seq[agent_id] = 0
 
     def _in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.size.width and 0 <= y < self.size.height
@@ -391,12 +393,26 @@ class GridWorld:
     # ------------------------------------------------------------------
 
     def deliver_message(self, recipient_id: str, message: ReceivedMessage) -> None:
+        envelope = message.envelope
+        sender = getattr(envelope, "sender_id", None)
+        if sender is not None and envelope.seq is None:
+            envelope.seq = self.next_message_seq(sender)
         if recipient_id not in self.inboxes:
             self.inboxes[recipient_id] = []
         self.inboxes[recipient_id].append(message)
 
     def is_finished(self, agent_id: str) -> bool:
         return self.finished_agents.get(agent_id, False)
+
+    def next_message_seq(self, sender_id: str) -> int:
+        current = self.message_seq.get(sender_id, 0)
+        self.message_seq[sender_id] = current + 1
+        return current
+
+    def increment_inbox_ages(self) -> None:
+        for messages in self.inboxes.values():
+            for msg in messages:
+                msg.age += 1
 
     def mark_finished(self, agent_id: str) -> None:
         self.finished_agents[agent_id] = True
@@ -440,6 +456,7 @@ class GridWorld:
                 targets[agent_id] = None
                 results[agent_id] = MoveResult(final=(sx, sy), outcome=MoveOutcome.YIELD, target=None, opponents=[], cause_cell=None)
                 continue
+            self.orientation[agent_id] = direction
             dx, dy = _direction_delta(direction)
             tx, ty = sx + dx, sy + dy
             targets[agent_id] = (tx, ty)

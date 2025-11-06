@@ -172,7 +172,11 @@ class BaseMsg(BaseModel):
 
     kind: str = Field(description="Discriminator for the message type.")
     sender_id: str = Field(description="Ephemeral agent id stable for this episode.")
-    seq: int = Field(ge=0, description="Monotonically increasing per-sender sequence.")
+    seq: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Monotonically increasing per-sender sequence (assigned by the environment).",
+    )
 
 
 class MsgHere(BaseMsg):

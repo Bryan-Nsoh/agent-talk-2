@@ -281,13 +281,16 @@ class GifRenderer:
             draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=fill, outline=BLACK)
 
     def _sprite_for_agent(self, agent: AgentState, cell_size: int) -> Optional[Image.Image]:
-        orientation = (agent.orientation or "E").upper()
-        orient_key = {
-            "N": "north",
-            "S": "south",
-            "E": "east",
-            "W": "west",
-        }.get(orientation, "east")
+        if agent.action == "STAY":
+            orient_key = "idle"
+        else:
+            orientation = (agent.orientation or "E").upper()
+            orient_key = {
+                "N": "north",
+                "S": "south",
+                "E": "east",
+                "W": "west",
+            }.get(orientation, "east")
         color = self.agent_colors.get(agent.agent_id, (80, 80, 80))
         cache_key = (orient_key, color, cell_size)
         if cache_key in self.sprite_cache:
@@ -330,7 +333,7 @@ class GifRenderer:
     def _load_base_sprites(self) -> Dict[str, Image.Image]:
         sprites: Dict[str, Image.Image] = {}
         base_dir = Path(__file__).resolve().parents[3] / "assets" / "sprites"
-        for orient in ("north", "south", "east", "west"):
+        for orient in ("north", "south", "east", "west", "idle"):
             path = base_dir / f"crewmate_{orient}.png"
             if path.is_file():
                 sprites[orient] = Image.open(path).convert("RGBA")
