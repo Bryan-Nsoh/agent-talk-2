@@ -1,6 +1,6 @@
 ## Maze Preview Assets
 
-**Last updated:** 2025-10-29
+**Last updated:** 2025-11-06T15:20:00Z
 
 PNG previews for curated maze presets live here. They are generated via the `maze_generator` utility and correspond to the preset names wired into `llmgrid.cli.poc_two_agents`.
 

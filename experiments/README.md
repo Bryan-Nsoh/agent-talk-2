@@ -1,6 +1,6 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-10-31
+**Last updated:** 2025-11-06T15:20:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
