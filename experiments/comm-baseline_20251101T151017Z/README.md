@@ -1,9 +1,11 @@
 # Communication Baseline
 
-**Last updated:** 2025-11-06T15:20:00Z  
+**Last updated:** 2025-11-06T19:25:00Z  
 **Status:** ? running  
 **Outcome:** -  
 **Started:** 2025-11-01
+
+> ⚠️ **Legacy data:** These runs were recorded before the 2025-11-06 simulator fixes (orientation tracking, message aging, server-assigned radio `seq`, idle sprites). Treat all numbers below as provisional; every configuration must be rerun under the patched engine.
 
 ## Question
 
@@ -36,13 +38,13 @@ The loop-recovery work showed that prompt tweaks alone leave large gaps: weaker 
 | `comm_negotiation_gpt5_seed13_20251101T195510Z` | 2025-11-01 19:55 UTC | ✔ complete | gpt-5-mini, comm=negotiation, success=False, turn=200, collisions=10 (agent only), messages=332 |
 | `comm_freeform_gpt5_seed13_20251101T195524Z` | 2025-11-01 19:55 UTC | ✔ complete | gpt-5-mini, comm=freeform, success=True, turn=132, collisions=0, messages=65 |
 
-## Results
+## Results (pre-fix engine)
 
 - `azure:gpt-4.1-mini` still times out on the 200-turn cap for all comm modes, with collisions ranging from 8 (negotiation) to 30 (intent). Multiple agents now finish, confirming the goal is no longer blocked by earlier arrivals.
 - `azure:gpt-5-mini` succeeds under `none` (turn 95, 4 collisions), `intent` (turn 70, 0 collisions), and `freeform` (turn 132, 0 collisions, 65 CHAT messages). The negotiation protocol remains problematic: despite 332 structured messages, two agents linger near the exit and the run times out at 200 turns.
 - Loop summaries show GPT-5 mini aggressively placing NO_GO markers and broadcasting reroutes near congestion, while GPT-4.1 mini rarely communicates even with channels enabled.
 
-## Interpretation
+## Interpretation (awaiting rerun confirmation)
 
 - The environment fix did its job: agents now march onto the goal without artificial blocking. GPT-4.1 mini still lacks the planning depth to finish within 200 turns, whereas GPT-5 mini reliably clears the maze except when overloaded with the negotiation schema.
 - Negotiation produces intense chatter but insufficient commitment to a shared plan; the protocol likely needs additional guardrails (e.g., enforced move after a certain number of yields) or more capable reasoning to succeed.
@@ -53,7 +55,8 @@ The loop-recovery work showed that prompt tweaks alone leave large gaps: weaker 
 
 ## Next Steps
 
-- [x] Run communication strategies (none, intent, negotiation, freeform) on seed 13 (gpt-4.1-mini and gpt-5-mini).
-- [x] Aggregate LAAS, collisions, and message volume per strategy (see table above).
-- [ ] Expand to additional seeds (17, 23) and models (gpt-5-mini) once baseline established.
-- [ ] Investigate negotiation-specific mitigations (e.g., enforced follow-through, message throttling) before scaling to more seeds.
+- [ ] Rerun seed 13 for all strategies with the corrected engine and refreshed sprites; regenerate metrics, transcripts, and GIFs.
+- [ ] Repeat post-fix runs for seeds 17 and 23 (gpt-5-mini and gpt-4.1-mini) to rebuild the comparison table.
+- [ ] Re-evaluate negotiation after reruns; investigate enforced follow-through or throttling if issues persist.
+- [x] Run communication strategies (none, intent, negotiation, freeform) on seed 13 (gpt-4.1-mini and gpt-5-mini) — legacy baseline.
+- [x] Aggregate LAAS, collisions, and message volume per strategy — legacy baseline.

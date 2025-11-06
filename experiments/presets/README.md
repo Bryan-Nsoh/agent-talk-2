@@ -1,8 +1,8 @@
 ## Maze Preview Assets
 
-**Last updated:** 2025-11-06T15:20:00Z
+**Last updated:** 2025-11-06T19:25:00Z
 
-PNG previews for curated maze presets live here. They are generated via the `maze_generator` utility and correspond to the preset names wired into `llmgrid.cli.poc_two_agents`.
+PNG previews for curated maze presets live here. They are generated via the `maze_generator` utility and correspond to the preset names wired into `llmgrid.cli.poc_two_agents`. Among Us sprite bases (NESW + idle) are sourced from [The Spriters Resource](https://www.spriters-resource.com/pc_computer/amongus/sheet/157129/); recoloring happens at render time.
 
 - `batch/open_sparse_seed101.png`
 - `batch/open_dense_seed202.png`

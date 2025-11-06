@@ -1,8 +1,10 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-06T15:20:00Z
+**Last updated:** 2025-11-06T19:25:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
+
+> ⚠️ **Engine change (2025-11-06):** Commits `0a0e38d`, `5291aea`, and `e4ce883` corrected multiple simulation defects (frozen orientations, message ages, LLM-owned `seq`, idle sprites). Any runs recorded before 2025-11-06 must be rerun under the fixed engine; treat existing tables as legacy references only.
 
 ## Experiments
 

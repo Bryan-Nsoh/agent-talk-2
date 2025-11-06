@@ -1,9 +1,11 @@
 # Loop Recovery
 
-**Last updated:** 2025-11-06T15:20:00Z  
+**Last updated:** 2025-11-06T19:25:00Z  
 **Status:** ? running  
 **Outcome:** -  
 **Started:** 2025-10-31
+
+> ⚠️ **Legacy data:** All runs below were captured before the 2025-11-06 engine fixes (orientation tracking, message ages, server-assigned radio `seq`, idle sprites). Treat the statistics as provisional until we rerun under the corrected simulator.
 
 ## Question
 
@@ -67,7 +69,7 @@ Command flags `--history-limit` and `--loop-guidance` will be added before runs 
 
 Legacy runs from 2025-10-31 23:06–23:32 UTC (same configurations without loop instrumentation) remain in `runs/` for comparison but are excluded from the analysis below.
 
-## Results
+## Results (pre-fix engine)
 
 **Baseline (history=5, passive guidance)**
 - Seed 13: collisions=16, hazard_events=8, loop turns=14 (max loop=9); still timed out at 60 turns.
@@ -105,7 +107,7 @@ Legacy runs from 2025-10-31 23:06–23:32 UTC (same configurations without loop 
 - Message metadata (`seq`) resets repeatedly (e.g., a2 emits seq 17 then 0). Downstream consumers cannot rely on monotonic ids; we should stabilise counters in the policy.
 - Only one MARK was placed (a5, turn 50). Congestion warnings still depend on chat spam, and other agents do not treat the lone NO_GO as actionable guidance.
 
-## Interpretation
+## Interpretation (awaiting rerun confirmation)
 
 - Restored instrumentation plus the exploratory prompt make loop awareness visible, but behaviour diverges by model: GPT-4.1 mini converts loop-breaking into wall bumps, whereas GPT-5 mini over-indexes on reroute chatter and still hesitates to finish the maze. Awareness alone is not rescuing team progress.
 - Communication is not the silver bullet. GPT-4.1 mini ignored the channel entirely; GPT-5 mini flooded it (58 messages) yet still stranded four agents. We need environment-level rules—e.g., enforced yielding, validated alternate paths, monotonic message ids—to make broadcast intent actionable rather than cosmetic.
@@ -114,15 +116,14 @@ Legacy runs from 2025-10-31 23:06–23:32 UTC (same configurations without loop 
 
 ## Decision
 
-Pending — select default history length and loop rule once data collected.
-
-- [ ] Implement configurable history window and loop-guidance prompt toggle
-- [ ] Build loop-analysis script (detect collision-free 2-cell cycles ≥3 turns)
-- [x] Run baseline (history=5, passive guidance) on seeds 13, 17, 23
-- [x] Run active guidance (history=5, active) on seeds 13, 17, 23
-- [x] Run long-history (history=10, passive) on seeds 13, 17, 23
-- [x] Run explore prompt (history=5, explore) on seed 13 (GPT-4.1 mini)
-- [x] Complete explore prompt run on GPT-5 mini and document findings
-- [ ] Compare loop dwell metrics across configurations and update policy defaults
-- [ ] Prototype mandatory communication or artifact drop when loop ≥ 2 and rerun seed 13
-- [ ] Stabilise COMMUNICATE message sequencing and add free-tile validation for loop-escape moves
+- [ ] Re-run baseline/active/long-history/explore configs (seeds 13/17/23) with the patched engine and regenerate metrics/GIFs.
+- [ ] Compare post-fix loop dwell metrics across configurations and update policy defaults.
+- [ ] Prototype mandatory communication or artifact drop when loop ≥ 2 and rerun seed 13.
+- [ ] Stabilise COMMUNICATE message sequencing and add free-tile validation for loop-escape moves.
+- [ ] Implement configurable history window and loop-guidance prompt toggle.
+- [ ] Build loop-analysis script (detect collision-free 2-cell cycles ≥3 turns).
+- [x] Run baseline (history=5, passive guidance) on seeds 13, 17, 23 — legacy runs.
+- [x] Run active guidance (history=5, active) on seeds 13, 17, 23 — legacy runs.
+- [x] Run long-history (history=10, passive) on seeds 13, 17, 23 — legacy runs.
+- [x] Run explore prompt (history=5, explore) on seed 13 (GPT-4.1 mini) — legacy run.
+- [x] Complete explore prompt run on GPT-5 mini and document findings — legacy run.
