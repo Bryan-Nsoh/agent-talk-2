@@ -290,6 +290,9 @@ class EpisodeCheckpoint(BaseModel):
     loop_guidance: str = "passive"
     oracle_requests: int = 0
     oracle_enabled: bool = False
+    reasoning_effort: Optional[str] = None
+    reasoning_verbosity: Optional[str] = None
+    reasoning_include_encrypted: bool = False
 
     @classmethod
     def load(cls, path: Path) -> "EpisodeCheckpoint":
@@ -307,9 +310,19 @@ def _resolve_policy(
     strategy: str,
     loop_guidance: str,
     history_limit: int,
+    *,
+    radio_range: int,
+    oracle_enabled: bool,
 ) -> "PolicyProtocol":
     if use_llm:
-        return LlmPolicy(model_id, strategy=strategy, loop_guidance=loop_guidance, history_limit=history_limit)
+        return LlmPolicy(
+            model_id,
+            strategy=strategy,
+            loop_guidance=loop_guidance,
+            history_limit=history_limit,
+            radio_range=radio_range,
+            oracle_enabled=oracle_enabled,
+        )
     return GreedyBaseline(seed=seed)
 
 
@@ -363,6 +376,9 @@ async def _run_episode_async(
     history_limit: int = 5,
     loop_guidance: str = "passive",
     oracle_enabled: bool = False,
+    reasoning_effort: Optional[str] = None,
+    reasoning_verbosity: Optional[str] = None,
+    reasoning_include_encrypted: bool = False,
 ) -> EpisodeMetrics:
     """Simulate a single episode and return aggregate metrics."""
 
@@ -373,6 +389,11 @@ async def _run_episode_async(
         oracle_enabled = True
     elif oracle_enabled:
         comm_strategy = "oracle"
+    radio_enabled_strategies = {"intent", "negotiation", "freeform"}
+    radio_enabled = comm_strategy in radio_enabled_strategies
+    if not radio_enabled:
+        radio_range = 0
+    radio_max_outbound = 1 if radio_enabled else 0
     collision_cause_counts: Counter[str] = Counter()
     hazard_events = 0
     comments_clamped = 0
@@ -446,7 +467,20 @@ async def _run_episode_async(
                 movement_writer.write("\n")
                 movement_writer.flush()
 
-    policy = _resolve_policy(use_llm, model_id, seed, comm_strategy, loop_guidance, history_limit)
+    if not radio_enabled:
+        radio_range = 0
+        radio_max_outbound = 0
+
+    policy = _resolve_policy(
+        use_llm,
+        model_id,
+        seed,
+        comm_strategy,
+        loop_guidance,
+        history_limit,
+        radio_range=radio_range,
+        oracle_enabled=oracle_enabled,
+    )
     if resume is not None and isinstance(policy, GreedyBaseline) and resume.baseline_rng_state is not None:
         policy.set_state(_thaw_random_state(resume.baseline_rng_state))
 
@@ -539,6 +573,7 @@ async def _run_episode_async(
                 max_turns=turns,
                 visibility_radius=visibility,
                 radio_range=radio_range,
+                max_outbound_per_turn=radio_max_outbound,
             )
 
         for obs in observations.values():
@@ -615,6 +650,10 @@ async def _run_episode_async(
 
         for aid, decision in decisions.items():
             if decision.action.kind == "COMMUNICATE":
+                if not radio_enabled:
+                    raise ValueError(
+                        "COMMUNICATE action received but peer radio is disabled for this run."
+                    )
                 if oracle_enabled:
                     raise ValueError(
                         "Peer COMMUNICATE actions are disabled when oracle guidance is enabled. Use ASK_ORACLE instead."
@@ -858,6 +897,9 @@ def run_episode(
     history_limit: int = 5,
     loop_guidance: str = "passive",
     oracle_enabled: bool = False,
+    reasoning_effort: Optional[str] = None,
+    reasoning_verbosity: Optional[str] = None,
+    reasoning_include_encrypted: bool = False,
 ) -> EpisodeMetrics:
     """Synchronously run the async driver in a fresh event loop."""
     return asyncio.run(
@@ -897,6 +939,9 @@ def run_episode(
             history_limit=history_limit,
             loop_guidance=loop_guidance,
             oracle_enabled=oracle_enabled,
+            reasoning_effort=reasoning_effort,
+            reasoning_verbosity=reasoning_verbosity,
+            reasoning_include_encrypted=reasoning_include_encrypted,
         )
     )
 

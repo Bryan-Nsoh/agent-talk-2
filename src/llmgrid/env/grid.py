@@ -146,6 +146,7 @@ class GridWorld:
         max_turns: int,
         visibility_radius: int,
         radio_range: int,
+        max_outbound_per_turn: int = 1,
     ) -> Observation:
         ax, ay = self.occupancy[agent_id]
         local_patch = self._render_patch(ax, ay, visibility_radius)
@@ -175,7 +176,7 @@ class GridWorld:
             ],
             comm_limits=CommLimits(
                 range=radio_range,
-                max_outbound_per_turn=1,
+                max_outbound_per_turn=max(0, max_outbound_per_turn),
                 max_payload_chars=96,
             ),
             mark_limits=MarkLimits(max_ttl=12, allow_mark_info_broadcast=True),

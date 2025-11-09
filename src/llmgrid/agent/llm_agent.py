@@ -7,8 +7,14 @@ from dataclasses import dataclass
 from typing import List
 
 from llmgrid.llm_clients.unified_llm import UnifiedLLM
-from llmgrid.prompts import STATIC_HEADER
-from llmgrid.schema import Decision, Observation
+from llmgrid.prompts import build_prompt_header
+from llmgrid.schema import (
+    Decision,
+    Observation,
+    build_decision_model,
+    coerce_decision,
+    resolve_strategy_capabilities,
+)
 
 
 @dataclass
@@ -23,12 +29,25 @@ class DecisionTrace:
 class LlmPolicy:
     """Async wrapper that turns observations into structured decisions via UnifiedLLM."""
 
-    def __init__(self, model_id: str, *, strategy: str, loop_guidance: str, history_limit: int) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        *,
+        strategy: str,
+        loop_guidance: str,
+        history_limit: int,
+        radio_range: int,
+        oracle_enabled: bool,
+    ) -> None:
         self.model_id = model_id
         self.strategy = strategy
         self.loop_guidance = loop_guidance
         self.history_limit = max(1, history_limit)
+        self.radio_range = max(0, radio_range)
+        self.capabilities = resolve_strategy_capabilities(strategy, oracle_enabled)
+        self.oracle_enabled = self.capabilities.allow_oracle
         self.unified = UnifiedLLM()
+        self._wire_decision_model = build_decision_model(strategy, oracle_enabled)
 
     def _strategy_block(self) -> str:
         strategy = self.strategy.lower()
@@ -95,7 +114,11 @@ class LlmPolicy:
 
     def _prompt_for(self, observation: Observation) -> str:
         payload = observation.model_dump(mode="json")
-        header = STATIC_HEADER.replace(
+        header = build_prompt_header(
+            radio_range=self.radio_range,
+            oracle_enabled=self.oracle_enabled,
+            action_kinds=self.capabilities.action_kinds,
+        ).replace(
             "<OBSERVATION_JSON>\n",
             f"{self._strategy_block()}{self._loop_block()}<OBSERVATION_JSON>\n",
             1,
@@ -104,20 +127,23 @@ class LlmPolicy:
 
     async def decide_async(self, observation: Observation) -> Decision:
         prompt = self._prompt_for(observation)
-        decision, _, _ = await self.unified.run(
+        wire_decision, _, _ = await self.unified.run(
             [{"role": "user", "content": prompt}],
             model=self.model_id,
-            output_schema=Decision,
+            output_schema=self._wire_decision_model,
+            max_spatial_retries=3,
         )
-        return decision
+        return coerce_decision(wire_decision)
 
     async def decide_with_trace_async(self, observation: Observation) -> DecisionTrace:
         prompt = self._prompt_for(observation)
-        decision, _, _ = await self.unified.run(
+        wire_decision, _, _ = await self.unified.run(
             [{"role": "user", "content": prompt}],
             model=self.model_id,
-            output_schema=Decision,
+            output_schema=self._wire_decision_model,
+            max_spatial_retries=3,
         )
+        decision = coerce_decision(wire_decision)
         return DecisionTrace(decision=decision, prompt=prompt, trace_messages=[])
 
     def decide(self, observation: Observation) -> Decision:  # pragma: no cover - guard rail

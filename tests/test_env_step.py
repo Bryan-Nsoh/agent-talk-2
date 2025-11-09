@@ -80,11 +80,20 @@ def test_run_episode_resume(tmp_path, monkeypatch):
 
     original_resolve = simulate_module._resolve_policy
 
-    def patched_resolve(use_llm: bool, model_id: str, seed: int, strategy: str, loop_guidance: str, history_limit: int):
+    def patched_resolve(
+        use_llm: bool,
+        model_id: str,
+        seed: int,
+        strategy: str,
+        loop_guidance: str,
+        history_limit: int,
+        **kwargs,
+    ):
         assert not use_llm
         assert strategy == "none"
         assert loop_guidance == "passive"
         assert history_limit == 5
+        assert kwargs.get("radio_range", 0) == 0
         return InterruptingBaseline(seed=seed, fail_after=4)
 
     monkeypatch.setattr(simulate_module, "_resolve_policy", patched_resolve)
@@ -227,6 +236,29 @@ def test_observation_history_includes_turn_summary():
     assert entry.note == "TEST"
     assert obs1.last_move_outcome == MoveOutcome.OK
     assert obs1.contended_neighbors == 0
+
+
+def test_build_observation_respects_comm_limits():
+    world = GridWorld(
+        width=3,
+        height=3,
+        obstacles=[],
+        goal=Position(x=2, y=2),
+        seed=5,
+    )
+    world.add_agent("a1", Position(x=1, y=1), Direction.N)
+
+    obs = world.build_observation(
+        "a1",
+        turn_index=0,
+        max_turns=10,
+        visibility_radius=1,
+        radio_range=0,
+        max_outbound_per_turn=0,
+    )
+
+    assert obs.comm_limits.range == 0
+    assert obs.comm_limits.max_outbound_per_turn == 0
 
 
 def test_agent_conflict_sets_cone_and_outcomes():

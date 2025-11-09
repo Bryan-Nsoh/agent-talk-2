@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union, Literal
+from typing import Any, Dict, List, Optional, Tuple, Union, Literal, Type
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, create_model
 
 
 # ---------------------------------------------------------------------------
@@ -496,3 +497,98 @@ class TurnHistory(BaseModel):
         max_length=12,
         description="Short status token (e.g., AVOID_LOOP, INTENT_SEEN, TRAFFIC_CONE).",
     )
+
+
+# ---------------------------------------------------------------------------
+# Scenario-specific wire schemas
+# ---------------------------------------------------------------------------
+
+
+_STRATEGY_MESSAGE_TYPES: Dict[str, List[Type[BaseModel]]] = {
+    "none": [],
+    "intent": [MsgIntent],
+    "negotiation": [MsgHere, MsgIntent, MsgSense, MsgRequest],
+    "freeform": [MsgChat],
+    "oracle": [],
+}
+
+
+@dataclass(frozen=True)
+class StrategyCapabilities:
+    key: str
+    message_types: List[Type[BaseModel]]
+    allow_comm: bool
+    allow_oracle: bool
+    action_kinds: List[str]
+
+
+def resolve_strategy_capabilities(strategy: str, oracle_enabled: bool) -> StrategyCapabilities:
+    key = (strategy or "").lower()
+    message_types = list(_STRATEGY_MESSAGE_TYPES.get(key, []))
+    allow_comm = len(message_types) > 0
+    allow_oracle = oracle_enabled or key == "oracle"
+    action_kinds: List[str] = ["MOVE", "STAY", "MARK"]
+    if allow_comm:
+        action_kinds.append("COMMUNICATE")
+    if allow_oracle:
+        action_kinds.append("ASK_ORACLE")
+    return StrategyCapabilities(
+        key=key,
+        message_types=message_types,
+        allow_comm=allow_comm,
+        allow_oracle=allow_oracle,
+        action_kinds=action_kinds,
+    )
+
+
+def _union_type(type_list: List[Type[Any]]) -> Type[Any]:
+    if not type_list:
+        raise ValueError("Cannot build a union without member types")
+    union: Type[Any] = type_list[0]
+    for typ in type_list[1:]:
+        union = union | typ  # type: ignore[operator]
+    return union
+
+
+def build_decision_model(strategy: str, oracle_enabled: bool) -> Type[BaseModel]:
+    """Return a Decision-like model scoped to the given strategy settings."""
+
+    capabilities = resolve_strategy_capabilities(strategy, oracle_enabled)
+    message_types = capabilities.message_types
+    allow_comm = capabilities.allow_comm
+    allow_oracle = capabilities.allow_oracle
+
+    action_types: List[Type[Any]] = [MoveAction, StayAction, MarkAction]
+
+    if allow_comm:
+        msg_union = _union_type(message_types)
+        comm_action = create_model(
+            f"CommunicateAction_{capabilities.key}_{len(message_types)}",
+            message=(msg_union, ...),
+            __base__=CommunicateAction,
+        )
+        action_types.append(comm_action)
+
+    if allow_oracle:
+        action_types.append(AskOracleAction)
+
+    action_union = _union_type(action_types)
+
+    model_name = (
+        f"Decision_{capabilities.key}_{'oracle' if allow_oracle else 'nooracle'}_"
+        f"{'comm' if allow_comm else 'nocomm'}"
+    )
+    return create_model(
+        model_name,
+        action=(action_union, ...),
+        comment=(Optional[str], None),
+    )
+
+
+def coerce_decision(wire_decision: BaseModel) -> Decision:
+    """Convert a wire-level decision model into the canonical Decision."""
+
+    if isinstance(wire_decision, Decision):
+        return wire_decision
+    payload = wire_decision.model_dump()
+    return Decision.model_validate(payload)

@@ -6,7 +6,7 @@ import json
 import math
 import random
 from pathlib import Path
-from typing import Dict, List, Optional, TextIO
+from typing import Any, Dict, List, Optional, TextIO
 from collections import deque
 
 import typer
@@ -28,6 +28,14 @@ from llmgrid.logging.episode_log import (
 
 app = typer.Typer(add_completion=False)
 
+
+meta_cache: Dict[str, Any] = {}
+
+
+def _load_maze_meta(path: str) -> Dict[str, Any]:
+    if path not in meta_cache:
+        meta_cache[path] = json.loads(Path(path).read_text())
+    return meta_cache[path]
 
 MAZE_PRESETS = {
     "long_corridor": {
@@ -83,6 +91,14 @@ MAZE_PRESETS = {
         "extra": 0.15,
         "seed": 505,
         "description": "Combination of scatter and short corridors.",
+    },
+    "abmarl_maze_8103": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/abmarl_maze_8103.txt",
+        "meta_path": "experiments/presets/batch/abmarl_maze_8103_meta.json",
+        "description": "Abmarl-generated maze (seed 8103) with stacked single-tile gates.",
     },
 }
 
@@ -208,6 +224,21 @@ def main(
         "--comm-strategy",
         help="Communication strategy: none, intent, negotiation, freeform, or oracle.",
     ),
+    reasoning_effort: str = typer.Option(
+        "minimal",
+        "--reasoning-effort",
+        help="Reasoning effort for GPT-5 models (minimal, low, medium, high). Ignored by non-reasoning models.",
+    ),
+    reasoning_verbosity: str = typer.Option(
+        "high",
+        "--reasoning-verbosity",
+        help="Reasoning verbosity (low, medium, high). Only applicable to reasoning models.",
+    ),
+    reasoning_include_encrypted: bool = typer.Option(
+        False,
+        "--reasoning-include-encrypted",
+        help="Include encrypted reasoning trace in responses (useful when forwarding chain of thought).",
+    ),
     history_limit: int = typer.Option(
         5,
         "--history-limit",
@@ -247,6 +278,12 @@ def main(
         raise typer.Exit(code=2)
 
     oracle_enabled = comm_strategy == "oracle"
+    if comm_strategy == "none" and radio_range != 0:
+        typer.secho(
+            "Info: --comm-strategy none disables radio; overriding --radio-range to 0 for consistency.",
+            fg=typer.colors.YELLOW,
+        )
+        radio_range = 0
 
     # Validate logging flags require output paths
     if log_prompts and emit_config is None:
@@ -272,6 +309,9 @@ def main(
         raise typer.Exit(code=2)
 
     preset_name = maze_preset.lower()
+    manual_ascii_path: Optional[Path] = None
+    manual_meta_path: Optional[str] = None
+    manual_meta: Optional[Dict[str, Any]] = None
     resume_checkpoint: Optional[EpisodeCheckpoint] = None
     if resume_from is not None:
         try:
@@ -336,6 +376,18 @@ def main(
         bearing_bias_seed = resume_checkpoint.maze_metadata.get("bearing_bias_seed", bearing_bias_seed)
         bearing_bias_p = resume_checkpoint.maze_metadata.get("bearing_bias_p", bearing_bias_p)
         bearing_bias_wall_bonus = resume_checkpoint.maze_metadata.get("bearing_bias_wall_bonus", bearing_bias_wall_bonus)
+        manual_ascii_path_str = resume_checkpoint.maze_metadata.get("manual_ascii_path")
+        manual_meta_path = resume_checkpoint.maze_metadata.get("manual_meta_path")
+        manual_ascii_path = Path(manual_ascii_path_str) if manual_ascii_path_str else None
+        if manual_meta_path:
+            try:
+                manual_meta = _load_maze_meta(manual_meta_path)
+            except FileNotFoundError as exc:
+                typer.secho(
+                    f"Manual maze meta file not found: {manual_meta_path}",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2) from exc
         typer.secho(
             f"Resuming from {resume_from} at turn {resume_checkpoint.turn_next}/{turns}",
             fg=typer.colors.BLUE,
@@ -353,11 +405,36 @@ def main(
         width = preset_details["width"]
         height = preset_details["height"]
         maze_style = preset_details["style"]
-        maze_extra_connection = preset_details["extra"]
-        obstacle_density = preset_details["density"]
-        obstacle_seed = preset_details["seed"]
+        maze_extra_connection = preset_details.get("extra", 0.0)
+        obstacle_density = preset_details.get("density")
+        obstacle_seed = preset_details.get("seed", seed)
         obstacle_count = None
         no_obstacles = False
+        if maze_style == "manual":
+            ascii_path = preset_details.get("ascii_path")
+            if not ascii_path:
+                typer.secho(
+                    "Manual maze preset requires 'ascii_path'.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+            manual_ascii_path = Path(ascii_path)
+            if not manual_ascii_path.exists():
+                typer.secho(
+                    f"Manual maze file not found: {manual_ascii_path}",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+            manual_meta_path = preset_details.get("meta_path")
+            if manual_meta_path:
+                try:
+                    manual_meta = _load_maze_meta(manual_meta_path)
+                except FileNotFoundError as exc:
+                    typer.secho(
+                        f"Manual maze meta file not found: {manual_meta_path}",
+                        fg=typer.colors.RED,
+                    )
+                    raise typer.Exit(code=2) from exc
         typer.secho(
             f"Using maze preset '{preset_name}' (seed={obstacle_seed}) — {preset_details['description']}",
             fg=typer.colors.BLUE,
@@ -376,6 +453,8 @@ def main(
         "bearing_bias_seed": bearing_bias_seed,
         "bearing_bias_p": bearing_bias_p,
         "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
+        "manual_ascii_path": str(manual_ascii_path) if manual_ascii_path else None,
+        "manual_meta_path": manual_meta_path,
         "agents": agents,
         "comm_strategy": comm_strategy,
         "history_limit": history_limit,
@@ -399,6 +478,8 @@ def main(
                 "maze_preset": preset_name,
                 "maze_style": maze_style,
                 "maze_extra_connection": maze_extra_connection,
+                "manual_ascii_path": str(manual_ascii_path) if manual_ascii_path else None,
+                "manual_meta_path": manual_meta_path,
                 "dry_run": dry_run,
                 "no_obstacles": no_obstacles,
                 "bearing_bias_seed": bearing_bias_seed,
@@ -416,8 +497,23 @@ def main(
         goal = resume_checkpoint.goal
         obstacles = [Position(x=p.x, y=p.y) for p in resume_checkpoint.world.walls]
     else:
-        goal = _default_goal(width, height)
-        start_positions = _default_start_positions(width, height, goal, agents, seed=seed)
+        if manual_meta:
+            goal = Position(x=manual_meta["goal"]["x"], y=manual_meta["goal"]["y"])
+            start_positions = {
+                aid: Position(x=payload["x"], y=payload["y"])
+                for aid, payload in manual_meta.get("starts", {}).items()
+            }
+            expected_agents = [f"a{i+1}" for i in range(agents)]
+            if len(start_positions) != agents or any(aid not in start_positions for aid in expected_agents):
+                typer.secho(
+                    "Manual maze metadata must define starts for agents a1..aN.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+            start_positions = {aid: start_positions[aid] for aid in expected_agents}
+        else:
+            goal = _default_goal(width, height)
+            start_positions = _default_start_positions(width, height, goal, agents, seed=seed)
         obstacles = _resolve_obstacles(
             width=width,
             height=height,
@@ -431,6 +527,7 @@ def main(
             maze_extra_connection=maze_extra_connection,
             agent_count=agents,
             start_seed=seed,
+            manual_ascii_path=manual_ascii_path,
         )
 
     capture_transcript = log_prompts or transcript_jsonl is not None
@@ -547,6 +644,9 @@ def main(
             history_limit=history_limit,
             loop_guidance=loop_guidance,
             oracle_enabled=oracle_enabled,
+            reasoning_effort=reasoning_effort,
+            reasoning_verbosity=reasoning_verbosity,
+            reasoning_include_encrypted=reasoning_include_encrypted,
         )
     finally:
         if transcript_handle is not None:
@@ -662,6 +762,7 @@ def _resolve_obstacles(
     agent_count: int,
     start_seed: Optional[int],
     max_attempts: int = 100,
+    manual_ascii_path: Optional[Path] = None,
 ) -> list[Position]:
     style = maze_style.lower()
     start_positions = start_positions or _default_start_positions(
@@ -672,6 +773,34 @@ def _resolve_obstacles(
         seed=start_seed,
     )
     goal = goal or _default_goal(width, height)
+
+    if style == "manual":
+        if manual_ascii_path is None:
+            typer.secho("Manual maze style requires an ASCII file path.", fg=typer.colors.RED)
+            raise typer.Exit(code=2)
+        lines = manual_ascii_path.read_text().splitlines()
+        if not lines:
+            return []
+        file_height = len(lines)
+        file_width = len(lines[0])
+        if file_width != width or file_height != height:
+            typer.secho(
+                f"Manual maze dimensions {file_width}x{file_height} do not match requested {width}x{height}.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=2)
+        obstacles: list[Position] = []
+        for y, line in enumerate(lines):
+            if len(line) != file_width:
+                typer.secho(
+                    f"Manual maze row {y} has length {len(line)} (expected {file_width}).",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Exit(code=2)
+            for x, ch in enumerate(line):
+                if ch == "#":
+                    obstacles.append(Position(x=x, y=y))
+        return obstacles
 
     if style == "maze" and not no_obstacles:
         config = MazeConfig(
