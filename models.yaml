@@ -21,17 +21,29 @@ model_pricing:
   "gpt-4.1-mini": {input: 0.35, output: 3.0}
 
 model_pools:
-  gpt-5:
-    - provider: "azure"
-      deployment: "gpt-5"
-      mode: "sdk"
   gpt-5-mini:
     - provider: "azure"
       deployment: "gpt-5-mini"
       mode: "sdk"
+      reasoning_effort: "minimal"
+      reasoning_verbosity: "low"
     - provider: "azure"
       deployment: "gpt-5-mini-2"
       mode: "sdk"
+      reasoning_effort: "minimal"
+      reasoning_verbosity: "low"
+  gpt-5:
+    - provider: "azure"
+      deployment: "gpt-5"
+      mode: "sdk"
+      reasoning_effort: "minimal"
+      reasoning_verbosity: "low"
+  gpt-5-pro:
+    - provider: "azure"
+      deployment: "gpt-5-pro"
+      mode: "sdk"
+      reasoning_effort: "high"
+      reasoning_verbosity: "low"
   gpt-4.1-mini:
     - provider: "azure"
       deployment: "gpt-4.1-mini"

@@ -1,0 +1,10 @@
+{
+  "maze": "micro_gate_merge",
+  "seed": 1001,
+  "goal": {"x": 7, "y": 3, "rationale": "Goal to the right; both agents must pass the single gate at x=4,y=3"},
+  "starts": {
+    "a1": {"x": 2, "y": 2},
+    "a2": {"x": 2, "y": 4}
+  },
+  "notes": "Two agents on the left side approach a one-cell gate (x=4,y=3) to reach the goal on the right. Tests queueing/merging behavior."
+}

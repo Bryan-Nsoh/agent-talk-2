@@ -1,0 +1,10 @@
+{
+  "maze": "micro_headon_corridor",
+  "seed": 2001,
+  "goal": {"x": 15, "y": 4, "rationale": "Right side goal, agents funnel through gate"},
+  "starts": {
+    "a1": {"x": 2, "y": 2},
+    "a2": {"x": 2, "y": 6}
+  },
+  "notes": "Based on user sketch. Two agents start left side, must pass through middle gate to reach goal on right."
+}

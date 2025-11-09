@@ -1,0 +1,10 @@
+{
+  "maze": "micro_gates",
+  "seed": 3001,
+  "goal": {"x": 37, "y": 7, "rationale": "Far right, forces multiple gate passages"},
+  "starts": {
+    "a1": {"x": 2, "y": 3},
+    "a2": {"x": 2, "y": 10}
+  },
+  "notes": "Multiple gates and chokepoints - tests coordination through sequential bottlenecks"
+}

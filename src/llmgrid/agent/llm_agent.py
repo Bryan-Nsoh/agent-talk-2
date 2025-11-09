@@ -37,17 +37,16 @@ class LlmPolicy:
         loop_guidance: str,
         history_limit: int,
         radio_range: int,
-        oracle_enabled: bool,
     ) -> None:
         self.model_id = model_id
         self.strategy = strategy
         self.loop_guidance = loop_guidance
         self.history_limit = max(1, history_limit)
         self.radio_range = max(0, radio_range)
-        self.capabilities = resolve_strategy_capabilities(strategy, oracle_enabled)
-        self.oracle_enabled = self.capabilities.allow_oracle
+        self.capabilities = resolve_strategy_capabilities(strategy, False)
+        self.oracle_enabled = False
         self.unified = UnifiedLLM()
-        self._wire_decision_model = build_decision_model(strategy, oracle_enabled)
+        self._wire_decision_model = build_decision_model(strategy, False)
 
     def _strategy_block(self) -> str:
         strategy = self.strategy.lower()
@@ -63,17 +62,17 @@ class LlmPolicy:
         elif strategy == "structured":
             strategy_rules = [
                 "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE. One message max per turn.",
-                "Merge trigger: contended_neighbors in intended dir, or prior BLOCK_AGENT/SWAP on same target, or a visible peer within 2 steps would enter your target or swap with you.",
-                "Priority: closer to target wins; if equal pick the one whose target reduces Manhattan distance to goal most; if still equal lowest agent_id wins.",
-                "On trigger: if you have priority send REQUEST(YIELD,target=T); else send INTENT(MOVE_* or STAY).",
-                "Receiver: if REQUEST(YIELD@T) matches your target or swap target, yield exactly 1 turn; if conflicting INTENT and you lack priority, yield 1 turn.",
-                "Exit: when you first see G send REQUEST(GUIDE,target=(gx,gy)) once; optionally HERE next turn if on or adjacent to G; do not repeat GUIDE within last 5 turns.",
+                "Merge trigger: contended neighbor in your intended direction, prior BLOCK_AGENT/SWAP on the same target, or a visible peer within 2 steps would enter your target or swap with you.",
+                "Priority: closer to the target cell wins; if equal, prefer the target that reduces Manhattan distance to the goal most; if still equal, lowest agent_id wins.",
+                "On trigger: if you have priority send REQUEST(YIELD,target=T); otherwise send INTENT(MOVE_* or STAY).",
+                "Receiver: if REQUEST(YIELD@T) matches your target or swap target, yield exactly 1 turn; if you receive a conflicting INTENT and you lack priority, yield 1 turn.",
+                "Exit share: when you first see G, send REQUEST(GUIDE,target=(gx,gy)) once. Optionally send HERE next turn if on or adjacent to G; do not repeat GUIDE within 5 turns.",
             ]
         elif strategy == "freeform":
             strategy_rules = [
-                "Allowed: one CHAT (<=96 chars) per turn using one of: 'CLAIM@(x,y) D=N|E|S|W T=1', 'YIELD@(x,y) T=1', 'INTENT:N|E|S|W|STAY', 'EXIT@(gx,gy)', 'HERE@(x,y)'.",
-                "Use the same trigger, priority, and receiver policy as structured. Parse leniently by substring; ignore malformed lines.",
-                "Exit handling identical to structured.",
+                "Allowed: one CHAT (<=96 chars) per turn. Write plainly (one sentence) to help a teammate decide (e.g., claim/yield at a merge, announce an exit coordinate).",
+                "Use the same triggers and priority rule as structured. Do not rely on any fixed syntax or receiver parsing; assume peers read your sentence directly.",
+                "Exit share: when you first see G, announce its absolute coordinate once in plain text; avoid repeating for at least 5 turns.",
             ]
         else:
             strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]
@@ -88,7 +87,7 @@ class LlmPolicy:
         ]
         if self.loop_guidance.lower() == "active":
             lines.append(
-                "If history.loop >= 3 or you have toggled between the same cells repeatedly, change axis or choose a different safe action (STAY, mark, or explore a new direction) before repeating the same move."
+                "If history.loop >= 3 or you have toggled between the same cells repeatedly, change axis or choose a different safe action (STAY or explore a new direction) before repeating the same move."
             )
             lines.append(
                 "Optionally communicate your intent when breaking a loop so nearby agents can coordinate."
@@ -98,7 +97,7 @@ class LlmPolicy:
                 [
                     "If history.loop >= 2 or you notice the same two cells in `history`, you MUST break the pattern: pick a perpendicular or backward move even if it points away from the goal.",
                     "Going away from the goal is acceptable when escaping traps—prioritise clearing the congestion first, then re-approach.",
-                    "Consider dropping a MARK/NO_GO artifact or broadcasting a message that you are rerouting, so teammates yield or take an alternate path.",
+                    "If you reroute, briefly broadcast the change so nearby peers can yield or choose alternates.",
                     "Never repeat the same move twice in a row while loop >= 2; choose a different axis or STAY + communicate.",
                 ]
             )
@@ -108,7 +107,6 @@ class LlmPolicy:
         payload = observation.model_dump(mode="json")
         header = build_prompt_header(
             radio_range=self.radio_range,
-            oracle_enabled=self.oracle_enabled,
             action_kinds=self.capabilities.action_kinds,
         ).replace(
             "<OBSERVATION_JSON>\n",

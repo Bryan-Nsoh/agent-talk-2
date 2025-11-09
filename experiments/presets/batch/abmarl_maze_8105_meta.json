@@ -1,0 +1,40 @@
+{
+  "maze": "abmarl_maze_8105",
+  "seed": 8105,
+  "dimensions": {
+    "width": 24,
+    "height": 14
+  },
+  "goal": {
+    "x": 22,
+    "y": 1,
+    "rationale": "Closest free cell near top-right to maximize traversal."
+  },
+  "starts": {
+    "a1": {
+      "x": 23,
+      "y": 13,
+      "distance": 57
+    },
+    "a2": {
+      "x": 23,
+      "y": 4,
+      "distance": 56
+    },
+    "a3": {
+      "x": 22,
+      "y": 10,
+      "distance": 55
+    },
+    "a4": {
+      "x": 23,
+      "y": 7,
+      "distance": 53
+    },
+    "a5": {
+      "x": 20,
+      "y": 11,
+      "distance": 52
+    }
+  }
+}

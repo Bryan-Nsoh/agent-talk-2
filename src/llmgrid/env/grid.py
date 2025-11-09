@@ -24,8 +24,6 @@ from llmgrid.schema import (
     MoveOutcome,
     MsgHere,
     MsgIntent,
-    MsgMarkInfo,
-    MsgSense,
     NeighborSummary,
     Observation,
     Octant,
@@ -628,24 +626,4 @@ class GridWorld:
     def message_intent(sender_id: str, seq: int, intent: str) -> MsgIntent:
         return MsgIntent(kind="INTENT", sender_id=sender_id, seq=seq, next_action=intent)
 
-    @staticmethod
-    def message_sense(
-        sender_id: str,
-        seq: int,
-        at: Position,
-        bearing: Optional[Octant],
-        strength: Optional[StrengthBucket],
-    ) -> MsgSense:
-        return MsgSense(
-            kind="SENSE",
-            sender_id=sender_id,
-            seq=seq,
-            at=at,
-            mode="BEARING",
-            bearing=bearing,
-            strength=strength,
-        )
-
-    @staticmethod
-    def message_mark_info(sender_id: str, seq: int, artifact: PlacedArtifact) -> MsgMarkInfo:
-        return MsgMarkInfo(kind="MARK_INFO", sender_id=sender_id, seq=seq, placed=artifact)
+    # Removed legacy radio helper constructors (SENSE, MARK_INFO) in this branch.

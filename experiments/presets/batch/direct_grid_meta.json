@@ -1,0 +1,10 @@
+{
+  "maze": "direct_grid",
+  "seed": 5001,
+  "goal": {"x": 14, "y": 4, "rationale": "Bottom right"},
+  "starts": {
+    "a1": {"x": 0, "y": 0},
+    "a2": {"x": 0, "y": 4}
+  },
+  "notes": "Direct grid conversion from JSON - 15x5, no borders"
+}

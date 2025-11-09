@@ -1,0 +1,24 @@
+{
+  "model": "azure:gpt-4.1-mini",
+  "comm_strategy": "none",
+  "seed": 13,
+  "agents": 5,
+  "maze_preset": "long_corridor",
+  "success": false,
+  "turns": 200,
+  "collisions": 29,
+  "messages_sent": 0,
+  "collision_causes": {
+    "BLOCK_AGENT": 28,
+    "BLOCK_WALL": 1
+  },
+  "hazard_events": 14,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 37,
+  "contended_exposures": 0,
+  "history_limit": 5,
+  "loop_guidance": "explore",
+  "oracle_requests": 0,
+  "oracle_enabled": false
+}

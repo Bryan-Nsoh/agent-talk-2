@@ -1,0 +1,21 @@
+{
+  "model": "azure:gpt-5-mini",
+  "comm_strategy": "oracle",
+  "seed": 13,
+  "agents": 5,
+  "maze_preset": "long_corridor",
+  "success": true,
+  "turns": 77,
+  "collisions": 0,
+  "messages_sent": 0,
+  "collision_causes": {},
+  "hazard_events": 0,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 0,
+  "contended_exposures": 0,
+  "history_limit": 5,
+  "loop_guidance": "explore",
+  "oracle_requests": 2,
+  "oracle_enabled": true
+}

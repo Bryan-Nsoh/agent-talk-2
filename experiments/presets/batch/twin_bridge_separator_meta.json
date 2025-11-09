@@ -1,0 +1,39 @@
+{
+  "maze": "twin_bridge_separator",
+  "dimensions": {
+    "width": 24,
+    "height": 14
+  },
+  "goal": {
+    "x": 22,
+    "y": 1,
+    "rationale": "Top-right corridor exit forces every agent to traverse at least one single-tile bridge before arrival."
+  },
+  "starts": {
+    "a1": {
+      "x": 2,
+      "y": 11,
+      "rationale": "Bottom-left corner feeds directly into the lower bridge queue."
+    },
+    "a2": {
+      "x": 6,
+      "y": 9,
+      "rationale": "Left approach halfway up, often contests the lower bridge with a1/a4."
+    },
+    "a3": {
+      "x": 3,
+      "y": 2,
+      "rationale": "Upper-left scout must clear the top bridge and warn others."
+    },
+    "a4": {
+      "x": 19,
+      "y": 11,
+      "rationale": "Bottom-right entrant headed west, collides with left team at lower bridge."
+    },
+    "a5": {
+      "x": 21,
+      "y": 8,
+      "rationale": "Mid-right agent pushing north-to-south through the upper bridge, forcing alternating yields."
+    }
+  }
+}

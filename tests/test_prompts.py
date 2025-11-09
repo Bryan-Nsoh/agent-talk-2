@@ -6,36 +6,21 @@ def test_prompt_excludes_comm_sections_for_none_strategy():
     caps = resolve_strategy_capabilities("none", oracle_enabled=False)
     header = build_prompt_header(
         radio_range=0,
-        oracle_enabled=False,
         action_kinds=caps.action_kinds,
     )
 
     assert "COMMUNICATE — one structured message" not in header
     assert "peer radio is disabled" in header.lower()
-    assert "\"kind\":\"MOVE|STAY|MARK\"" in header
+    assert "\"kind\":\"MOVE|STAY\"" in header
 
 
 def test_prompt_mentions_comm_when_enabled():
-    caps = resolve_strategy_capabilities("intent", oracle_enabled=False)
+    caps = resolve_strategy_capabilities("structured", oracle_enabled=False)
     header = build_prompt_header(
         radio_range=2,
-        oracle_enabled=False,
         action_kinds=caps.action_kinds,
     )
 
     assert "COMMUNICATE — one structured message" in header
     assert "range 2" in header
-    assert "\"kind\":\"MOVE|STAY|MARK|COMMUNICATE\"" in header
-
-
-def test_prompt_mentions_oracle_without_peer_radio():
-    caps = resolve_strategy_capabilities("oracle", oracle_enabled=True)
-    header = build_prompt_header(
-        radio_range=0,
-        oracle_enabled=True,
-        action_kinds=caps.action_kinds,
-    )
-
-    assert "ASK_ORACLE" in header
-    assert "COMMUNICATE — one structured message" not in header
-    assert "\"kind\":\"MOVE|STAY|MARK|ASK_ORACLE\"" in header
+    assert "\"kind\":\"MOVE|STAY|COMMUNICATE\"" in header

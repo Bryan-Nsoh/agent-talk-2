@@ -1,0 +1,2758 @@
+{
+  "meta": {
+    "grid_size": {
+      "width": 15,
+      "height": 5
+    },
+    "goal": {
+      "x": 14,
+      "y": 4
+    },
+    "walls": [
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 8,
+        "y": 1
+      },
+      {
+        "x": 9,
+        "y": 1
+      },
+      {
+        "x": 11,
+        "y": 1
+      },
+      {
+        "x": 13,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 11,
+        "y": 2
+      },
+      {
+        "x": 13,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 8,
+        "y": 3
+      },
+      {
+        "x": 9,
+        "y": 3
+      },
+      {
+        "x": 11,
+        "y": 3
+      },
+      {
+        "x": 12,
+        "y": 3
+      },
+      {
+        "x": 13,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 11,
+        "y": 4
+      }
+    ],
+    "view": {
+      "kind": "square",
+      "radius": 1
+    },
+    "gradient_mode": "bfs",
+    "title": "azure:gpt-5-mini R=1",
+    "agent_styles": [
+      {
+        "agent_id": "a1",
+        "color_hex": "#1f77b4"
+      },
+      {
+        "agent_id": "a2",
+        "color_hex": "#d62728"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "t": 0,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 1,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 2,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 3,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 4,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 5,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 6,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 7,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 8,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 9,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 10,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 11,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 0,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 12,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 1,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 13,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 14,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 15,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 16,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 17,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 1,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 18,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 19,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 20,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 21,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 22,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 23,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 24,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 25,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 26,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 27,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 28,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 29,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 30,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 31,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 32,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 33,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 34,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 35,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 0,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 36,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 1,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 37,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 38,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 39,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 40,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 41,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 42,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 43,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 44,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 45,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 46,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 47,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 48,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 49,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 50,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 51,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 52,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 53,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 54,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 55,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 56,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 2,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 57,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 58,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 1,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 59,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 60,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 61,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 62,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 63,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 64,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 65,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 66,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 67,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 68,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 69,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 0
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 70,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 71,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 72,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 73,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 2
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 74,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 75,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 76,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 77,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 4,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 78,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 5,
+            "y": 4
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 79,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 5,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 80,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 81,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 6,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 82,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 7,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 83,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 8,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 84,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "STAY",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 9,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 85,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 4
+          },
+          "orientation": "W",
+          "action": "MOVE_W",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 86,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 87,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 3
+          },
+          "orientation": "N",
+          "action": "MARK",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 10,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 88,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 7,
+            "y": 2
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 11,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 89,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 8,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 12,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 90,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 9,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 13,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 91,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 2
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 92,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 1
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 93,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 10,
+            "y": 0
+          },
+          "orientation": "N",
+          "action": "MOVE_N",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 94,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 11,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 95,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 12,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 96,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 13,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 97,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 14,
+            "y": 0
+          },
+          "orientation": "E",
+          "action": "MOVE_E",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 98,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 14,
+            "y": 1
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 99,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 14,
+            "y": 2
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    },
+    {
+      "t": 100,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": "S",
+          "action": "MOVE_S",
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "orientation": "S",
+          "action": null,
+          "status": "FINISHED"
+        }
+      ],
+      "hazards": []
+    }
+  ]
+}

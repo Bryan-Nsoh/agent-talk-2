@@ -1,6 +1,6 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-06T19:25:00Z
+**Last updated:** 2025-11-07T00:55:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
@@ -10,6 +10,7 @@ This document is the complete reference for running experiments, managing long-r
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
+| 2025-11-01 | [comm-baseline](./comm-baseline_20251101T151017Z/) | ?running | - | GPT-5 communication strategies on curated mazes |
 | 2025-10-31 | [loop-recovery](./loop-recovery_20251031T213232Z/) | ?running | - | Measuring history window & loop guidance |
 | 2025-10-28 | [two-agents-bearing-r1](./two-agents-bearing-r1_20251028T120000Z/) | ?running | ✖ not useful | Bearing-mode multi-agent navigation |
 

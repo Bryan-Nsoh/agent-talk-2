@@ -17,11 +17,9 @@ from llmgrid.agent.local_baseline import GreedyBaseline
 from llmgrid.env.grid import GridWorld
 from llmgrid.schema import (
     AdjacentState,
-    AskOracleAction,
     Decision,
     Direction,
     MessageBrief,
-    MsgOracleSuggestion,
     MoveOutcome,
     Observation,
     OutgoingMessage,
@@ -49,7 +47,6 @@ class EpisodeMetrics:
     contended_exposures: int = 0
     history_limit: int = 5
     loop_guidance: str = "passive"
-    oracle_requests: int = 0
 
 
 @dataclass
@@ -288,8 +285,7 @@ class EpisodeCheckpoint(BaseModel):
     comm_strategy: str = "none"
     history_limit: int = 5
     loop_guidance: str = "passive"
-    oracle_requests: int = 0
-    oracle_enabled: bool = False
+    # Oracle removed in this branch
     reasoning_effort: Optional[str] = None
     reasoning_verbosity: Optional[str] = None
     reasoning_include_encrypted: bool = False
@@ -312,7 +308,6 @@ def _resolve_policy(
     history_limit: int,
     *,
     radio_range: int,
-    oracle_enabled: bool,
 ) -> "PolicyProtocol":
     if use_llm:
         return LlmPolicy(
@@ -321,7 +316,6 @@ def _resolve_policy(
             loop_guidance=loop_guidance,
             history_limit=history_limit,
             radio_range=radio_range,
-            oracle_enabled=oracle_enabled,
         )
     return GreedyBaseline(seed=seed)
 
@@ -375,7 +369,7 @@ async def _run_episode_async(
     comm_strategy: str = "none",
     history_limit: int = 5,
     loop_guidance: str = "passive",
-    oracle_enabled: bool = False,
+    # oracle removed in this branch
     reasoning_effort: Optional[str] = None,
     reasoning_verbosity: Optional[str] = None,
     reasoning_include_encrypted: bool = False,
@@ -385,10 +379,7 @@ async def _run_episode_async(
     history_limit = max(1, history_limit)
     loop_guidance = loop_guidance.lower()
     comm_strategy = comm_strategy.lower()
-    if comm_strategy == "oracle":
-        oracle_enabled = True
-    elif oracle_enabled:
-        comm_strategy = "oracle"
+    # oracle disabled in this branch
     radio_enabled_strategies = {"structured", "freeform"}
     radio_enabled = comm_strategy in radio_enabled_strategies
     if not radio_enabled:
@@ -426,13 +417,7 @@ async def _run_episode_async(
         reasoning_log = list(resume.reasoning_log)
         agent_ids = resume.agent_ids
         start_turn = resume.turn_next
-        resume_oracle_enabled = getattr(resume, "oracle_enabled", False)
-        if oracle_enabled != resume_oracle_enabled:
-            raise ValueError(
-                f"Checkpoint recorded with oracle_enabled={resume_oracle_enabled}; got oracle_enabled={oracle_enabled}."
-            )
-        oracle_enabled = resume_oracle_enabled
-        oracle_requests = getattr(resume, "oracle_requests", 0)
+        # oracle disabled in this branch
         if transcript is not None and resume.transcript:
             if not transcript:
                 transcript.extend(resume.transcript)
@@ -459,7 +444,7 @@ async def _run_episode_async(
         collisions = 0
         reasoning_log: List[Dict[str, Any]] = []
         start_turn = 0
-        oracle_requests = 0
+        pass
         if movement is not None:
             _append_snapshot(movement, world, 0, agent_ids, actions=None)
             if movement_writer is not None:
@@ -479,7 +464,6 @@ async def _run_episode_async(
         loop_guidance,
         history_limit,
         radio_range=radio_range,
-        oracle_enabled=oracle_enabled,
     )
     if resume is not None and isinstance(policy, GreedyBaseline) and resume.baseline_rng_state is not None:
         policy.set_state(_thaw_random_state(resume.baseline_rng_state))
@@ -531,8 +515,8 @@ async def _run_episode_async(
                 comm_strategy=comm_strategy,
                 history_limit=history_limit,
                 loop_guidance=loop_guidance,
-                oracle_requests=oracle_requests,
-                oracle_enabled=oracle_enabled,
+                oracle_requests=0,
+                oracle_enabled=False,
             )
             checkpoint.write(checkpoint_path)
         cause_dict = dict(collision_cause_counts)
@@ -551,10 +535,9 @@ async def _run_episode_async(
             contended_exposures=contended_exposures,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
-            oracle_requests=oracle_requests,
         )
 
-    oracle_seq_counter = oracle_requests
+    oracle_seq_counter = 0
 
     for turn in range(start_turn, turns):
         goal_distances_before: Dict[str, int] = {
@@ -654,10 +637,6 @@ async def _run_episode_async(
                     raise ValueError(
                         "COMMUNICATE action received but peer radio is disabled for this run."
                     )
-                if oracle_enabled:
-                    raise ValueError(
-                        "Peer COMMUNICATE actions are disabled when oracle guidance is enabled. Use ASK_ORACLE instead."
-                    )
                 message = decision.action.message
                 sender_pos = world.occupancy[aid]
                 recipients = _recipients_in_range(world, aid, radio_range)
@@ -670,26 +649,7 @@ async def _run_episode_async(
                     )
                     world.deliver_message(rid, rm)
                 messages_sent += 1
-            elif decision.action.kind == "ASK_ORACLE":
-                if not oracle_enabled:
-                    raise ValueError("ASK_ORACLE action received but oracle_enabled=False.")
-                oracle_requests += 1
-                oracle_seq_counter += 1
-                suggestion_token, reason = _oracle_recommendation(world, aid)
-                oracle_msg = MsgOracleSuggestion(
-                    sender_id="oracle",
-                    seq=oracle_seq_counter,
-                    suggested_action=suggestion_token,
-                    reason=reason,
-                )
-                world.deliver_message(
-                    aid,
-                    ReceivedMessage(
-                        envelope=oracle_msg,
-                        hop_distance=0,
-                        age=0,
-                    ),
-                )
+            # Oracle actions are not supported in this branch.
 
         intents: Dict[str, Optional[Direction]] = {}
         before = dict(world.occupancy)
@@ -815,8 +775,7 @@ async def _run_episode_async(
                 comm_strategy=comm_strategy,
                 history_limit=history_limit,
                 loop_guidance=loop_guidance,
-                oracle_requests=oracle_requests,
-                oracle_enabled=oracle_enabled,
+                oracle_enabled=False,
             )
             checkpoint.write(checkpoint_path)
 
@@ -837,7 +796,7 @@ async def _run_episode_async(
                 contended_exposures=contended_exposures,
                 history_limit=history_limit,
                 loop_guidance=loop_guidance,
-                oracle_requests=oracle_requests,
+                oracle_requests=0,
             )
 
     cause_dict = dict(collision_cause_counts)
@@ -856,7 +815,6 @@ async def _run_episode_async(
         contended_exposures=contended_exposures,
         history_limit=history_limit,
         loop_guidance=loop_guidance,
-        oracle_requests=oracle_requests,
     )
 
 
@@ -938,7 +896,6 @@ def run_episode(
             comm_strategy=comm_strategy,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
-            oracle_enabled=oracle_enabled,
             reasoning_effort=reasoning_effort,
             reasoning_verbosity=reasoning_verbosity,
             reasoning_include_encrypted=reasoning_include_encrypted,
@@ -1005,10 +962,6 @@ def _decision_action_label(decision: Optional[Decision]) -> Optional[str]:
         return "STAY"
     if kind == "COMMUNICATE":
         return "COMMUNICATE"
-    if kind == "MARK":
-        return "MARK"
-    if kind == "ASK_ORACLE":
-        return "ASK_ORACLE"
     return None
 
 
@@ -1050,12 +1003,7 @@ def _summarise_outgoing(message: OutgoingMessage) -> MessageBrief:
         if message.target is not None:
             parts.append(f"target=({message.target.x},{message.target.y})")
         details = " ".join(parts)
-    elif kind == "MARK_INFO":
-        details = getattr(message.placed, "kind", None)
-    elif kind == "ORACLE":
-        details = message.suggested_action
-        if message.reason:
-            details = f"{details} {message.reason}"
+    # legacy MARK_INFO/ORACLE removed in this branch
     return MessageBrief(kind=kind, details=details)
 
 
@@ -1068,7 +1016,7 @@ def _summarise_received(received: ReceivedMessage) -> MessageBrief:
 
 
 def _intent_token(action_label: str) -> str:
-    valid = {"MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE", "MARK", "ASK_ORACLE"}
+    valid = {"MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE"}
     if action_label in valid:
         return action_label
     if action_label.startswith("MOVE_") and len(action_label) == 6 and action_label[-1] in {"N", "E", "S", "W"}:
@@ -1102,73 +1050,7 @@ def _derive_note(result: "MoveResult", loop_value: int) -> Optional[str]:
     return None
 
 
-def _oracle_recommendation(world: GridWorld, agent_id: str) -> Tuple[str, Optional[str]]:
-    start = world.occupancy[agent_id]
-    goal = (world.goal.x, world.goal.y)
-    if start == goal:
-        return "STAY", "already_on_goal"
-
-    blocked = set(world.walls)
-    for other_id, pos in world.occupancy.items():
-        if other_id == agent_id:
-            continue
-        if world.is_finished(other_id):
-            continue
-        blocked.add(pos)
-
-    queue: deque[Tuple[int, int]] = deque([start])
-    parent: Dict[Tuple[int, int], Optional[Tuple[int, int]]] = {start: None}
-    directions = [
-        (0, -1, Direction.N),
-        (1, 0, Direction.E),
-        (0, 1, Direction.S),
-        (-1, 0, Direction.W),
-    ]
-
-    found = False
-    while queue:
-        cx, cy = queue.popleft()
-        if (cx, cy) == goal:
-            found = True
-            break
-        for dx, dy, _ in directions:
-            nx, ny = cx + dx, cy + dy
-            if not world._in_bounds(nx, ny):
-                continue
-            if (nx, ny) in parent:
-                continue
-            if (nx, ny) in blocked and (nx, ny) != goal:
-                continue
-            parent[(nx, ny)] = (cx, cy)
-            queue.append((nx, ny))
-
-    if not found:
-        return "STAY", "no_path_current_layout"
-
-    path: List[Tuple[int, int]] = []
-    current: Optional[Tuple[int, int]] = goal
-    while current is not None:
-        path.append(current)
-        current = parent.get(current)
-    path.reverse()
-
-    if len(path) <= 1:
-        return "STAY", "already_on_goal"
-
-    first_step = path[1]
-    dx = first_step[0] - start[0]
-    dy = first_step[1] - start[1]
-    delta_to_token = {
-        (0, -1): "MOVE_N",
-        (1, 0): "MOVE_E",
-        (0, 1): "MOVE_S",
-        (-1, 0): "MOVE_W",
-    }
-    token = delta_to_token.get((dx, dy))
-    if token is None:
-        return "STAY", "already_on_goal"
-    reason = f"path_len={len(path) - 1}"
-    return token, reason
+    # oracle guidance removed in this branch
 
 
 def _make_history_entry(

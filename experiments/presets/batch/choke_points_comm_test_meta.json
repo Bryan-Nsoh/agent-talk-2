@@ -1,0 +1,32 @@
+{
+  "maze": "choke_points_comm_test",
+  "seed": 9001,
+  "goal": {
+    "x": 2,
+    "y": 1,
+    "rationale": "Top-left approach forces multiple choke traversals"
+  },
+  "starts": {
+    "a1": {
+      "x": 20,
+      "y": 12
+    },
+    "a2": {
+      "x": 16,
+      "y": 12
+    },
+    "a3": {
+      "x": 13,
+      "y": 12
+    },
+    "a4": {
+      "x": 8,
+      "y": 12
+    },
+    "a5": {
+      "x": 3,
+      "y": 12
+    }
+  },
+  "notes": "Three vertical choke columns with staggered gates + two horizontal dividers with narrow gates to require coordination."
+}

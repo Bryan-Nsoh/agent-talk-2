@@ -54,13 +54,11 @@ class BlockReason(str, Enum):
 
 
 class ActionKind(str, Enum):
-    """Single atomic choice available to the agent each turn."""
+    """Single atomic choice available to the agent each turn (simplified)."""
 
     MOVE = "MOVE"
     STAY = "STAY"
     COMMUNICATE = "COMMUNICATE"
-    MARK = "MARK"
-    ASK_ORACLE = "ASK_ORACLE"
 
 
 class GoalSensorMode(str, Enum):
@@ -247,29 +245,14 @@ class MsgChat(BaseMsg):
     )
 
 
-class MsgOracleSuggestion(BaseMsg):
-    """Oracle recommendation returned after an ASK_ORACLE action."""
-
-    kind: Literal["ORACLE"] = "ORACLE"
-    suggested_action: Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY"] = Field(
-        description="Recommended next action in MOVE_* form, or STAY."
-    )
-    reason: Optional[str] = Field(
-        default=None,
-        max_length=160,
-        description="Optional short explanation for the recommendation.",
-    )
+# Oracle messaging removed in this branch.
 
 
 OutgoingMessage = Union[
     MsgHere,
     MsgIntent,
-    MsgSense,
-    MsgBlocked,
     MsgRequest,
-    MsgMarkInfo,
     MsgChat,
-    MsgOracleSuggestion,
 ]
 
 
@@ -437,20 +420,7 @@ class CommunicateAction(BaseModel):
     message: OutgoingMessage = Field(description="Message to broadcast.")
 
 
-class MarkAction(BaseModel):
-    """Drop an artifact at the current cell."""
-
-    kind: Literal["MARK"] = "MARK"
-    placement: PlacedArtifact = Field(description="Artifact definition.")
-
-
-class AskOracleAction(BaseModel):
-    """Request guidance from the global oracle (consumes the turn)."""
-
-    kind: Literal["ASK_ORACLE"] = "ASK_ORACLE"
-
-
-AgentAction = Union[MoveAction, StayAction, CommunicateAction, MarkAction, AskOracleAction]
+AgentAction = Union[MoveAction, StayAction, CommunicateAction]
 
 
 class Decision(BaseModel):
@@ -483,8 +453,6 @@ class TurnHistory(BaseModel):
         "MOVE_W",
         "STAY",
         "COMMUNICATE",
-        "MARK",
-        "ASK_ORACLE",
     ] = Field(description="Intent chosen on that turn.")
     outcome: MoveOutcome = Field(description="Result of executing the intent.")
     delta: Literal["CLOSER", "SAME", "FARTHER"] = Field(description="Change in Manhattan distance to the goal.")
@@ -516,7 +484,6 @@ class StrategyCapabilities:
     key: str
     message_types: List[Type[BaseModel]]
     allow_comm: bool
-    allow_oracle: bool
     action_kinds: List[str]
 
 
@@ -524,17 +491,13 @@ def resolve_strategy_capabilities(strategy: str, oracle_enabled: bool) -> Strate
     key = (strategy or "").lower()
     message_types = list(_STRATEGY_MESSAGE_TYPES.get(key, []))
     allow_comm = len(message_types) > 0
-    allow_oracle = oracle_enabled or key == "oracle"
-    action_kinds: List[str] = ["MOVE", "STAY", "MARK"]
+    action_kinds: List[str] = ["MOVE", "STAY"]
     if allow_comm:
         action_kinds.append("COMMUNICATE")
-    if allow_oracle:
-        action_kinds.append("ASK_ORACLE")
     return StrategyCapabilities(
         key=key,
         message_types=message_types,
         allow_comm=allow_comm,
-        allow_oracle=allow_oracle,
         action_kinds=action_kinds,
     )
 
@@ -554,9 +517,9 @@ def build_decision_model(strategy: str, oracle_enabled: bool) -> Type[BaseModel]
     capabilities = resolve_strategy_capabilities(strategy, oracle_enabled)
     message_types = capabilities.message_types
     allow_comm = capabilities.allow_comm
-    allow_oracle = capabilities.allow_oracle
+    allow_oracle = False
 
-    action_types: List[Type[Any]] = [MoveAction, StayAction, MarkAction]
+    action_types: List[Type[Any]] = [MoveAction, StayAction]
 
     if allow_comm:
         msg_union = _union_type(message_types)
@@ -567,15 +530,11 @@ def build_decision_model(strategy: str, oracle_enabled: bool) -> Type[BaseModel]
         )
         action_types.append(comm_action)
 
-    if allow_oracle:
-        action_types.append(AskOracleAction)
+    # Oracle removed in this branch
 
     action_union = _union_type(action_types)
 
-    model_name = (
-        f"Decision_{capabilities.key}_{'oracle' if allow_oracle else 'nooracle'}_"
-        f"{'comm' if allow_comm else 'nocomm'}"
-    )
+    model_name = f"Decision_{capabilities.key}_{'comm' if allow_comm else 'nocomm'}"
     return create_model(
         model_name,
         action=(action_union, ...),
