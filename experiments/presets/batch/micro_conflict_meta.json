@@ -1,0 +1,10 @@
+{
+  "maze": "micro_conflict",
+  "seed": 4001,
+  "goal": {"x": 17, "y": 5, "rationale": "Right side goal"},
+  "starts": {
+    "a1": {"x": 2, "y": 7},
+    "a2": {"x": 3, "y": 7}
+  },
+  "notes": "Tighter maze to force coordination - agents start adjacent in bottom left"
+}

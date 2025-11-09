@@ -132,6 +132,31 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/zipper_comm_hard_v2_meta.json",
         "description": "Open corridors with a central staggered zipper (x=11,12) and sparse weaves; forces alternating merges without dead zones.",
     },
+    # auto-generated chokepoint grid with multiple braided corridors (timestamped file names)
+    "merge_grid_comm_20251109T163929Z": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/merge_grid_comm_20251109T163929Z.txt",
+        "meta_path": "experiments/presets/batch/merge_grid_comm_20251109T163929Z_meta.json",
+        "description": "Grid of narrow corridors with 3 vertical and 3 horizontal bars; multiple 1-cell gates, equidistant starts.",
+    },
+    "micro_gates": {
+        "width": 40,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/micro_gates.txt",
+        "meta_path": "experiments/presets/batch/micro_gates_meta.json",
+        "description": "Micro-scale test maze with sequential gates - minimal maze for testing communication impact on coordination through chokepoints.",
+    },
+    "micro_conflict": {
+        "width": 21,
+        "height": 10,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/micro_conflict.txt",
+        "meta_path": "experiments/presets/batch/micro_conflict_meta.json",
+        "description": "Tight corridors forcing coordination - 2 agents start adjacent bottom left.",
+    },
 }
 
 
@@ -254,7 +279,7 @@ def main(
     comm_strategy: str = typer.Option(
         "none",
         "--comm-strategy",
-        help="Communication strategy: none, intent, negotiation, freeform, or oracle.",
+        help="Communication strategy: none, intent, negotiation, freeform, map_intel, or oracle.",
     ),
     reasoning_effort: str = typer.Option(
         "minimal",
@@ -294,7 +319,7 @@ def main(
 
     comm_strategy = comm_strategy.lower()
     loop_guidance = loop_guidance.lower()
-    allowed_strategies = {"none", "intent", "negotiation", "freeform", "oracle"}
+    allowed_strategies = {"none", "intent", "negotiation", "freeform", "map_intel", "oracle"}
     if comm_strategy not in allowed_strategies:
         typer.secho(
             f"Unknown communication strategy '{comm_strategy}'. Choose from: {', '.join(sorted(allowed_strategies))}.",
