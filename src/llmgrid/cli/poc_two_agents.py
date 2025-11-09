@@ -100,6 +100,22 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/abmarl_maze_8103_meta.json",
         "description": "Abmarl-generated maze (seed 8103) with stacked single-tile gates.",
     },
+    "choke_points_comm_test": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/choke_points_comm_test.txt",
+        "meta_path": "experiments/presets/batch/choke_points_comm_test_meta.json",
+        "description": "Three vertical choke columns + two horizontal dividers with narrow gates; designed to require communication.",
+    },
+    "lock_bays_comm_hard": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/lock_bays_comm_hard.txt",
+        "meta_path": "experiments/presets/batch/lock_bays_comm_hard_meta.json",
+        "description": "Five small bays feed into a one-cell-wide spine with a single sluice; forces strict sequencing and coordination.",
+    },
 }
 
 

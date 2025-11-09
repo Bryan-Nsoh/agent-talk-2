@@ -1,0 +1,32 @@
+{
+  "maze": "lock_bays_comm_hard",
+  "seed": 9101,
+  "goal": {
+    "x": 2,
+    "y": 2,
+    "rationale": "Single-lane spine to top-left corridor"
+  },
+  "starts": {
+    "a1": {
+      "x": 5,
+      "y": 11
+    },
+    "a2": {
+      "x": 18,
+      "y": 11
+    },
+    "a3": {
+      "x": 5,
+      "y": 9
+    },
+    "a4": {
+      "x": 18,
+      "y": 9
+    },
+    "a5": {
+      "x": 5,
+      "y": 5
+    }
+  },
+  "notes": "Five small bays feed into a one-cell-wide spine with a single sluice; no parallel outs."
+}
