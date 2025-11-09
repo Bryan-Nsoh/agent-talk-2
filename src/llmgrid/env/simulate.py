@@ -389,7 +389,7 @@ async def _run_episode_async(
         oracle_enabled = True
     elif oracle_enabled:
         comm_strategy = "oracle"
-    radio_enabled_strategies = {"intent", "negotiation", "freeform"}
+    radio_enabled_strategies = {"structured", "freeform"}
     radio_enabled = comm_strategy in radio_enabled_strategies
     if not radio_enabled:
         radio_range = 0

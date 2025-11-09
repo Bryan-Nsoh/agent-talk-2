@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import List
 
 CORE_HEADER_TEMPLATE = """OBJECTIVE:
-Keep the entire team safe and moving. “Progress” means avoiding stalemates, exploring new corridors, and guiding everyone to the goal—sometimes by stepping away from it temporarily. The episode ends after 60 turns; a timeout is a failure even if some agents reach the goal.
+Keep the entire team safe and moving. Agents should be cooperative and do their best to help each other. "Progress" means avoiding stalemates, exploring new corridors, and guiding everyone to the goal—sometimes by stepping away from it temporarily. The episode ends after 60 turns; a timeout is a failure even if some agents reach the goal.
 
 MISSION BRIEF:
 - Grid awareness comes from the JSON: `grid_size`, `local_patch`, and `adjacent` describe nearby tiles; `self_state` gives your orientation.

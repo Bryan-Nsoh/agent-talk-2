@@ -157,6 +157,14 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/micro_conflict_meta.json",
         "description": "Tight corridors forcing coordination - 2 agents start adjacent bottom left.",
     },
+    "direct_grid": {
+        "width": 15,
+        "height": 5,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/direct_grid.txt",
+        "meta_path": "experiments/presets/batch/direct_grid_meta.json",
+        "description": "Compact 15x5 grid from JSON - agents start left corners, goal bottom-right.",
+    },
 }
 
 
@@ -319,7 +327,7 @@ def main(
 
     comm_strategy = comm_strategy.lower()
     loop_guidance = loop_guidance.lower()
-    allowed_strategies = {"none", "intent", "negotiation", "freeform", "map_intel", "oracle"}
+    allowed_strategies = {"none", "structured", "freeform"}
     if comm_strategy not in allowed_strategies:
         typer.secho(
             f"Unknown communication strategy '{comm_strategy}'. Choose from: {', '.join(sorted(allowed_strategies))}.",

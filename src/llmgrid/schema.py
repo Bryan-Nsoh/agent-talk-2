@@ -506,10 +506,8 @@ class TurnHistory(BaseModel):
 
 _STRATEGY_MESSAGE_TYPES: Dict[str, List[Type[BaseModel]]] = {
     "none": [],
-    "intent": [MsgIntent],
-    "negotiation": [MsgHere, MsgIntent, MsgSense, MsgRequest],
+    "structured": [MsgIntent, MsgRequest, MsgHere],
     "freeform": [MsgChat],
-    "oracle": [],
 }
 
 

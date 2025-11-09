@@ -60,28 +60,20 @@ class LlmPolicy:
 
         if strategy == "none":
             strategy_rules = ["Communication disabled; do not choose COMMUNICATE."]
-        elif strategy == "intent":
+        elif strategy == "structured":
             strategy_rules = [
-                "If a neighbor within 2 cells could collide with your intended move (same target cell or swap) next turn, COMMUNICATE exactly one INTENT now.",
-                "If you receive an INTENT for the same target or swap and your agent_id is lexicographically larger, yield on the next turn (STAY or a safe alternate); otherwise MOVE.",
-                "When no conflict is likely, MOVE and skip communication.",
-            ]
-        elif strategy == "negotiation":
-            strategy_rules = [
-                "Allowed messages: HERE, INTENT, SENSE, REQUEST(YIELD|GUIDE|MEET); send at most one message when you COMMUNICATE.",
-                "Use the same conflict trigger as INTENT; prefer INTENT unless another message resolves the risk more clearly.",
-                "When no conflict is likely, MOVE and skip communication.",
+                "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE. One message max per turn.",
+                "Merge trigger: contended_neighbors in intended dir, or prior BLOCK_AGENT/SWAP on same target, or a visible peer within 2 steps would enter your target or swap with you.",
+                "Priority: closer to target wins; if equal pick the one whose target reduces Manhattan distance to goal most; if still equal lowest agent_id wins.",
+                "On trigger: if you have priority send REQUEST(YIELD,target=T); else send INTENT(MOVE_* or STAY).",
+                "Receiver: if REQUEST(YIELD@T) matches your target or swap target, yield exactly 1 turn; if conflicting INTENT and you lack priority, yield 1 turn.",
+                "Exit: when you first see G send REQUEST(GUIDE,target=(gx,gy)) once; optionally HERE next turn if on or adjacent to G; do not repeat GUIDE within last 5 turns.",
             ]
         elif strategy == "freeform":
             strategy_rules = [
-                "If a neighbor within 2 cells could collide with your intended move next turn, COMMUNICATE one <=96-char sentence with your plan and a simple request.",
-                "When no conflict is likely, MOVE and do not communicate.",
-            ]
-        elif strategy == "oracle":
-            strategy_rules = [
-                "Peer radio is disabled; do not choose COMMUNICATE.",
-                "You may choose ASK_ORACLE when uncertain or when history.loop indicates you are stuck.",
-                "After receiving an oracle suggestion, either follow it or briefly justify any override in your comment.",
+                "Allowed: one CHAT (<=96 chars) per turn using one of: 'CLAIM@(x,y) D=N|E|S|W T=1', 'YIELD@(x,y) T=1', 'INTENT:N|E|S|W|STAY', 'EXIT@(gx,gy)', 'HERE@(x,y)'.",
+                "Use the same trigger, priority, and receiver policy as structured. Parse leniently by substring; ignore malformed lines.",
+                "Exit handling identical to structured.",
             ]
         else:
             strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]
