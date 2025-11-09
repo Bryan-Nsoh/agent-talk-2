@@ -116,6 +116,14 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/lock_bays_comm_hard_meta.json",
         "description": "Five small bays feed into a one-cell-wide spine with a single sluice; forces strict sequencing and coordination.",
     },
+    "weave_comm_medium": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/weave_comm_medium.txt",
+        "meta_path": "experiments/presets/batch/weave_comm_medium_meta.json",
+        "description": "Open braided corridors with alternating one-cell gates and small lay-bys; fewer dead zones, real maze feel.",
+    },
 }
 
 

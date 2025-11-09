@@ -1,0 +1,32 @@
+{
+  "maze": "weave_comm_medium",
+  "seed": 9201,
+  "goal": {
+    "x": 2,
+    "y": 2,
+    "rationale": "Open corridors with alternating 1-cell gates (braids)"
+  },
+  "starts": {
+    "a1": {
+      "x": 4,
+      "y": 11
+    },
+    "a2": {
+      "x": 10,
+      "y": 11
+    },
+    "a3": {
+      "x": 13,
+      "y": 11
+    },
+    "a4": {
+      "x": 19,
+      "y": 11
+    },
+    "a5": {
+      "x": 21,
+      "y": 11
+    }
+  },
+  "notes": "Alternating gates on two vertical braids + two horizontal weaves; small lay-bys. High open-space ratio, real maze feel."
+}
