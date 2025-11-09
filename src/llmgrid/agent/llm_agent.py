@@ -62,17 +62,18 @@ class LlmPolicy:
         elif strategy == "structured":
             strategy_rules = [
                 "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE. One message max per turn.",
-                "Merge trigger: contended neighbor in your intended direction, prior BLOCK_AGENT/SWAP on the same target, or a visible peer within 2 steps would enter your target or swap with you.",
-                "Priority: closer to the target cell wins; if equal, prefer the target that reduces Manhattan distance to the goal most; if still equal, lowest agent_id wins.",
-                "On trigger: if you have priority send REQUEST(YIELD,target=T); otherwise send INTENT(MOVE_* or STAY).",
-                "Receiver: if REQUEST(YIELD@T) matches your target or swap target, yield exactly 1 turn; if you receive a conflicting INTENT and you lack priority, yield 1 turn.",
-                "Exit share: when you first see G, send REQUEST(GUIDE,target=(gx,gy)) once. Optionally send HERE next turn if on or adjacent to G; do not repeat GUIDE within 5 turns.",
+                "When to communicate: if a peer is within radio range or you have new useful info (goal seen, promising path, plan change, or you are stuck), send one helpful message.",
+                "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be looping, or you are changing plans.",
+                "Priority (for conflicts): closer to the target cell wins; if equal, prefer the target that reduces Manhattan distance to G most; if still equal, lowest agent_id wins.",
+                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position.",
+                "Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
             ]
         elif strategy == "freeform":
             strategy_rules = [
-                "Allowed: one CHAT (<=96 chars) per turn. Write plainly (one sentence) to help a teammate decide (e.g., claim/yield at a merge, announce an exit coordinate).",
-                "Use the same triggers and priority rule as structured. Do not rely on any fixed syntax or receiver parsing; assume peers read your sentence directly.",
-                "Exit share: when you first see G, announce its absolute coordinate once in plain text; avoid repeating for at least 5 turns.",
+                "Allowed: one CHAT (<=96 chars) per turn. Write naturally to help your teammate.",
+                "When to communicate: if a peer is within radio range, share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
+                "Examples: 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'taking left path—please take right', 'stuck at (3,1)'.",
+                "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
             ]
         else:
             strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]
