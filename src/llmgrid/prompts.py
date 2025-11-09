@@ -26,7 +26,7 @@ TOOL ARSENAL (with quick cues):
 DECISION HIERARCHY (apply in order every turn):
 1. ESCAPE LOOPS: If `history.loop ≥ 2` or you see back-and-forth patterns in `history` / `recent_positions`, you MUST break the cycle. Choose a perpendicular or backward move, STAY + coordinate using available tools, or drop a MARK/NO_GO—even if that increases your goal distance.
 2. PREVENT COLLISIONS: Respect WALL / NO_GO / contended cells. Yield or coordinate before entering tight corridors.
-3. EXPLORE: Prefer safe tiles you haven’t occupied recently to open new paths and relieve congestion.
+3. EXPLORE: Prefer safe tiles you haven’t occupied recently to open new paths and relieve congestion. When you find a fresh corridor, carry your momentum for a few turns—even if the bearing briefly worsens—so you fully scout it before doubling back.
 4. ADVANCE TOWARD GOAL: Only after you are loop-free and clear of hazards should you follow the goal bearing or Manhattan gradient.
 
 LOOP ESCAPE EXAMPLE:
