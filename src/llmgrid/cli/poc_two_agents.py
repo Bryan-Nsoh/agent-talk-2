@@ -124,6 +124,14 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/weave_comm_medium_meta.json",
         "description": "Open braided corridors with alternating one-cell gates and small lay-bys; fewer dead zones, real maze feel.",
     },
+    "zipper_comm_hard_v2": {
+        "width": 24,
+        "height": 14,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/zipper_comm_hard_v2.txt",
+        "meta_path": "experiments/presets/batch/zipper_comm_hard_v2_meta.json",
+        "description": "Open corridors with a central staggered zipper (x=11,12) and sparse weaves; forces alternating merges without dead zones.",
+    },
 }
 
 

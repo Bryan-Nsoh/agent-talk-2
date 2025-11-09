@@ -1,0 +1,32 @@
+{
+  "maze": "zipper_comm_hard_v2",
+  "seed": 9301,
+  "goal": {
+    "x": 2,
+    "y": 2,
+    "rationale": "Left-side goal, central staggered zipper requires alternating merges."
+  },
+  "starts": {
+    "a1": {
+      "x": 20,
+      "y": 11
+    },
+    "a2": {
+      "x": 18,
+      "y": 11
+    },
+    "a3": {
+      "x": 15,
+      "y": 11
+    },
+    "a4": {
+      "x": 9,
+      "y": 11
+    },
+    "a5": {
+      "x": 6,
+      "y": 11
+    }
+  },
+  "notes": "Open corridors; alternating one-cell gates on x=11 and x=12 create a zipper. Minimal wasted space; coordination needed to sequence merges."
+}
