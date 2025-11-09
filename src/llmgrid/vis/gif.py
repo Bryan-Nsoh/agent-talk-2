@@ -268,17 +268,8 @@ class GifRenderer:
             draw.rectangle(rect, outline=BLACK, width=2)
 
     def _draw_hazards(self, canvas: Image.Image, frame) -> None:
-        hazards = getattr(frame, "hazards", None)
-        if not hazards:
-            return
-        draw = ImageDraw.Draw(canvas, "RGBA")
-        radius = max(2, self.opts.cell_size // 6)
-        fill = (128, 128, 128, 200)
-        for hazard in hazards:
-            rect = self._cell_rect(hazard.pos.x, hazard.pos.y)
-            cx = (rect[0] + rect[2]) // 2
-            cy = (rect[1] + rect[3]) // 2
-            draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=fill, outline=BLACK)
+        # Hazards removed in this branch
+        return
 
     def _sprite_for_agent(self, agent: AgentState, cell_size: int) -> Optional[Image.Image]:
         if agent.action == "STAY":

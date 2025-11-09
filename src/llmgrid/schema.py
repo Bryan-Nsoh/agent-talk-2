@@ -145,20 +145,7 @@ class GoalSensorPing(BaseModel):
 GoalSensorReading = Union[GoalSensorBearing, GoalSensorScalar, GoalSensorPing]
 
 
-# ---------------------------------------------------------------------------
-# Artifact sensing
-# ---------------------------------------------------------------------------
-
-
-class ArtifactNoGo(BaseModel):
-    """Marker indicating the cell should be avoided."""
-
-    kind: Literal["NO_GO"] = "NO_GO"
-    reason: BlockReason = Field(description="Why the cell is undesirable.")
-    ttl_remaining: int = Field(ge=0, description="Turns before evaporation.")
-
-
-PlacedArtifact = ArtifactNoGo
+# Artifact/NO_GO purged in this branch
 
 
 # ---------------------------------------------------------------------------
@@ -225,13 +212,9 @@ class MsgRequest(BaseMsg):
     )
 
 
-class MsgMarkInfo(BaseMsg):
-    """Announce that an artifact was placed."""
-
+class MsgMarkInfo(BaseMsg):  # legacy placeholder to avoid import churn
     kind: Literal["MARK_INFO"] = "MARK_INFO"
-    placed: PlacedArtifact = Field(
-        description="Details about the artifact the sender just created."
-    )
+    placed: Optional[dict] = None
 
 
 class MsgChat(BaseMsg):
@@ -306,10 +289,8 @@ class CommLimits(BaseModel):
     )
 
 
-class MarkLimits(BaseModel):
-    """Artifact placement limits."""
-
-    max_ttl: int = Field(ge=1, description="Environment cap on artifact TTL.")
+class MarkLimits(BaseModel):  # legacy placeholder
+    max_ttl: int = 0
     allow_mark_info_broadcast: bool = Field(
         description="True if MARK_INFO messages are permitted."
     )
@@ -332,7 +313,7 @@ class AdjacentState(str, Enum):
     AGENT = "AGENT"
     GOAL = "GOAL"
     CONTENDED = "CONTENDED"
-    NO_GO = "NO_GO"
+    # NO_GO removed
 
 
 class AdjacentCell(BaseModel):
@@ -366,9 +347,7 @@ class Observation(BaseModel):
     neighbors_in_view: List[NeighborSummary] = Field(
         description="Neighbors observed within the local patch."
     )
-    artifacts_in_view: List[PlacedArtifact] = Field(
-        description="Artifacts detected within the patch."
-    )
+    artifacts_in_view: List[dict] = Field(default_factory=list, description="(unused)")
     inbox: List[ReceivedMessage] = Field(
         description="Messages delivered during this turn."
     )
@@ -377,7 +356,7 @@ class Observation(BaseModel):
         description="Most recent absolute positions occupied by the agent (newest first)."
     )
     comm_limits: CommLimits = Field(description="Communication constraints.")
-    mark_limits: MarkLimits = Field(description="Artifact placement constraints.")
+    mark_limits: MarkLimits = Field(default_factory=MarkLimits, description="(unused)")
     goal_sensor: GoalSensorReading = Field(
         description="Sensing information pointing toward the goal."
     )

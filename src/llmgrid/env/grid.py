@@ -10,24 +10,22 @@ from typing import Deque, Dict, Iterable, List, Optional, Tuple
 
 from llmgrid.schema import (
     AgentSelf,
-    ArtifactNoGo,
     AdjacentCell,
     AdjacentState,
     BlockReason,
     CommLimits,
+    MarkLimits,
     Direction,
     GoalSensorBearing,
     GoalSensorReading,
     GridSize,
     LocalPatch,
-    MarkLimits,
     MoveOutcome,
     MsgHere,
     MsgIntent,
     NeighborSummary,
     Observation,
     Octant,
-    PlacedArtifact,
     Position,
     ReceivedMessage,
     RelativeOffset,
@@ -37,7 +35,7 @@ from llmgrid.schema import (
 
 TileChar = str  # ".", "#", "G", "A", "*"
 
-TRAFFIC_CONE_TTL = 3
+TRAFFIC_CONE_TTL = 0  # artifacts removed
 
 
 @dataclass
@@ -90,7 +88,7 @@ class GridWorld:
         self.occupancy: Dict[str, Tuple[int, int]] = {}
         self.orientation: Dict[str, Direction] = {}
         self.inboxes: Dict[str, List[ReceivedMessage]] = {}
-        self.artifacts: Dict[Tuple[int, int], PlacedArtifact] = {}
+        self.artifacts: Dict[Tuple[int, int], dict] = {}
         self.finished_agents: Dict[str, bool] = {}
         self.position_history: Dict[str, List[Tuple[int, int]]] = {}
         self.turn_history: Dict[str, Deque[dict]] = {}
@@ -149,7 +147,7 @@ class GridWorld:
         ax, ay = self.occupancy[agent_id]
         local_patch = self._render_patch(ax, ay, visibility_radius)
         neighbors = self._neighbors_in_view(agent_id, visibility_radius)
-        artifacts = self._artifacts_in_view(ax, ay, visibility_radius)
+        artifacts: List[dict] = []
         inbox = list(self.inboxes.get(agent_id, []))
         self.inboxes[agent_id] = []
 
@@ -177,7 +175,7 @@ class GridWorld:
                 max_outbound_per_turn=max(0, max_outbound_per_turn),
                 max_payload_chars=96,
             ),
-            mark_limits=MarkLimits(max_ttl=12, allow_mark_info_broadcast=True),
+            mark_limits=MarkLimits(max_ttl=0, allow_mark_info_broadcast=False),
             goal_sensor=self._bearing_sensor(ax, ay),
             last_move_outcome=self.last_move_outcome.get(agent_id, MoveOutcome.OK),
             contended_neighbors=self.contended_neighbors.get(agent_id, 0),
@@ -207,8 +205,7 @@ class GridWorld:
                     ch = "G"
                 elif (x, y) in active_positions:
                     ch = "A"
-                elif (x, y) in self.artifacts:
-                    ch = "*"
+                # artifacts removed
                 line_chars.append(ch)
             rows.append("".join(line_chars))
         top_left = Position(x=max(0, cx - radius), y=max(0, cy - radius))
@@ -232,18 +229,14 @@ class GridWorld:
                 )
         return neighbors
 
-    def _artifacts_in_view(
-        self, cx: int, cy: int, radius: int
-    ) -> List[PlacedArtifact]:
-        results: List[PlacedArtifact] = []
-        for (ax, ay), artifact in self.artifacts.items():
-            if abs(ax - cx) <= radius and abs(ay - cy) <= radius:
-                results.append(artifact)
-        return results
+    def _empty_mark_limits(self):
+        class _M:
+            max_ttl = 0
+            allow_mark_info_broadcast = False
+        return _M()
 
     def _has_active_no_go(self, x: int, y: int) -> bool:
-        artifact = self.artifacts.get((x, y))
-        return isinstance(artifact, ArtifactNoGo) and artifact.ttl_remaining > 0
+        return False
 
     # ------------------------------------------------------------------
     # Sensors
@@ -567,42 +560,18 @@ class GridWorld:
         for aid in intents.keys():
             self._record_position(aid)
 
-        for cell in contested_cells:
-            if self._in_bounds(*cell) and cell != (self.goal.x, self.goal.y) and cell not in self.walls:
-                self._place_congestion_marker(cell)
+        # artifacts removed; no congestion markers are placed
 
         return results
 
-    def place_artifact(self, agent_id: str, artifact: PlacedArtifact) -> None:
-        if not isinstance(artifact, ArtifactNoGo):
-            raise ValueError("Only NO_GO artifacts are supported.")
-        ax, ay = self.occupancy[agent_id]
-        self.artifacts[(ax, ay)] = ArtifactNoGo(
-            kind="NO_GO",
-            reason=artifact.reason,
-            ttl_remaining=artifact.ttl_remaining,
-        )
+    def place_artifact(self, agent_id: str, artifact) -> None:
+        return None
 
     def _place_congestion_marker(self, cell: Tuple[int, int]) -> None:
-        existing = self.artifacts.get(cell)
-        ttl = TRAFFIC_CONE_TTL
-        if isinstance(existing, ArtifactNoGo):
-            ttl = max(existing.ttl_remaining, ttl)
-        self.artifacts[cell] = ArtifactNoGo(kind="NO_GO", reason=BlockReason.CONGESTION, ttl_remaining=ttl)
+        return None
 
     def decay_artifacts(self) -> None:
-        expired: List[Tuple[int, int]] = []
-        for key, artifact in self.artifacts.items():
-            ttl = artifact.ttl_remaining - 1
-            if ttl <= 0:
-                expired.append(key)
-            else:
-                if isinstance(artifact, ArtifactNoGo):
-                    self.artifacts[key] = ArtifactNoGo(
-                        kind="NO_GO", reason=artifact.reason, ttl_remaining=ttl
-                    )
-        for key in expired:
-            self.artifacts.pop(key, None)
+        return None
 
     # ------------------------------------------------------------------
     # Helpers for checking progress

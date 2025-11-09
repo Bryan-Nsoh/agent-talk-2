@@ -23,7 +23,6 @@ from llmgrid.schema import (
     MoveOutcome,
     Observation,
     OutgoingMessage,
-    PlacedArtifact,
     Position,
     ReceivedMessage,
     StayAction,
@@ -165,11 +164,6 @@ async def _gather_decisions_async(
     return outcomes, any_retry
 
 
-class ArtifactRecord(BaseModel):
-    pos: Position
-    artifact: PlacedArtifact
-
-
 class GridWorldState(BaseModel):
     width: int
     height: int
@@ -178,7 +172,7 @@ class GridWorldState(BaseModel):
     occupancy: Dict[str, Position]
     orientation: Dict[str, Direction]
     inboxes: Dict[str, List[ReceivedMessage]] = Field(default_factory=dict)
-    artifacts: List[ArtifactRecord] = Field(default_factory=list)
+    # artifacts removed in this branch
     finished_agents: Dict[str, bool] = Field(default_factory=dict)
     position_history: Dict[str, List[Position]] = Field(default_factory=dict)
     turn_history: Dict[str, List[TurnHistory]] = Field(default_factory=dict)
@@ -200,10 +194,7 @@ class GridWorldState(BaseModel):
             occupancy={aid: Position(x=pos[0], y=pos[1]) for aid, pos in world.occupancy.items()},
             orientation=dict(world.orientation),
             inboxes={aid: list(messages) for aid, messages in world.inboxes.items()},
-            artifacts=[
-                ArtifactRecord(pos=Position(x=x, y=y), artifact=artifact)
-                for (x, y), artifact in world.artifacts.items()
-            ],
+            # artifacts removed
             finished_agents=dict(world.finished_agents),
             position_history={
                 aid: [Position(x=px, y=py) for px, py in history]
@@ -240,7 +231,7 @@ class GridWorldState(BaseModel):
         world.occupancy = {aid: (pos.x, pos.y) for aid, pos in self.occupancy.items()}
         world.orientation = dict(self.orientation)
         world.inboxes = {aid: list(messages) for aid, messages in self.inboxes.items()}
-        world.artifacts = {(rec.pos.x, rec.pos.y): rec.artifact for rec in self.artifacts}
+        world.artifacts = {}
         world.finished_agents = dict(self.finished_agents)
         world.position_history = {
             aid: [(pos.x, pos.y) for pos in history]
@@ -561,8 +552,6 @@ async def _run_episode_async(
 
         for obs in observations.values():
             for adjacent in obs.adjacent:
-                if adjacent.state == AdjacentState.NO_GO:
-                    no_go_exposures += 1
                 if adjacent.state == AdjacentState.CONTENDED:
                     contended_exposures += 1
 
@@ -678,7 +667,7 @@ async def _run_episode_async(
             for aid in world.occupancy.keys()
         }
 
-        world.decay_artifacts()
+        # artifacts removed
 
         newly_finished = []
         for aid in active_agents:

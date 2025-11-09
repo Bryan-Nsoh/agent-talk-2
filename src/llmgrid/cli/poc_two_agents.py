@@ -21,7 +21,6 @@ from llmgrid.logging.episode_log import (
     EpisodeMeta,
     Frame as LogFrame,
     GridSize,
-    NoGoCell,
     Position as LogPosition,
     ViewShape,
 )
@@ -776,11 +775,7 @@ def main(
                         status=payload.get("status", "ACTIVE"),
                     )
                 )
-            hazards = [
-                NoGoCell(pos=LogPosition(x=haz["x"], y=haz["y"]), ttl=haz["ttl"])
-                for haz in entry.get("hazards", [])
-            ]
-            frames.append(LogFrame(t=entry["turn"], agents=agents, hazards=hazards))
+            frames.append(LogFrame(t=entry["turn"], agents=agents))
 
         agent_styles = _default_agent_styles(sorted(start_positions.keys()))
         episode_log = EpisodeLog(

@@ -54,7 +54,7 @@ class LlmPolicy:
         general_rules = [
             "Comments must start with a status token (e.g., OK; BLOCKED_AGENT(a2@11,1)) and remain within 25 words.",
             "If last_move_outcome != OK, do not repeat the same direction; prefer STAY or a safe alternate and coordinate.",
-            "Treat CONTENDED or NO_GO neighbors as high risk: only enter if no safer option, and communicate or yield when you do.",
+            "Treat CONTENDED neighbors as high risk: only enter if no safer option, and communicate or yield when you do.",
         ]
 
         if strategy == "none":

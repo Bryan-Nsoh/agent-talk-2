@@ -55,15 +55,10 @@ class AgentState(BaseModel):
     )
 
 
-class NoGoCell(BaseModel):
-    pos: Position
-    ttl: int = Field(ge=0)
-
-
 class Frame(BaseModel):
     t: int = Field(ge=0)
     agents: List[AgentState]
-    hazards: List[NoGoCell] = Field(default_factory=list)
+    # hazards removed in this branch
 
 
 class EpisodeLog(BaseModel):

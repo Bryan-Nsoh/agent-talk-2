@@ -261,7 +261,7 @@ def test_build_observation_respects_comm_limits():
     assert obs.comm_limits.max_outbound_per_turn == 0
 
 
-def test_agent_conflict_sets_cone_and_outcomes():
+def test_agent_conflict_sets_contended_mask_and_outcomes():
     world = GridWorld(
         width=4,
         height=4,
@@ -280,10 +280,7 @@ def test_agent_conflict_sets_cone_and_outcomes():
     assert results["a1"].cause_cell == (2, 1)
     assert results["a2"].cause_cell == (2, 1)
 
-    cone = world.artifacts.get((2, 1))
-    assert cone is not None
-    assert cone.kind == "NO_GO"
-    assert cone.ttl_remaining == TRAFFIC_CONE_TTL
+    # Artifacts/NO_GO purged; verify contended mask captures the hotspot instead of a cone
 
     contested = {
         result.cause_cell
