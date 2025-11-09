@@ -47,8 +47,6 @@ class AgentState(BaseModel):
             "MOVE_W",
             "STAY",
             "COMMUNICATE",
-            "MARK",
-            "ASK_ORACLE",
         ]
     ] = None
     status: Literal["ACTIVE", "FINISHED"] = Field(
