@@ -62,7 +62,7 @@ class LlmPolicy:
         elif strategy == "structured":
             strategy_rules = [
                 "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE. One message max per turn.",
-                "When to communicate: if a peer is within radio range or you have new useful info (goal seen, promising path, plan change, or you are stuck), send one helpful message.",
+                "When to communicate: only if any_peer_in_range is true, or you have new useful info and a peer can hear you (any_peer_in_range). Send exactly one helpful message.",
                 "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be looping, or you are changing plans.",
                 "Priority (for conflicts): closer to the target cell wins; if equal, prefer the target that reduces Manhattan distance to G most; if still equal, lowest agent_id wins.",
                 "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position.",
@@ -71,7 +71,7 @@ class LlmPolicy:
         elif strategy == "freeform":
             strategy_rules = [
                 "Allowed: one CHAT (<=96 chars) per turn. Write naturally to help your teammate.",
-                "When to communicate: if a peer is within radio range, share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
+                "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
                 "Examples: 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'taking left path—please take right', 'stuck at (3,1)'.",
                 "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
             ]

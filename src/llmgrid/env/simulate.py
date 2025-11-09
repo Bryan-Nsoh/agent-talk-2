@@ -620,6 +620,7 @@ async def _run_episode_async(
             elif concurrency_window < concurrency_max:
                 concurrency_window = min(concurrency_window + 1, concurrency_max)
 
+        delivered_this_turn = 0
         for aid, decision in decisions.items():
             if decision.action.kind == "COMMUNICATE":
                 if not radio_enabled:
@@ -637,8 +638,10 @@ async def _run_episode_async(
                         age=0,
                     )
                     world.deliver_message(rid, rm)
-                messages_sent += 1
-            # Oracle actions are not supported in this branch.
+                if recipients:
+                    messages_sent += 1
+                    delivered_this_turn += len(recipients)
+                # Oracle actions are not supported in this branch.
 
         intents: Dict[str, Optional[Direction]] = {}
         before = dict(world.occupancy)
@@ -721,7 +724,7 @@ async def _run_episode_async(
                     action_map[aid] = _decision_action_label(decisions.get(aid))
                 else:
                     action_map[aid] = None
-            _append_snapshot(movement, world, turn + 1, agent_ids, actions=action_map)
+            _append_snapshot(movement, world, turn + 1, agent_ids, actions=action_map, delivered=delivered_this_turn)
             if movement_writer is not None:
                 movement_writer.write(json.dumps(movement[-1]))
                 movement_writer.write("\n")
@@ -1087,6 +1090,8 @@ def _append_snapshot(
     turn: int,
     agent_ids: List[str],
     actions: Optional[Dict[str, Optional[str]]],
+    *,
+    delivered: int = 0,
 ) -> None:
     agents_payload = {}
     for aid in agent_ids:
@@ -1101,4 +1106,7 @@ def _append_snapshot(
             "status": status,
         }
 
-    store.append({"turn": turn, "agents": agents_payload})
+    frame = {"turn": turn, "agents": agents_payload}
+    if delivered:
+        frame["delivered"] = delivered
+    store.append(frame)

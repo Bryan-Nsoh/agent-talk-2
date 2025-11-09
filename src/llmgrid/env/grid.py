@@ -150,6 +150,14 @@ class GridWorld:
         inbox = list(self.inboxes.get(agent_id, []))
         self.inboxes[agent_id] = []
 
+        # compute radio proximity using Manhattan distance within radio_range
+        radio_count = 0
+        for other_id, (ox, oy) in self.occupancy.items():
+            if other_id == agent_id or self.is_finished(other_id):
+                continue
+            if abs(ox - ax) + abs(oy - ay) <= radio_range:
+                radio_count += 1
+
         obs = Observation(
             protocol_version="1.0.0",
             turn_index=turn_index,
@@ -162,6 +170,8 @@ class GridWorld:
             ),
             local_patch=local_patch,
             neighbors_in_view=neighbors,
+            any_peer_in_range=(radio_count > 0),
+            radio_peers_count=radio_count,
             artifacts_in_view=artifacts,
             inbox=inbox,
             adjacent=self._adjacent_summary(agent_id, ax, ay),

@@ -341,6 +341,12 @@ class Observation(BaseModel):
     neighbors_in_view: List[NeighborSummary] = Field(
         description="Neighbors observed within the local patch."
     )
+    any_peer_in_range: bool = Field(
+        description="True if at least one peer is within radio delivery range."
+    )
+    radio_peers_count: int = Field(
+        ge=0, description="Number of peers within radio delivery range."
+    )
     artifacts_in_view: List[dict] = Field(default_factory=list, description="(unused)")
     inbox: List[ReceivedMessage] = Field(
         description="Messages delivered during this turn."
