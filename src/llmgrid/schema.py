@@ -212,9 +212,7 @@ class MsgRequest(BaseMsg):
     )
 
 
-class MsgMarkInfo(BaseMsg):  # legacy placeholder to avoid import churn
-    kind: Literal["MARK_INFO"] = "MARK_INFO"
-    placed: Optional[dict] = None
+# MsgMarkInfo removed in this branch
 
 
 class MsgChat(BaseMsg):
@@ -289,11 +287,7 @@ class CommLimits(BaseModel):
     )
 
 
-class MarkLimits(BaseModel):  # legacy placeholder
-    max_ttl: int = 0
-    allow_mark_info_broadcast: bool = Field(
-        description="True if MARK_INFO messages are permitted."
-    )
+# MarkLimits removed in this branch
 
 
 class AgentSelf(BaseModel):
@@ -356,7 +350,7 @@ class Observation(BaseModel):
         description="Most recent absolute positions occupied by the agent (newest first)."
     )
     comm_limits: CommLimits = Field(description="Communication constraints.")
-    mark_limits: MarkLimits = Field(default_factory=MarkLimits, description="(unused)")
+    # mark_limits removed in this branch
     goal_sensor: GoalSensorReading = Field(
         description="Sensing information pointing toward the goal."
     )
