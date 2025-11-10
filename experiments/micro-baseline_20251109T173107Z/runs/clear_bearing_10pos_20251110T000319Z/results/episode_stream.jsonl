@@ -1,0 +1,5 @@
+{"turn": 0, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": null, "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": null, "status": "ACTIVE"}}}
+{"turn": 1, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 2, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "COMMUNICATE", "status": "ACTIVE"}}, "delivered": 2}
+{"turn": 3, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "COMMUNICATE", "status": "ACTIVE"}}, "delivered": 2}
+{"turn": 4, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}, "delivered": 1}

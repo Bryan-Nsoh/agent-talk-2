@@ -1,0 +1,5 @@
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+Using maze preset 'direct_grid' (seed=13) — Compact 15x5 grid from JSON - agents start left corners, goal bottom-right.
+[INFO] [ModelConfig] Loaded configuration from /Users/3bn/Documents/My_Repos/agent-talk-2/models.yaml
+[INFO] [limiter] increased utilisation for azure: 85% -> 90%
+[INFO] [limiter] increased utilisation for azure: 90% -> 95%

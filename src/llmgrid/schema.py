@@ -351,6 +351,10 @@ class Observation(BaseModel):
     inbox: List[ReceivedMessage] = Field(
         description="Messages delivered during this turn."
     )
+    recent_messages: List[MessageBrief] = Field(
+        default_factory=list,
+        description="Briefs for the last ~10 received messages (with age).",
+    )
     adjacent: List[AdjacentCell] = Field(description="Passability summary for the N/E/S/W neighboring cells.")
     recent_positions: List[Position] = Field(
         description="Most recent absolute positions occupied by the agent (newest first)."

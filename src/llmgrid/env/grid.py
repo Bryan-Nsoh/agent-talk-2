@@ -20,6 +20,7 @@ from llmgrid.schema import (
     GridSize,
     LocalPatch,
     MoveOutcome,
+    MessageBrief,
     MsgHere,
     MsgIntent,
     NeighborSummary,
@@ -87,6 +88,7 @@ class GridWorld:
         self.occupancy: Dict[str, Tuple[int, int]] = {}
         self.orientation: Dict[str, Direction] = {}
         self.inboxes: Dict[str, List[ReceivedMessage]] = {}
+        self.message_history: Dict[str, Deque[MessageBrief]] = {}
         self.artifacts: Dict[Tuple[int, int], dict] = {}
         self.finished_agents: Dict[str, bool] = {}
         self.position_history: Dict[str, List[Tuple[int, int]]] = {}
@@ -116,6 +118,7 @@ class GridWorld:
         self.finished_agents[agent_id] = False
         self.position_history[agent_id] = [key]
         self.turn_history[agent_id] = deque(maxlen=self.history_limit)
+        self.message_history[agent_id] = deque(maxlen=10)
         self.last_move_outcome[agent_id] = MoveOutcome.OK
         self.loop_counters[agent_id] = 0
         self.last_goal_distance[agent_id] = abs(self.goal.x - pos.x) + abs(self.goal.y - pos.y)
@@ -148,6 +151,10 @@ class GridWorld:
         neighbors = self._neighbors_in_view(agent_id, visibility_radius)
         artifacts: List[dict] = []
         inbox = list(self.inboxes.get(agent_id, []))
+        # Append received messages to brief history before clearing inbox
+        for msg in inbox:
+            self._record_message_brief(agent_id, msg)
+        # Clear inbox for next turn (messages are now reflected in history)
         self.inboxes[agent_id] = []
 
         # compute radio proximity using Manhattan distance within radio_range
@@ -174,10 +181,11 @@ class GridWorld:
             radio_peers_count=radio_count,
             artifacts_in_view=artifacts,
             inbox=inbox,
+            recent_messages=list(self.message_history.get(agent_id, [])),
             adjacent=self._adjacent_summary(agent_id, ax, ay),
             recent_positions=[
                 Position(x=px, y=py)
-                for px, py in self.position_history.get(agent_id, [])[:5]
+                for px, py in self.position_history.get(agent_id, [])[:10]
             ],
             comm_limits=CommLimits(
                 range=radio_range,
@@ -413,6 +421,12 @@ class GridWorld:
         for messages in self.inboxes.values():
             for msg in messages:
                 msg.age += 1
+        # Also age the brief history summaries
+        for dq in self.message_history.values():
+            for i in range(len(dq)):
+                brief = dq[i]
+                new_age = (brief.age or 0) + 1
+                dq[i] = MessageBrief(kind=brief.kind, details=brief.details, sender=brief.sender, hop=brief.hop, age=new_age)
 
     def mark_finished(self, agent_id: str) -> None:
         self.finished_agents[agent_id] = True
@@ -424,6 +438,34 @@ class GridWorld:
         self.last_move_outcome[agent_id] = MoveOutcome.FINISHED
         self.loop_counters[agent_id] = 0
         self.contended_neighbors[agent_id] = 0
+
+    # ------------------------------------------------------------------
+    # Message brief helpers
+    # ------------------------------------------------------------------
+
+    def _record_message_brief(self, agent_id: str, received: ReceivedMessage) -> None:
+        env = received.envelope
+        kind = getattr(env, "kind", "")
+        details = None
+        if kind == "HERE":
+            try:
+                details = f"pos=({env.pos.x},{env.pos.y})"
+            except Exception:
+                details = None
+        elif kind == "INTENT":
+            details = getattr(env, "next_action", None)
+        elif kind == "REQUEST":
+            parts = [getattr(env, "req", None)]
+            tgt = getattr(env, "target", None)
+            if tgt is not None:
+                parts.append(f"target=({tgt.x},{tgt.y})")
+            details = " ".join([p for p in parts if p]) or None
+        elif kind == "CHAT":
+            txt = getattr(env, "text", None)
+            if isinstance(txt, str):
+                details = txt[:96]
+        brief = MessageBrief(kind=kind, details=details, sender=getattr(env, "sender_id", None), hop=received.hop_distance, age=received.age)
+        self.message_history.setdefault(agent_id, deque(maxlen=10)).append(brief)
 
     def record_history(self, agent_id: str, payload: dict) -> None:
         if agent_id not in self.turn_history:
