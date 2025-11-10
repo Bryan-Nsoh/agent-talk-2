@@ -54,7 +54,7 @@ class LlmPolicy:
         strategy = self.strategy.lower()
 
         general_rules = [
-            "Comments must start with a status token (e.g., OK; BLOCKED_AGENT(a2@11,1)) and remain within 25 words.",
+            "Keep comments ≤25 words and use them to explain your reasoning (mention coordinates or map features when possible).",
             "If last_move_outcome != OK, do not repeat the same direction; prefer STAY or a safe alternate and coordinate.",
             "Treat CONTENDED neighbors as high risk: only enter if no safer option, and communicate or yield when you do.",
         ]
@@ -63,12 +63,13 @@ class LlmPolicy:
             strategy_rules = ["Communication disabled; do not choose COMMUNICATE."]
         elif strategy == "structured":
             strategy_rules = [
-                "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE. One message max per turn.",
-                "When to communicate: only if any_peer_in_range is true, or you have new useful info and a peer can hear you (any_peer_in_range). Send exactly one helpful message.",
-                "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be looping, or you are changing plans.",
-                "Priority (for conflicts): closer to the target cell wins; if equal, prefer the target that reduces Manhattan distance to G most; if still equal, lowest agent_id wins.",
-                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position.",
-                "Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
+                "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE, MAP_REQUEST(origin=(x,y),radius=2). One message max per turn.",
+                "When to communicate: only if any_peer_in_range is true and you have useful info (collision risk, new corridor, map gap) that a nearby peer benefits from.",
+                "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",
+                "Priority: when 2+ agents want the same cell, LOWEST agent_id wins and MUST claim it immediately. Higher IDs MUST yield (stay/reroute). No mutual yielding allowed.",
+                "MAP_REQUEST returns either MAP_PATCH (5×5 snippet) or MAP_NO_PATCH. Use MAP_REQUEST when `nearest_frontier` stays unchanged for several turns—include that coordinate in the origin field.",
+                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position; MAP_REQUEST to fetch a snippet when stuck.",
+                "MAP_PATCH arrives automatically—treat it as authoritative and cite the new coordinates in your comment. Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
             ]
         elif strategy == "freeform":
             strategy_rules = [
@@ -76,7 +77,7 @@ class LlmPolicy:
                 ("When to communicate: share new useful info each turn; radio has unlimited range."
                  if self.freeform_global else
                  "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck)."),
-                "Examples: 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'taking left path—please take right', 'stuck at (3,1)'.",
+                "Use coordinates so teammates can mark their maps: e.g., 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'sharing loop at (3,1)-(3,2)'.",
                 "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
             ]
         else:
@@ -86,28 +87,6 @@ class LlmPolicy:
         rules = "\n".join(f"- {line}" for line in lines)
         return f"COMMUNICATION_RULES:\n{rules}\n\n"
 
-    def _loop_block(self) -> str:
-        lines = [
-            f"Loop monitor: observation history only includes the last {self.history_limit} turns.",
-        ]
-        if self.loop_guidance.lower() == "active":
-            lines.append(
-                "If history.loop >= 3 or you have toggled between the same cells repeatedly, change axis or choose a different safe action (STAY or explore a new direction) before repeating the same move."
-            )
-            lines.append(
-                "Optionally communicate your intent when breaking a loop so nearby agents can coordinate."
-            )
-        elif self.loop_guidance.lower() == "explore":
-            lines.extend(
-                [
-                    "If history.loop >= 2 or you notice the same two cells in `history`, you MUST break the pattern: pick a perpendicular or backward move even if it points away from the goal.",
-                    "Going away from the goal is acceptable when escaping traps—prioritise clearing the congestion first, then re-approach.",
-                    "If you reroute, briefly broadcast the change so nearby peers can yield or choose alternates.",
-                    "Never repeat the same move twice in a row while loop >= 2; choose a different axis or STAY + communicate.",
-                ]
-            )
-        return "LOOP_RULES:\n" + "\n".join(f"- {line}" for line in lines) + "\n\n"
-
     def _prompt_for(self, observation: Observation) -> str:
         payload = observation.model_dump(mode="json")
         header = build_prompt_header(
@@ -115,7 +94,7 @@ class LlmPolicy:
             action_kinds=self.capabilities.action_kinds,
         ).replace(
             "<OBSERVATION_JSON>\n",
-            f"{self._strategy_block()}{self._loop_block()}<OBSERVATION_JSON>\n",
+            f"{self._strategy_block()}<OBSERVATION_JSON>\n",
             1,
         )
         return f"{header}{json.dumps(payload, separators=(',', ':'))}\n</OBSERVATION_JSON>"

@@ -8,6 +8,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Deque, Dict, Iterable, List, Optional, Tuple
 
+from llmgrid.agent_map import AgentMap
 from llmgrid.schema import (
     AgentSelf,
     AdjacentCell,
@@ -31,6 +32,7 @@ from llmgrid.schema import (
     RelativeOffset,
     StrengthBucket,
     TurnHistory,
+    WorldMapMeta,
 )
 
 TileChar = str  # ".", "#", "G", "A", "*"
@@ -58,6 +60,8 @@ def _direction_delta(direction: Direction) -> Tuple[int, int]:
 
 class GridWorld:
     """Grid-based environment with synchronous turns."""
+
+    _ICON_SEQUENCE = list("123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
     def __init__(
         self,
@@ -94,11 +98,12 @@ class GridWorld:
         self.position_history: Dict[str, List[Tuple[int, int]]] = {}
         self.turn_history: Dict[str, Deque[dict]] = {}
         self.last_move_outcome: Dict[str, MoveOutcome] = {}
-        self.loop_counters: Dict[str, int] = {}
         self.last_goal_distance: Dict[str, int] = {}
         self.last_intent_target: Dict[str, Optional[Tuple[int, int]]] = {}
         self.contended_neighbors: Dict[str, int] = {}
         self.message_seq: Dict[str, int] = {}
+        self.agent_maps: Dict[str, AgentMap] = {}
+        self.agent_icons: Dict[str, str] = {}
 
     # ------------------------------------------------------------------
     # Agent placement and utility helpers
@@ -120,11 +125,12 @@ class GridWorld:
         self.turn_history[agent_id] = deque(maxlen=self.history_limit)
         self.message_history[agent_id] = deque(maxlen=10)
         self.last_move_outcome[agent_id] = MoveOutcome.OK
-        self.loop_counters[agent_id] = 0
         self.last_goal_distance[agent_id] = abs(self.goal.x - pos.x) + abs(self.goal.y - pos.y)
         self.last_intent_target[agent_id] = None
         self.contended_neighbors[agent_id] = 0
         self.message_seq[agent_id] = 0
+        self.agent_maps[agent_id] = AgentMap(self.size.width, self.size.height)
+        self.agent_icons[agent_id] = self._assign_icon(agent_id)
 
     def _in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.size.width and 0 <= y < self.size.height
@@ -165,6 +171,26 @@ class GridWorld:
             if abs(ox - ax) + abs(oy - ay) <= radio_range:
                 radio_count += 1
 
+        agent_map = self._update_agent_map(
+            agent_id=agent_id,
+            patch=local_patch,
+            turn_index=turn_index,
+        )
+        world_map_ascii = agent_map.render_ascii(
+            icon_lookup=self.agent_icons,
+            orientations={aid: self.orientation.get(aid, Direction.N).name for aid in self.agent_maps.keys()},
+        )
+        frontiers = agent_map.find_frontiers()
+        adjacent_frontiers = [
+            Position(x=fx, y=fy)
+            for fx, fy in frontiers
+            if abs(fx - ax) + abs(fy - ay) == 1
+        ]
+        nearest_frontier = None
+        if frontiers:
+            fx, fy = min(frontiers, key=lambda coord: abs(coord[0] - ax) + abs(coord[1] - ay))
+            nearest_frontier = Position(x=fx, y=fy)
+
         obs = Observation(
             protocol_version="1.0.0",
             turn_index=turn_index,
@@ -193,12 +219,22 @@ class GridWorld:
                 max_payload_chars=96,
             ),
             goal_sensor=self._bearing_sensor(ax, ay),
+            world_map_meta=WorldMapMeta(
+                x_right=True,
+                y_up=True,
+                origin=Position(x=0, y=0),
+                width=self.size.width,
+                height=self.size.height,
+            ),
+            adjacent_frontiers=adjacent_frontiers,
+            nearest_frontier=nearest_frontier,
             last_move_outcome=self.last_move_outcome.get(agent_id, MoveOutcome.OK),
             contended_neighbors=self.contended_neighbors.get(agent_id, 0),
             history=[
                 TurnHistory.model_validate(item)
                 for item in list(self.turn_history.get(agent_id, []))
             ],
+            world_map_ascii=world_map_ascii,
         )
         return obs
 
@@ -244,6 +280,47 @@ class GridWorld:
                     )
                 )
         return neighbors
+
+    def _update_agent_map(
+        self,
+        *,
+        agent_id: str,
+        patch: LocalPatch,
+        turn_index: int,
+    ) -> AgentMap:
+        """Update the persistent egocentric map for an agent and return it."""
+
+        agent_map = self.agent_maps[agent_id]
+        occupancy_lookup = {
+            other_id: pos
+            for other_id, pos in self.occupancy.items()
+            if not self.is_finished(other_id)
+        }
+        agent_map.stamp_patch(
+            top_left=patch.top_left_abs,
+            rows=patch.rows,
+            occupancy_lookup=occupancy_lookup,
+            turn_index=turn_index,
+        )
+        recent_positions = list(self.position_history.get(agent_id, [])[:3])
+        agent_map.mark_self(
+            agent_id,
+            self.occupancy[agent_id],
+            turn_index=turn_index,
+            recent_positions=recent_positions,
+        )
+        return agent_map
+
+    def _assign_icon(self, agent_id: str) -> str:
+        """Return a concise single-character icon to represent an agent on the map."""
+
+        if agent_id in self.agent_icons:
+            return self.agent_icons[agent_id]
+        idx = len(self.agent_icons)
+        if idx < len(self._ICON_SEQUENCE):
+            return self._ICON_SEQUENCE[idx]
+        # Fallback once the pool is exhausted; still deterministic.
+        return "@"
 
     def _empty_mark_limits(self):
         class _M:
@@ -436,7 +513,6 @@ class GridWorld:
             if len(history) > self.history_limit:
                 del history[self.history_limit :]
         self.last_move_outcome[agent_id] = MoveOutcome.FINISHED
-        self.loop_counters[agent_id] = 0
         self.contended_neighbors[agent_id] = 0
 
     # ------------------------------------------------------------------
@@ -460,6 +536,21 @@ class GridWorld:
             if tgt is not None:
                 parts.append(f"target=({tgt.x},{tgt.y})")
             details = " ".join([p for p in parts if p]) or None
+        elif kind == "MAP_REQUEST":
+            try:
+                details = f"origin=({env.origin.x},{env.origin.y}) r={getattr(env, 'radius', '?')}"
+            except Exception:
+                details = None
+        elif kind == "MAP_PATCH":
+            try:
+                details = f"origin=({env.origin.x},{env.origin.y}) rows={len(env.rows)}"
+            except Exception:
+                details = None
+        elif kind == "MAP_NO_PATCH":
+            try:
+                details = f"origin=({env.origin.x},{env.origin.y})"
+            except Exception:
+                details = None
         elif kind == "CHAT":
             txt = getattr(env, "text", None)
             if isinstance(txt, str):

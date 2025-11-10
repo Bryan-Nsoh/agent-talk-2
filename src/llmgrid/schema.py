@@ -212,6 +212,32 @@ class MsgRequest(BaseMsg):
     )
 
 
+class MsgMapRequest(BaseMsg):
+    """Ask nearby peers for a fixed-size map snippet."""
+
+    kind: Literal["MAP_REQUEST"] = "MAP_REQUEST"
+    origin: Position = Field(description="Center of the desired snippet.")
+    radius: int = Field(ge=1, le=5, description="Half-width of the requested window (cells).")
+
+
+class MsgMapPatch(BaseMsg):
+    """Return a rectangular snippet of explored map."""
+
+    kind: Literal["MAP_PATCH"] = "MAP_PATCH"
+    origin: Position = Field(description="Center coordinate originally requested.")
+    top_left: Position = Field(description="Top-left coordinate (min x, max y) of the snippet.")
+    radius: int = Field(ge=1, le=5, description="Half-width of the snippet (cells).")
+    rows: List[str] = Field(description="Rows ordered from highest y to lowest y.")
+    provided_at: int = Field(description="Turn index when the snippet was shared.")
+
+
+class MsgMapNoPatch(BaseMsg):
+    """Indicate that no new map info was available."""
+
+    kind: Literal["MAP_NO_PATCH"] = "MAP_NO_PATCH"
+    origin: Position = Field(description="Center that was requested.")
+
+
 # MsgMarkInfo removed in this branch
 
 
@@ -233,6 +259,9 @@ OutgoingMessage = Union[
     MsgHere,
     MsgIntent,
     MsgRequest,
+    MsgMapRequest,
+    MsgMapPatch,
+    MsgMapNoPatch,
     MsgChat,
 ]
 
@@ -329,6 +358,16 @@ class MoveOutcome(str, Enum):
     FINISHED = "FINISHED"
 
 
+class WorldMapMeta(BaseModel):
+    """Orientation and extent metadata for the rendered world map."""
+
+    x_right: bool = Field(description="True if x increases to the right.")
+    y_up: bool = Field(description="True if y increases upward.")
+    origin: Position = Field(description="Reference origin of the map (usually bottom-left).")
+    width: int = Field(ge=1, description="Grid width in cells.")
+    height: int = Field(ge=1, description="Grid height in cells.")
+
+
 class Observation(BaseModel):
     """Full observation object passed to the LLM."""
 
@@ -363,6 +402,20 @@ class Observation(BaseModel):
     # mark_limits removed in this branch
     goal_sensor: GoalSensorReading = Field(
         description="Sensing information pointing toward the goal."
+    )
+    world_map_meta: WorldMapMeta = Field(
+        description="Metadata describing the orientation and bounds of world_map_ascii."
+    )
+    adjacent_frontiers: List[Position] = Field(
+        default_factory=list,
+        description="Unknown cells (X) adjacent to the agent's current position.",
+    )
+    nearest_frontier: Optional[Position] = Field(
+        default=None,
+        description="Closest known frontier (unknown cell bordering explored space).",
+    )
+    world_map_ascii: str = Field(
+        description="ASCII rendering of the agent's persistent world map (X=unknown)."
     )
     last_move_outcome: MoveOutcome = Field(
         description="Outcome of the agent's previous action."
@@ -457,7 +510,7 @@ class TurnHistory(BaseModel):
 
 _STRATEGY_MESSAGE_TYPES: Dict[str, List[Type[BaseModel]]] = {
     "none": [],
-    "structured": [MsgIntent, MsgRequest, MsgHere],
+    "structured": [MsgIntent, MsgRequest, MsgHere, MsgMapRequest],
     "freeform": [MsgChat],
 }
 

@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from llmgrid.agent.llm_agent import DecisionTrace, LlmPolicy
 from llmgrid.agent.local_baseline import GreedyBaseline
+from llmgrid.agent_map import AgentMap
 from llmgrid.env.grid import GridWorld
 from llmgrid.schema import (
     AdjacentState,
@@ -27,7 +28,13 @@ from llmgrid.schema import (
     ReceivedMessage,
     StayAction,
     TurnHistory,
+    MsgMapPatch,
+    MsgMapRequest,
+    MsgMapNoPatch,
 )
+
+
+MAP_REQUEST_DEFAULT_RADIUS = 2
 
 
 @dataclass
@@ -176,6 +183,8 @@ class GridWorldState(BaseModel):
     finished_agents: Dict[str, bool] = Field(default_factory=dict)
     position_history: Dict[str, List[Position]] = Field(default_factory=dict)
     turn_history: Dict[str, List[TurnHistory]] = Field(default_factory=dict)
+    agent_icons: Dict[str, str] = Field(default_factory=dict)
+    agent_maps: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
     rng_state: List[Any]
     bearing_flip_p: float
     bearing_drop_p: float
@@ -203,6 +212,11 @@ class GridWorldState(BaseModel):
             turn_history={
                 aid: [TurnHistory.model_validate(item) for item in history]
                 for aid, history in world.turn_history.items()
+            },
+            agent_icons=dict(world.agent_icons),
+            agent_maps={
+                aid: world.agent_maps[aid].export_state()
+                for aid in world.agent_maps
             },
             rng_state=_freeze_random_state(world.rng.getstate()),
             bearing_flip_p=world.bearing_flip_p,
@@ -244,6 +258,13 @@ class GridWorldState(BaseModel):
             )
             for aid, histories in self.turn_history.items()
         }
+        world.agent_icons = dict(self.agent_icons)
+        for agent_id in world.occupancy.keys():
+            agent_map = AgentMap(world.size.width, world.size.height)
+            payload = self.agent_maps.get(agent_id)
+            if payload:
+                agent_map.load_state(payload)
+            world.agent_maps[agent_id] = agent_map
         world.rng.setstate(_thaw_random_state(self.rng_state))
         return world
 
@@ -309,6 +330,80 @@ def _resolve_policy(
             radio_range=radio_range,
         )
     return GreedyBaseline(seed=seed)
+
+
+def _handle_map_requests(
+    world: GridWorld,
+    map_requests: List[Tuple[str, Position, int]],
+    radio_range: int,
+    turn_index: int,
+) -> Tuple[int, int]:
+    """Process structured MAP_REQUEST actions and inject patches if available."""
+
+    extra_sent = 0
+    extra_delivered = 0
+
+    if not map_requests:
+        return extra_sent, extra_delivered
+
+    for requester_id, origin, radius in map_requests:
+        if requester_id not in world.agent_maps:
+            continue
+        req_map = world.agent_maps[requester_id]
+        center = (origin.x, origin.y)
+        clamped_radius = max(1, min(radius or MAP_REQUEST_DEFAULT_RADIUS, MAP_REQUEST_DEFAULT_RADIUS))
+        candidates = _recipients_in_range(world, requester_id, radio_range)
+        best_provider = None
+        best_top_left = None
+        best_rows: Optional[List[str]] = None
+        best_new_cells = 0
+
+        for provider_id in candidates:
+            if provider_id not in world.agent_maps:
+                continue
+            top_left, rows = world.agent_maps[provider_id].extract_window(center, clamped_radius)
+            new_cells = _count_new_cells(req_map, top_left, rows)
+            if new_cells > best_new_cells:
+                best_new_cells = new_cells
+                best_provider = provider_id
+                best_top_left = top_left
+                best_rows = rows
+
+        if best_provider and best_rows and best_top_left:
+            req_map.apply_patch(best_top_left, best_rows)
+            seq = world.next_message_seq(best_provider)
+            patch_msg = MsgMapPatch(
+                kind="MAP_PATCH",
+                sender_id=best_provider,
+                seq=seq,
+                origin=origin,
+                top_left=best_top_left,
+                radius=clamped_radius,
+                rows=best_rows,
+                provided_at=turn_index,
+            )
+            px, py = world.occupancy[best_provider]
+            qx, qy = world.occupancy[requester_id]
+            rm = ReceivedMessage(
+                envelope=patch_msg,
+                hop_distance=abs(px - qx) + abs(py - qy),
+                age=0,
+            )
+            world.deliver_message(requester_id, rm)
+            extra_sent += 1
+            extra_delivered += 1
+        else:
+            seq = world.next_message_seq(requester_id)
+            no_patch = MsgMapNoPatch(
+                kind="MAP_NO_PATCH",
+                sender_id=requester_id,
+                seq=seq,
+                origin=origin,
+            )
+            rm = ReceivedMessage(envelope=no_patch, hop_distance=0, age=0)
+            world.deliver_message(requester_id, rm)
+
+    return extra_sent, extra_delivered
 
 
 class PolicyProtocol:
@@ -591,6 +686,7 @@ async def _run_episode_async(
             had_retry = False
 
         decisions: Dict[str, Decision] = {}
+        map_requests: List[Tuple[str, Position, int]] = []
         for aid in active_agents:
             outcome = outcomes[aid]
             decision = outcome.decision
@@ -603,6 +699,9 @@ async def _run_episode_async(
                 else:
                     message.seq = seq_value  # type: ignore[union-attr]
                 decision.action.message = message  # type: ignore[assignment]
+                if isinstance(message, MsgMapRequest):
+                    radius = getattr(message, "radius", MAP_REQUEST_DEFAULT_RADIUS) or MAP_REQUEST_DEFAULT_RADIUS
+                    map_requests.append((aid, message.origin, int(radius)))
                 if outcome.record is not None:
                     try:
                         outcome.record["decision"]["action"]["message"]["seq"] = seq_value
@@ -658,6 +757,10 @@ async def _run_episode_async(
                     delivered_this_turn += len(recipients)
                 # Oracle actions are not supported in this branch.
 
+        extra_sent, extra_delivered = _handle_map_requests(world, map_requests, radio_range, turn)
+        messages_sent += extra_sent
+        delivered_this_turn += extra_delivered
+
         intents: Dict[str, Optional[Direction]] = {}
         before = dict(world.occupancy)
         for aid, decision in decisions.items():
@@ -709,24 +812,18 @@ async def _run_episode_async(
             pos = world.occupancy[aid]
             distance_after = abs(pos[0] - world.goal.x) + abs(pos[1] - world.goal.y)
             delta = _goal_delta(distance_before, distance_after)
-            loop_val = world.loop_counters.get(aid, 0)
-            if delta == "CLOSER":
-                loop_val = 0
-            else:
-                loop_val = min(9, loop_val + 1)
-            world.loop_counters[aid] = loop_val
             world.last_goal_distance[aid] = distance_after
             world.last_move_outcome[aid] = result.outcome
             world.last_intent_target[aid] = result.target
             peer_bits = _peer_bits(observation)
-            note = _derive_note(result, loop_val)
+            note = _derive_note(result)
             history_payload = _make_history_entry(
                 turn=turn,
                 decision=decisions[aid],
                 observation=observation,
                 result=result,
                 delta=delta,
-                loop_value=loop_val,
+                loop_value=0,
                 peer_bits=peer_bits,
                 note=note,
             )
@@ -937,6 +1034,21 @@ def _recipients_in_range(world: GridWorld, sender_id: str, radio_range: int) -> 
     return recipients
 
 
+def _count_new_cells(requester_map: AgentMap, top_left: Position, rows: List[str]) -> int:
+    """Return how many cells in `rows` are unknown to the requester."""
+
+    new_cells = 0
+    for dy, line in enumerate(rows):
+        y = top_left.y - dy
+        for dx, char in enumerate(line):
+            if char == AgentMap.UNKNOWN:
+                continue
+            x = top_left.x + dx
+            if requester_map.get_tile(x, y) == AgentMap.UNKNOWN:
+                new_cells += 1
+    return new_cells
+
+
 def _compute_contended_mask(position: Tuple[int, int], contested_cells: Iterable[Optional[Tuple[int, int]]]) -> int:
     """Return a NESW bitmask for contested neighbour cells relative to `position`."""
 
@@ -1053,9 +1165,7 @@ def _peer_bits(observation: Observation) -> str:
     return f"{bits}|intent:{recent_intent}"
 
 
-def _derive_note(result: "MoveResult", loop_value: int) -> Optional[str]:
-    if loop_value >= 3:
-        return "AVOID_LOOP"
+def _derive_note(result: "MoveResult") -> Optional[str]:
     if result.outcome in (MoveOutcome.BLOCK_AGENT, MoveOutcome.SWAP_CONFLICT):
         return "TRAFFIC_CONE"
     return None

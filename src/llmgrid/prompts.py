@@ -9,34 +9,31 @@ Keep the entire team safe and moving. Agents should be cooperative and do their 
 
 MISSION BRIEF:
 - Grid awareness comes from the JSON: `grid_size`, `local_patch`, and `adjacent` describe nearby tiles; `self_state` gives your orientation.
+- `world_map_ascii` is your stitched map (X=unknown, `~` marks your recent trail). `adjacent_frontiers` lists unknown cells you can reveal immediately; `nearest_frontier` points to the closest X tile overall.
 - Actions: {actions_sentence}
 - Collisions (BLOCK_AGENT or SWAP_CONFLICT) reset you and waste a turn. `contended_neighbors` tells you which adjacent directions collided last turn—treat them as hotspots and coordinate before retrying.
-- History: `history` holds your last turns with a `loop` counter and notes; `recent_positions` lists the cells you just visited.
+- History: `history` captures your recent intents/outcomes and notes; `recent_positions` lists the cells you just visited.
 - Goal sensor (`goal_sensor`) is a noisy hint. Treat it as guidance, not a command.
 - Teammates do not see your thoughts—announce reroutes, hazards, or intents when relevant.
 - {message_behavior_line}
 
 TOOL ARSENAL (with quick cues):
-- MOVE_N/E/S/W — default travel. Example: `adjacent.E = FREE`, loop=0 → MOVE_E, comment `OK; advancing east toward open corridor`.
+- MOVE_N/E/S/W — default travel. Example: `adjacent.E = FREE`, frontier east → MOVE_E, comment `Scouting unknown at (x+1,y)`.
 - STAY — hold position when moving would collide or you need to coordinate first. Example: all sides blocked, teammate approaching → STAY + explain the pause.
 {comm_tool_line}
-- HISTORY / LOOP COUNTER — diagnostic tool: if `history.loop` climbs or `recent_positions` oscillate, immediately select a different axis, even if it increases distance.
+- HISTORY — glance at prior intents/outcomes to avoid repeating the same blockage; `recent_positions` exposes short back-and-forth patterns so you can change tactics.
 {oracle_tool_line}
 
 DECISION HIERARCHY (apply in order every turn):
-1. ESCAPE LOOPS: If `history.loop ≥ 2` or you see back-and-forth patterns in `history` / `recent_positions`, you MUST break the cycle. Choose a perpendicular or backward move, or STAY + coordinate—even if it briefly increases your goal distance.
-2. PREVENT COLLISIONS: Respect WALL / contended cells. Yield or coordinate before entering tight corridors.
-3. EXPLORE: Prefer safe tiles you haven’t occupied recently to open new paths and relieve congestion. When you find a fresh corridor, carry your momentum for a few turns—even if the bearing briefly worsens—so you fully scout it before doubling back.
-4. ADVANCE TOWARD GOAL: Only after you are loop-free and clear of hazards should you follow the goal bearing or Manhattan gradient.
+1. PREVENT COLLISIONS: Respect WALL / contended cells. Yield or coordinate before entering tight corridors.
+2. EXPLORE UNKNOWN: If `adjacent_frontiers` is non-empty, MOVE into one of those cells to reveal it. Otherwise head toward `nearest_frontier`; pick a direction that leaves the `~` trail (prefer tiles not visited in the last few turns) before reusing older paths.
+3. ADVANCE TOWARD GOAL: After nearby frontiers are mapped and hazards cleared, follow the goal bearing or Manhattan gradient.
 
-LOOP ESCAPE EXAMPLE:
-- Turn t: `history.loop = 3`, last intents [MOVE_E, MOVE_W, MOVE_E]. Action: MOVE_N; comment “AVOID_LOOP; exploring north to clear congestion.”{loop_example_suffix}
-- Turn t+1: loop resets to 0 → reassess hazards, then resume goal-oriented planning.
-
-COMMENT & COMMUNICATION GUIDELINES:
-- Begin comments with a status token (e.g., “OK;”, “BLOCKED_AGENT(…)”) and keep them ≤25 words.
-- When you take a detour or STAY to break a loop, explain it so teammates know you’re clearing space.
-- If `contended_neighbors` flags a direction, STAY or coordinate first—the warning arrived from last turn’s collision.
+REASONING NOTE (comment field, ≤25 words):
+- Use the comment purely as reasoning: explain why you chose this action.
+- Reference absolute coords or map features (e.g., “scouting X at (3,2)”). If you pick from `adjacent_frontiers` or `nearest_frontier`, cite the coordinate explicitly.
+- If you enter a tile marked `~` (recent trail), explain why revisiting it is necessary.
+- If `contended_neighbors` flags a direction, mention how you’ll avoid or coordinate around it.
 {comment_extra_line}
 
 OUTPUT CONTRACT:
@@ -84,12 +81,6 @@ def _message_behavior_line(action_kinds: List[str]) -> str:
     return "Peer radio is disabled for this baseline; plan routes assuming you will not receive teammate messages."
 
 
-def _loop_example_suffix(action_kinds: List[str]) -> str:
-    if "COMMUNICATE" in action_kinds:
-        return " Optionally COMMUNICATE “rerouting north to break loop.”"
-    return ""
-
-
 def build_prompt_header(
     *,
     radio_range: int,
@@ -100,13 +91,12 @@ def build_prompt_header(
 
     actions_sentence = _actions_sentence(action_kinds, radio_range)
     message_behavior_line = _message_behavior_line(action_kinds)
-    loop_example_suffix = _loop_example_suffix(action_kinds)
 
     comm_tool_line = ""
     if allow_comm:
         comm_tool_line = (
             "- COMMUNICATE — one structured message to share intent, hazards, or reroutes (range "
-            f"{radio_range}). Use it when loops grow or before entering contested cells.\n"
+            f"{radio_range}). Share new information, not repeats.\n"
         )
 
     oracle_tool_line = ""
@@ -131,7 +121,6 @@ def build_prompt_header(
         message_behavior_line=message_behavior_line,
         comm_tool_line=comm_tool_line,
         oracle_tool_line=oracle_tool_line,
-        loop_example_suffix=loop_example_suffix,
         comment_extra_line=comment_extra_line,
         action_contract=action_contract,
         communication_execution_line=communication_execution_line,
