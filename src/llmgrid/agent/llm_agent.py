@@ -63,7 +63,6 @@ class LlmPolicy:
             strategy_rules = ["Communication disabled; do not choose COMMUNICATE."]
         elif strategy == "structured":
             strategy_rules = [
-                "DEFAULT TO MOVE. Only COMMUNICATE when the message prevents imminent collision or shares critical info (goal location, essential map gap, stuck peer).",
                 "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE, MAP_REQUEST(origin=(x,y),radius=2). One message max per turn.",
                 "When to communicate: only if any_peer_in_range is true and you have useful info (collision risk, new corridor, map gap) that a nearby peer benefits from.",
                 "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",

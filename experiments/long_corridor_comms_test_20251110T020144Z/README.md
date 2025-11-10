@@ -1,6 +1,6 @@
 # Long Corridor Communication Test
 
-**Last updated:** 2025-11-10T13:55:00Z
+**Last updated:** 2025-11-10T15:40:00Z
 **Status:** ✓ complete
 **Outcome:** ✓ useful
 
@@ -22,11 +22,20 @@ After multiple attempts with complex mazes (direct_grid 15×5) where agents loop
 
 ## Runs
 
-| Run | Started | Status | Finished | Messages | Notes |
-|-----|---------|--------|----------|----------|-------|
-| [none](./runs/none_20251110T020144Z/) | 2025-11-10 02:01 | ✓ complete | 0/5 | 0 | Timed out at 100 turns, no agents reached goal |
-| [structured](./runs/structured_20251110T020144Z/) | 2025-11-10 02:01 | ✓ complete | 3/5 | 57 | **WINNER** - 3 agents reached goal in 100 turns |
-| [freeform](./runs/freeform_20251110T020144Z/) | 2025-11-10 02:01 | ✓ stuck turn 95 | 2/5 | 14 | 2 agents reached goal, then hung |
+| Run | Commit | Started | Status | Finished | Messages | Notes |
+|-----|--------|---------|--------|----------|----------|-------|
+| **BASELINE** | 6ae6129 | 2025-11-10 02:01 | ✓ complete | | | |
+| [none](./runs/none_20251110T020144Z/) | 6ae6129 | 2025-11-10 02:01 | ✓ complete | 0/5 | 0 | Timed out, no agents reached goal |
+| [structured](./runs/structured_20251110T020144Z/) | 6ae6129 | 2025-11-10 02:01 | ✓ complete | 3/5 | 57 | **WINNER** - 3 agents reached goal, had deadlock |
+| [freeform](./runs/freeform_20251110T020144Z/) | 6ae6129 | 2025-11-10 02:01 | ✓ stuck | 2/5 | 14 | 2 agents reached goal, then hung |
+| **VALIDATION 1** | 6ae6129 | 2025-11-10 13:55 | ✓ complete | | | Priority fix added but agents wasted turns announcing |
+| [structured](../long_corridor_validation_20251110T135528Z/runs/structured_20251110T135528Z/) | 6ae6129 | 2025-11-10 13:55 | ✓ complete | 2/5 | 46 | Agents announced priority instead of acting |
+| [freeform](../long_corridor_validation_20251110T135528Z/runs/freeform_20251110T135528Z/) | 6ae6129 | 2025-11-10 13:55 | ✓ complete | 1/5 | ? | Worse than baseline |
+| [none](../long_corridor_validation_20251110T135528Z/runs/none_20251110T135528Z/) | 6ae6129 | 2025-11-10 13:55 | ✓ complete | 0/5 | 0 | No change |
+| **VALIDATION 2** | 324ec42 | 2025-11-10 15:22 | ✗ killed | | | Unfair: added "DEFAULT TO MOVE" + gave freeform priority rule |
+| [structured](../long_corridor_validation2_20251110T152208Z/runs/structured_20251110T152208Z/) | 324ec42 | 2025-11-10 15:22 | ✗ killed T49 | 0/5 | 8 | Over-suppressed comms, no progress |
+| [freeform](../long_corridor_validation2_20251110T152208Z/runs/freeform_20251110T152209Z/) | 324ec42 | 2025-11-10 15:22 | ✗ killed T68 | 3/5 | 3 | **BEST** - got priority rule, winning unfairly |
+| [none](../long_corridor_validation2_20251110T152210Z/runs/none_20251110T152210Z/) | 324ec42 | 2025-11-10 15:22 | ✗ killed T52 | 1/5 | 0 | Anomaly - 1 agent somehow finished |
 
 ## Results
 

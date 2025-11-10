@@ -1,0 +1,209 @@
+{
+  "timestamp": "2025-11-10T15:49:43.526081Z",
+  "status": "active",
+  "experiment_dir": "experiments/long_corridor_validation2_20251110T152208Z",
+  "commit": "324ec42",
+  "runs": {
+    "freeform": {
+      "strategy": "freeform",
+      "status": "running",
+      "turn": 69,
+      "finished": 3,
+      "total_agents": 5,
+      "messages_sent": 3,
+      "avg_distance": 6.8,
+      "agents": {
+        "a1": {
+          "position": [
+            28,
+            1
+          ],
+          "orientation": "W",
+          "status": "FINISHED",
+          "distance_to_goal": 0,
+          "last_action": null,
+          "at_goal": true
+        },
+        "a2": {
+          "position": [
+            28,
+            1
+          ],
+          "orientation": "E",
+          "status": "FINISHED",
+          "distance_to_goal": 0,
+          "last_action": null,
+          "at_goal": true
+        },
+        "a3": {
+          "position": [
+            4,
+            5
+          ],
+          "orientation": "W",
+          "status": "ACTIVE",
+          "distance_to_goal": 28,
+          "last_action": "MOVE_W",
+          "at_goal": false
+        },
+        "a4": {
+          "position": [
+            23,
+            2
+          ],
+          "orientation": "E",
+          "status": "ACTIVE",
+          "distance_to_goal": 6,
+          "last_action": "MOVE_E",
+          "at_goal": false
+        },
+        "a5": {
+          "position": [
+            28,
+            1
+          ],
+          "orientation": "E",
+          "status": "FINISHED",
+          "distance_to_goal": 0,
+          "last_action": null,
+          "at_goal": true
+        }
+      },
+      "last_turn_messages": []
+    },
+    "none": {
+      "strategy": "none",
+      "status": "running",
+      "turn": 53,
+      "finished": 1,
+      "total_agents": 5,
+      "messages_sent": 0,
+      "avg_distance": 19.8,
+      "agents": {
+        "a1": {
+          "position": [
+            1,
+            0
+          ],
+          "orientation": "W",
+          "status": "ACTIVE",
+          "distance_to_goal": 28,
+          "last_action": "MOVE_W",
+          "at_goal": false
+        },
+        "a2": {
+          "position": [
+            13,
+            5
+          ],
+          "orientation": "S",
+          "status": "ACTIVE",
+          "distance_to_goal": 19,
+          "last_action": "MOVE_S",
+          "at_goal": false
+        },
+        "a3": {
+          "position": [
+            5,
+            5
+          ],
+          "orientation": "S",
+          "status": "ACTIVE",
+          "distance_to_goal": 27,
+          "last_action": "MOVE_S",
+          "at_goal": false
+        },
+        "a4": {
+          "position": [
+            28,
+            1
+          ],
+          "orientation": "W",
+          "status": "FINISHED",
+          "distance_to_goal": 0,
+          "last_action": null,
+          "at_goal": true
+        },
+        "a5": {
+          "position": [
+            4,
+            0
+          ],
+          "orientation": "N",
+          "status": "ACTIVE",
+          "distance_to_goal": 25,
+          "last_action": "MOVE_N",
+          "at_goal": false
+        }
+      },
+      "last_turn_messages": []
+    },
+    "structured": {
+      "strategy": "structured",
+      "status": "running",
+      "turn": 49,
+      "finished": 0,
+      "total_agents": 5,
+      "messages_sent": 8,
+      "avg_distance": 23.0,
+      "agents": {
+        "a1": {
+          "position": [
+            18,
+            1
+          ],
+          "orientation": "E",
+          "status": "ACTIVE",
+          "distance_to_goal": 10,
+          "last_action": "MOVE_E",
+          "at_goal": false
+        },
+        "a2": {
+          "position": [
+            4,
+            5
+          ],
+          "orientation": "E",
+          "status": "ACTIVE",
+          "distance_to_goal": 28,
+          "last_action": "MOVE_E",
+          "at_goal": false
+        },
+        "a3": {
+          "position": [
+            3,
+            1
+          ],
+          "orientation": "S",
+          "status": "ACTIVE",
+          "distance_to_goal": 25,
+          "last_action": "COMMUNICATE",
+          "at_goal": false
+        },
+        "a4": {
+          "position": [
+            5,
+            5
+          ],
+          "orientation": "S",
+          "status": "ACTIVE",
+          "distance_to_goal": 27,
+          "last_action": "MOVE_S",
+          "at_goal": false
+        },
+        "a5": {
+          "position": [
+            4,
+            0
+          ],
+          "orientation": "N",
+          "status": "ACTIVE",
+          "distance_to_goal": 25,
+          "last_action": "MOVE_N",
+          "at_goal": false
+        }
+      },
+      "last_turn_messages": []
+    }
+  }
+}

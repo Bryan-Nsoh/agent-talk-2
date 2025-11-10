@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validation Run 2 Monitor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #58a6ff;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #8b949e;
+        }
+        .meta {
+            background: #161b22;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #30363d;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .meta-label {
+            color: #8b949e;
+            margin-right: 10px;
+        }
+        .meta-value {
+            color: #c9d1d9;
+            font-weight: bold;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .summary-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #58a6ff;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+        .summary-stat {
+            text-align: center;
+        }
+        .summary-stat-label {
+            font-size: 10px;
+            color: #8b949e;
+        }
+        .summary-stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .comparison-table th {
+            background: #0d1117;
+            padding: 12px 8px;
+            text-align: center;
+            color: #8b949e;
+            font-weight: normal;
+            border-bottom: 1px solid #30363d;
+        }
+        .comparison-table th.agent-col {
+            text-align: left;
+            color: #58a6ff;
+            font-weight: bold;
+        }
+        .comparison-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #21262d;
+            text-align: center;
+        }
+        .comparison-table td.agent-col {
+            text-align: left;
+            color: #58a6ff;
+            font-weight: bold;
+        }
+        .comparison-table tr:hover {
+            background: #0d1117;
+        }
+        .strategy-col {
+            font-size: 11px;
+        }
+        .status-finished { color: #3fb950; }
+        .status-active { color: #d29922; }
+        .distance {
+            font-family: monospace;
+            color: #f85149;
+        }
+        .distance.close { color: #d29922; }
+        .distance.very-close { color: #3fb950; }
+        .position {
+            font-family: monospace;
+            font-size: 11px;
+            color: #c9d1d9;
+        }
+        .action {
+            font-size: 10px;
+            color: #8b949e;
+        }
+        .messages-section {
+            margin-top: 30px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .messages-section h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .message-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .message-column h3 {
+            font-size: 13px;
+            color: #58a6ff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .message-item {
+            background: #0d1117;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #58a6ff;
+            font-size: 11px;
+        }
+        .message-header {
+            color: #58a6ff;
+            margin-bottom: 4px;
+        }
+        .message-content {
+            color: #8b949e;
+            font-family: monospace;
+        }
+        .no-messages {
+            color: #8b949e;
+            font-size: 11px;
+            font-style: italic;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #8b949e;
+        }
+        .refresh-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #161b22;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            font-size: 11px;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VALIDATION RUN 2 - GRANULAR MONITOR</h1>
+        <div id="content"></div>
+    </div>
+    <div class="refresh-info">Auto-refresh: 10s</div>
+
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('validation2_data.json?t=' + Date.now());
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="no-data">
+                        Waiting for data...<br>
+                        <small>Make sure validation2_monitor.py is running</small>
+                    </div>
+                `;
+            }
+        }
+
+        function renderDashboard(data) {
+            if (data.status === "waiting") {
+                document.getElementById('content').innerHTML = `
+                    <div class="no-data">
+                        Waiting for experiment to start...<br>
+                        <small>Directory: ${data.experiment_dir || 'not created yet'}</small>
+                    </div>
+                `;
+                return;
+            }
+
+            const strategyOrder = ['structured', 'freeform', 'none'];
+            const runs = {};
+            for (const s of strategyOrder) {
+                runs[s] = data.runs[s] || { strategy: s, turn: 0, finished: 0, messages_sent: 0, avg_distance: 0, agents: {} };
+            }
+
+            let html = `
+                <div class="meta">
+                    <div class="meta-row">
+                        <span class="meta-label">Commit:</span>
+                        <span class="meta-value">${data.commit}</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Experiment:</span>
+                        <span class="meta-value">${data.experiment_dir}</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Last update:</span>
+                        <span class="meta-value">${data.timestamp}</span>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+            `;
+
+            // Summary cards
+            for (const strategy of strategyOrder) {
+                const run = runs[strategy];
+                html += `
+                    <div class="summary-card">
+                        <div class="summary-title">${strategy}</div>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-stat-label">Turn</div>
+                                <div class="summary-stat-value">${run.turn}</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-label">Finished</div>
+                                <div class="summary-stat-value">${run.finished}/5</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-label">Msgs</div>
+                                <div class="summary-stat-value">${run.messages_sent}</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-label">Avg Dist</div>
+                                <div class="summary-stat-value">${run.avg_distance}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="agent-col">Agent</th>
+                            <th colspan="3">STRUCTURED</th>
+                            <th colspan="3">FREEFORM</th>
+                            <th colspan="3">NONE</th>
+                        </tr>
+                        <tr>
+                            <th class="agent-col"></th>
+                            <th>Pos</th>
+                            <th>Dist</th>
+                            <th>Action</th>
+                            <th>Pos</th>
+                            <th>Dist</th>
+                            <th>Action</th>
+                            <th>Pos</th>
+                            <th>Dist</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Agent rows
+            const agentIds = ['a1', 'a2', 'a3', 'a4', 'a5'];
+            for (const agentId of agentIds) {
+                html += `<tr><td class="agent-col">${agentId}</td>`;
+
+                for (const strategy of strategyOrder) {
+                    const run = runs[strategy];
+                    const agent = run.agents[agentId];
+
+                    if (agent) {
+                        const distanceClass = agent.distance_to_goal < 5 ? 'very-close' :
+                                             agent.distance_to_goal < 15 ? 'close' : '';
+                        const statusClass = agent.at_goal ? 'status-finished' : '';
+                        const action = agent.last_action || '-';
+
+                        html += `
+                            <td class="position ${statusClass}">(${agent.position[0]},${agent.position[1]})</td>
+                            <td class="distance ${distanceClass}">${agent.distance_to_goal}</td>
+                            <td class="action">${action}</td>
+                        `;
+                    } else {
+                        html += `
+                            <td class="position">-</td>
+                            <td class="distance">-</td>
+                            <td class="action">-</td>
+                        `;
+                    }
+                }
+
+                html += `</tr>`;
+            }
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            // Messages section
+            const hasMessages = strategyOrder.some(s => runs[s].last_turn_messages && runs[s].last_turn_messages.length > 0);
+            if (hasMessages) {
+                html += `
+                    <div class="messages-section">
+                        <h2>Last Turn Messages</h2>
+                        <div class="message-columns">
+                `;
+
+                for (const strategy of strategyOrder) {
+                    const run = runs[strategy];
+                    html += `
+                        <div class="message-column">
+                            <h3>${strategy}</h3>
+                    `;
+
+                    if (run.last_turn_messages && run.last_turn_messages.length > 0) {
+                        for (const msg of run.last_turn_messages) {
+                            html += `
+                                <div class="message-item">
+                                    <div class="message-header">${msg.agent} - ${msg.kind}</div>
+                                    <div class="message-content">${msg.content}</div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        html += `<div class="no-messages">No messages this turn</div>`;
+                    }
+
+                    html += `</div>`;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // Initial load and refresh every 10 seconds
+        loadData();
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
