@@ -523,7 +523,7 @@ class StrategyCapabilities:
     action_kinds: List[str]
 
 
-def resolve_strategy_capabilities(strategy: str, oracle_enabled: bool) -> StrategyCapabilities:
+def resolve_strategy_capabilities(strategy: str) -> StrategyCapabilities:
     key = (strategy or "").lower()
     message_types = list(_STRATEGY_MESSAGE_TYPES.get(key, []))
     allow_comm = len(message_types) > 0
@@ -547,13 +547,12 @@ def _union_type(type_list: List[Type[Any]]) -> Type[Any]:
     return union
 
 
-def build_decision_model(strategy: str, oracle_enabled: bool) -> Type[BaseModel]:
+def build_decision_model(strategy: str) -> Type[BaseModel]:
     """Return a Decision-like model scoped to the given strategy settings."""
 
-    capabilities = resolve_strategy_capabilities(strategy, oracle_enabled)
+    capabilities = resolve_strategy_capabilities(strategy)
     message_types = capabilities.message_types
     allow_comm = capabilities.allow_comm
-    allow_oracle = False
 
     action_types: List[Type[Any]] = [MoveAction, StayAction]
 

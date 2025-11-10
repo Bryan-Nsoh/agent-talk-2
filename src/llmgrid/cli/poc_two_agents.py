@@ -350,7 +350,6 @@ def main(
         )
         raise typer.Exit(code=2)
 
-    oracle_enabled = False
     if comm_strategy == "none" and radio_range != 0:
         typer.secho(
             "Info: --comm-strategy none disables radio; overriding --radio-range to 0 for consistency.",
@@ -746,8 +745,6 @@ def main(
             "contended_exposures": metrics.contended_exposures,
             "history_limit": metrics.history_limit,
             "loop_guidance": metrics.loop_guidance,
-            "oracle_requests": 0,
-            "oracle_enabled": False,
         }
         metrics_path.write_text(json.dumps(metrics_payload, indent=2), encoding="utf-8")
         typer.secho(f"Metrics saved to {metrics_path}", fg=typer.colors.BLUE)

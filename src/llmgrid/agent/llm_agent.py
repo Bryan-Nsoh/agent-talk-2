@@ -44,11 +44,10 @@ class LlmPolicy:
         self.loop_guidance = loop_guidance
         self.history_limit = max(1, history_limit)
         self.radio_range = max(0, radio_range)
-        self.capabilities = resolve_strategy_capabilities(strategy, False)
-        self.oracle_enabled = False
+        self.capabilities = resolve_strategy_capabilities(strategy)
         self.freeform_global = freeform_global
         self.unified = UnifiedLLM()
-        self._wire_decision_model = build_decision_model(strategy, False)
+        self._wire_decision_model = build_decision_model(strategy)
 
     def _strategy_block(self) -> str:
         strategy = self.strategy.lower()
