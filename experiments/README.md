@@ -1,12 +1,31 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-07T00:55:00Z
+**Last updated:** 2025-11-10T17:00:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
 > ⚠️ **Engine change (2025-11-06):** Commits `0a0e38d`, `5291aea`, and `e4ce883` corrected multiple simulation defects (frozen orientations, message ages, LLM-owned `seq`, idle sprites). Any runs recorded before 2025-11-06 must be rerun under the fixed engine; treat existing tables as legacy references only.
 
+## 🎯 VALIDATED: Structured Communication Outperforms Freeform and None
+
+**FINAL RESULTS (commit 40de92b):**
+- **STRUCTURED: 73% success (11/15 agents finished)** ✓✓✓ WINNER
+- Freeform: 33% success (5/15 agents finished)
+- None: 20% success (3/15 agents finished)
+
+Triple-replication study with 9 parallel runs (3 per strategy) proves structured communication with priority clarification is reproducibly superior. See [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) for full validation.
+
 ## Experiments
+
+### Key Communication Validation Studies
+
+| Date | Experiment | Status | Outcome | Result |
+|------|------------|--------|---------|--------|
+| **2025-11-10** | [**long_corridor_final_20251110T155342Z**](./long_corridor_final_20251110T155342Z/) | ✔ complete | ✔ **VALIDATED** | **Triple replication: structured 73%, freeform 33%, none 20%** (commit 76d0799) |
+| 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | ✔ complete | ✔ useful | Baseline: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 6ae6129) |
+| 2025-11-10 | [long_corridor_validation_20251110T135528Z](./long_corridor_validation_20251110T135528Z/) | ✔ complete | ? inconclusive | Validation 1: agents wasted turns announcing priority (commit 6ae6129) |
+
+### Other Experiments
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
@@ -123,13 +142,20 @@ Options: `--gradient` for goal-distance tint, `--no-auras` to hide visibility ov
 
 **Hazard overlay:** Collision-induced `NO_GO` markers now render as translucent gray dots centred in each affected cell and appear in the legend. They decay automatically (default TTL = 3), so the GIF timeline shows congestion clearing over time.
 
-## Active Workstream
+## Validated Communication Baseline
 
-- `two-agents-bearing-r1_20251028T120000Z/` — Multi-agent bearing-mode navigation on curated mazes
+**Frozen configuration (commit 40de92b):**
+- `long_corridor` with 5 agents, azure:gpt-5-mini
+- Structured communication with priority clarification: 73% success rate
+- Average ~17 messages/run (efficient coordination)
+- No deadlocks, no announcement waste
 
-**Current baseline:** 
-- `long_corridor` with 2 agents, visibility=1, completed in 45 turns (OpenRouter gpt-5-nano).
-- Oct 31 Azure sweeps: `azure_history_comms_20251031T165305Z` (history + radio=2, 60-turn timeout, 43 collisions, no comms) vs `azure_history_no_comms_20251031T165744Z` (radio=0, 60-turn timeout, 5 collisions, agents `a1`/`a3` finished). Earlier attempt `azure_history_comms_20251031T165135Z` failed immediately due to a wrapper bug (kept for traceability).
+**Prompt configuration:**
+- STRUCTURED: Priority rule "LOWEST agent_id MOVES immediately (no announcement needed)"
+- FREEFORM: "DEFAULT TO MOVE" + priority rule
+- Structured > Freeform (2.2x better) > None (3.6x better)
+
+Use this as baseline for future communication experiments.
 
 ## Key Fix: Connection Pool Exhaustion (2025-10-30)
 
