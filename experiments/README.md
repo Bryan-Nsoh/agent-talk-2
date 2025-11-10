@@ -1,19 +1,19 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-10T17:00:00Z
+**Last updated:** 2025-11-10T22:00:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
-> ⚠️ **Engine change (2025-11-06):** Commits `0a0e38d`, `5291aea`, and `e4ce883` corrected multiple simulation defects (frozen orientations, message ages, LLM-owned `seq`, idle sprites). Any runs recorded before 2025-11-06 must be rerun under the fixed engine; treat existing tables as legacy references only.
+> WARNING: **Engine change (2025-11-06):** Commits `0a0e38d`, `5291aea`, and `e4ce883` corrected multiple simulation defects (frozen orientations, message ages, LLM-owned `seq`, idle sprites). Any runs recorded before 2025-11-06 must be rerun under the fixed engine; treat existing tables as legacy references only.
 
-## 🎯 VALIDATED: Structured Communication Outperforms Freeform and None
+## VALIDATED: Structured Communication Outperforms Freeform and None
 
-**FINAL RESULTS (commit 40de92b):**
-- **STRUCTURED: 73% success (11/15 agents finished)** ✓✓✓ WINNER
+**DEFINITIVE RESULT (commit fe3ffda):**
+- STRUCTURED: 73% success (11/15 agents finished) - WINNER
 - Freeform: 33% success (5/15 agents finished)
 - None: 20% success (3/15 agents finished)
 
-Triple-replication study with 9 parallel runs (3 per strategy) proves structured communication with priority clarification is reproducibly superior. See [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) for full validation.
+Triple-replication study with 9 parallel runs (3 per strategy) proves structured communication with priority clarification is reproducibly superior. This is the validated baseline for all future communication experiments. See [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) for complete documentation.
 
 ## Experiments
 
@@ -21,24 +21,24 @@ Triple-replication study with 9 parallel runs (3 per strategy) proves structured
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
-| **2025-11-10** | [**long_corridor_final_20251110T155342Z**](./long_corridor_final_20251110T155342Z/) | ✔ complete | ✔ **VALIDATED** | **Triple replication: structured 73%, freeform 33%, none 20%** (commit 76d0799) |
-| 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | ✔ complete | ✔ useful | Baseline: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 6ae6129) |
-| 2025-11-10 | [long_corridor_validation_20251110T135528Z](./long_corridor_validation_20251110T135528Z/) | ✔ complete | ? inconclusive | Validation 1: agents wasted turns announcing priority (commit 6ae6129) |
+| **2025-11-10** | [**long_corridor_final_20251110T155342Z**](./long_corridor_final_20251110T155342Z/) | complete | **VALIDATED** | **DEFINITIVE: structured 73%, freeform 33%, none 20%** (commit fe3ffda) |
+| 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | complete | useful | Exploratory: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 419c6aa) |
+| 2025-11-10 | [long_corridor_validation_20251110T135528Z](./long_corridor_validation_20251110T135528Z/) | complete | inconclusive | Exploratory: agents wasted turns announcing priority (commit 419c6aa) |
 
 ### Other Experiments
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
-| 2025-11-10 | [direct-grid-live_20251110T001610Z](./direct-grid-live_20251110T001610Z/) | ?running | - | Tier‑2 comms on 15×5 direct_grid (structured vs freeform) |
-| 2025-11-01 | [comm-baseline](./comm-baseline_20251101T151017Z/) | ?running | - | GPT-5 communication strategies on curated mazes |
-| 2025-10-31 | [loop-recovery](./loop-recovery_20251031T213232Z/) | ?running | - | Measuring history window & loop guidance |
-| 2025-10-28 | [two-agents-bearing-r1](./two-agents-bearing-r1_20251028T120000Z/) | ?running | ✖ not useful | Bearing-mode multi-agent navigation |
+| 2025-11-10 | [direct-grid-live_20251110T001610Z](./direct-grid-live_20251110T001610Z/) | running | - | Tier-2 comms on 15x5 direct_grid (structured vs freeform) |
+| 2025-11-01 | [comm-baseline](./comm-baseline_20251101T151017Z/) | running | - | GPT-5 communication strategies on curated mazes |
+| 2025-10-31 | [loop-recovery](./loop-recovery_20251031T213232Z/) | running | - | Measuring history window & loop guidance |
+| 2025-10-28 | [two-agents-bearing-r1](./two-agents-bearing-r1_20251028T120000Z/) | running | not useful | Bearing-mode multi-agent navigation |
 
 ### Status Legend
-- ?running | ✔ complete | ✖ failed | ? abandoned
+- running | complete | failed | abandoned
 
 ### Outcome Legend
-- ✔ useful | ✖ not useful | ? inconclusive | - not determined
+- useful | not useful | inconclusive | - not determined
 
 ## Curated Maze Presets
 
