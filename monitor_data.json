@@ -1,0 +1,276 @@
+{
+  "baseline": {
+    "structured": {
+      "turn": 100,
+      "finished": 3,
+      "messages": 57,
+      "avg_dist": 24.5,
+      "min_dist": 22,
+      "max_dist": 27,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 6,
+          "y": 1,
+          "dist": 22,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a2",
+          "x": 2,
+          "y": 0,
+          "dist": 27,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a3",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        },
+        {
+          "id": "a4",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        },
+        {
+          "id": "a5",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        }
+      ]
+    },
+    "freeform": {
+      "turn": 95,
+      "finished": 2,
+      "messages": 14,
+      "avg_dist": 23.666666666666668,
+      "min_dist": 18,
+      "max_dist": 27,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 1,
+          "y": 1,
+          "dist": 27,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a2",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        },
+        {
+          "id": "a3",
+          "x": 2,
+          "y": 1,
+          "dist": 26,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a4",
+          "x": 12,
+          "y": 3,
+          "dist": 18,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a5",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        }
+      ]
+    },
+    "none": {
+      "turn": 100,
+      "finished": 0,
+      "messages": 0,
+      "avg_dist": 24.4,
+      "min_dist": 18,
+      "max_dist": 28,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 4,
+          "y": 0,
+          "dist": 25,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a2",
+          "x": 11,
+          "y": 2,
+          "dist": 18,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a3",
+          "x": 2,
+          "y": 3,
+          "dist": 28,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a4",
+          "x": 3,
+          "y": 1,
+          "dist": 25,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a5",
+          "x": 3,
+          "y": 0,
+          "dist": 26,
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  },
+  "validation": {
+    "structured": {
+      "turn": 100,
+      "finished": 2,
+      "messages": 58,
+      "avg_dist": 28.0,
+      "min_dist": 26,
+      "max_dist": 29,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        },
+        {
+          "id": "a2",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        },
+        {
+          "id": "a3",
+          "x": 1,
+          "y": 3,
+          "dist": 29,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a4",
+          "x": 3,
+          "y": 0,
+          "dist": 26,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a5",
+          "x": 0,
+          "y": 0,
+          "dist": 29,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    "freeform": {
+      "turn": 100,
+      "finished": 1,
+      "messages": 65,
+      "avg_dist": 19.25,
+      "min_dist": 3,
+      "max_dist": 29,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 8,
+          "y": 1,
+          "dist": 20,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a2",
+          "x": 25,
+          "y": 1,
+          "dist": 3,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a3",
+          "x": 0,
+          "y": 0,
+          "dist": 29,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a4",
+          "x": 5,
+          "y": 3,
+          "dist": 25,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a5",
+          "x": 28,
+          "y": 1,
+          "dist": 0,
+          "status": "FINISHED"
+        }
+      ]
+    },
+    "none": {
+      "turn": 100,
+      "finished": 0,
+      "messages": 0,
+      "avg_dist": 18.2,
+      "min_dist": 10,
+      "max_dist": 27,
+      "agents": [
+        {
+          "id": "a1",
+          "x": 9,
+          "y": 1,
+          "dist": 19,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a2",
+          "x": 11,
+          "y": 1,
+          "dist": 17,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a3",
+          "x": 4,
+          "y": 4,
+          "dist": 27,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a4",
+          "x": 18,
+          "y": 1,
+          "dist": 10,
+          "status": "ACTIVE"
+        },
+        {
+          "id": "a5",
+          "x": 12,
+          "y": 3,
+          "dist": 18,
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  }
+}
