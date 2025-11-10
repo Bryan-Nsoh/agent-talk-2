@@ -1,5 +1,0 @@
-{"turn": 0, "agents": {"a1": {"x": 2, "y": 3, "orientation": "N", "action": null, "status": "ACTIVE"}, "a2": {"x": 2, "y": 10, "orientation": "S", "action": null, "status": "ACTIVE"}}}
-{"turn": 1, "agents": {"a1": {"x": 3, "y": 3, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 3, "y": 10, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
-{"turn": 2, "agents": {"a1": {"x": 4, "y": 3, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 4, "y": 10, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
-{"turn": 3, "agents": {"a1": {"x": 5, "y": 3, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 5, "y": 10, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
-{"turn": 4, "agents": {"a1": {"x": 6, "y": 3, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 6, "y": 10, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
