@@ -10,6 +10,7 @@ This document is the complete reference for running experiments, managing long-r
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
+| 2025-11-10 | [direct-grid-live_20251110T001610Z](./direct-grid-live_20251110T001610Z/) | ?running | - | Tier‑2 comms on 15×5 direct_grid (structured vs freeform) |
 | 2025-11-01 | [comm-baseline](./comm-baseline_20251101T151017Z/) | ?running | - | GPT-5 communication strategies on curated mazes |
 | 2025-10-31 | [loop-recovery](./loop-recovery_20251031T213232Z/) | ?running | - | Measuring history window & loop guidance |
 | 2025-10-28 | [two-agents-bearing-r1](./two-agents-bearing-r1_20251028T120000Z/) | ?running | ✖ not useful | Bearing-mode multi-agent navigation |

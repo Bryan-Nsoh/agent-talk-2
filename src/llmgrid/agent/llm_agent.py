@@ -37,6 +37,7 @@ class LlmPolicy:
         loop_guidance: str,
         history_limit: int,
         radio_range: int,
+        freeform_global: bool = False,
     ) -> None:
         self.model_id = model_id
         self.strategy = strategy
@@ -45,6 +46,7 @@ class LlmPolicy:
         self.radio_range = max(0, radio_range)
         self.capabilities = resolve_strategy_capabilities(strategy, False)
         self.oracle_enabled = False
+        self.freeform_global = freeform_global
         self.unified = UnifiedLLM()
         self._wire_decision_model = build_decision_model(strategy, False)
 
@@ -71,7 +73,9 @@ class LlmPolicy:
         elif strategy == "freeform":
             strategy_rules = [
                 "Allowed: one CHAT (<=96 chars) per turn. Write naturally to help your teammate.",
-                "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
+                ("When to communicate: share new useful info each turn; radio has unlimited range."
+                 if self.freeform_global else
+                 "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck)."),
                 "Examples: 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'taking left path—please take right', 'stuck at (3,1)'.",
                 "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
             ]

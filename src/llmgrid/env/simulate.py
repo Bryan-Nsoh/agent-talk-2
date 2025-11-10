@@ -362,6 +362,7 @@ async def _run_episode_async(
     comm_strategy: str = "none",
     history_limit: int = 5,
     loop_guidance: str = "passive",
+    freeform_global: bool = False,
     # oracle removed in this branch
     reasoning_effort: Optional[str] = None,
     reasoning_verbosity: Optional[str] = None,
@@ -460,6 +461,12 @@ async def _run_episode_async(
         history_limit,
         radio_range=radio_range,
     )
+    # If freeform_global is requested and we're using LLM, set flag on policy for prompt wording
+    try:
+        if use_llm and hasattr(policy, "freeform_global"):
+            setattr(policy, "freeform_global", freeform_global)
+    except Exception:
+        pass
     if resume is not None and isinstance(policy, GreedyBaseline) and resume.baseline_rng_state is not None:
         policy.set_state(_thaw_random_state(resume.baseline_rng_state))
 
@@ -633,7 +640,11 @@ async def _run_episode_async(
                     )
                 message = decision.action.message
                 sender_pos = world.occupancy[aid]
-                recipients = _recipients_in_range(world, aid, radio_range)
+                recipients = (
+                    [other for other in world.occupancy.keys() if other != aid and not world.is_finished(other)]
+                    if (freeform_global and comm_strategy == "freeform")
+                    else _recipients_in_range(world, aid, radio_range)
+                )
                 for rid in recipients:
                     rx, ry = world.occupancy[rid]
                     rm = ReceivedMessage(
@@ -852,6 +863,7 @@ def run_episode(
     comm_strategy: str = "none",
     history_limit: int = 5,
     loop_guidance: str = "passive",
+    freeform_global: bool = False,
     oracle_enabled: bool = False,
     reasoning_effort: Optional[str] = None,
     reasoning_verbosity: Optional[str] = None,
@@ -894,6 +906,7 @@ def run_episode(
             comm_strategy=comm_strategy,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
+            freeform_global=freeform_global,
             reasoning_effort=reasoning_effort,
             reasoning_verbosity=reasoning_verbosity,
             reasoning_include_encrypted=reasoning_include_encrypted,

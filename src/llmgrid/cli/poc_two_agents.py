@@ -221,14 +221,14 @@ def main(
         help="Additional probability added when the cell touches a wall.",
     ),
     bearing_flip_p: float = typer.Option(
-        0.15,
+        0.0,
         "--bearing-flip-p",
         min=0.0,
         max=1.0,
         help="Probability of flipping the bearing octant (noise). Set to 0 for accurate bearings.",
     ),
     bearing_drop_p: float = typer.Option(
-        0.10,
+        0.0,
         "--bearing-drop-p",
         min=0.0,
         max=1.0,
@@ -248,11 +248,6 @@ def main(
         0.1,
         "--maze-extra-connection",
         help="For maze-style obstacles, probability of carving additional side passages (0 to 1).",
-    ),
-    log_prompts: bool = typer.Option(
-        False,
-        "--log-prompts/--no-log-prompts",
-        help="Capture full prompts and structured outputs for every agent turn.",
     ),
     log_movements: bool = typer.Option(
         True,
@@ -364,17 +359,6 @@ def main(
         radio_range = 0
 
     # Validate logging flags require output paths
-    if log_prompts and emit_config is None:
-        typer.secho(
-            "Error: --log-prompts requires --emit-config to specify where transcript.jsonl should be written.",
-            fg=typer.colors.RED,
-        )
-        typer.secho(
-            "Example: --emit-config experiments/my-run/config.yaml",
-            fg=typer.colors.YELLOW,
-        )
-        raise typer.Exit(code=2)
-
     if log_movements and emit_config is None and episode_json is None:
         typer.secho(
             "Error: --log-movements requires --emit-config or --episode-json to specify where episode logs should be written.",
@@ -563,6 +547,8 @@ def main(
                 "bearing_bias_seed": bearing_bias_seed,
                 "bearing_bias_p": bearing_bias_p,
                 "bearing_bias_wall_bonus": bearing_bias_wall_bonus,
+                "bearing_flip_p": bearing_flip_p,
+                "bearing_drop_p": bearing_drop_p,
                 "agents": agents,
                 "comm_strategy": comm_strategy,
                 "history_limit": history_limit,
@@ -608,7 +594,8 @@ def main(
             manual_ascii_path=manual_ascii_path,
         )
 
-    capture_transcript = log_prompts or transcript_jsonl is not None
+    # Always capture transcript when emit_config is provided (for debugging/analysis)
+    capture_transcript = emit_config is not None or transcript_jsonl is not None
     if capture_transcript:
         if resume_checkpoint and resume_checkpoint.transcript is not None:
             transcript_records = list(resume_checkpoint.transcript)

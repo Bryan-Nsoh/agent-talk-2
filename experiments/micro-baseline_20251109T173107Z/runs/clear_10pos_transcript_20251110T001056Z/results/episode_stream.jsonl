@@ -1,0 +1,38 @@
+{"turn": 0, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": null, "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": null, "status": "ACTIVE"}}}
+{"turn": 1, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 2, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 3, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}, "delivered": 1}
+{"turn": 4, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}}}
+{"turn": 5, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}}}
+{"turn": 6, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}}}
+{"turn": 7, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}}}
+{"turn": 8, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}}}
+{"turn": 9, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 10, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 2, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}, "delivered": 1}
+{"turn": 11, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 2, "orientation": "N", "action": "COMMUNICATE", "status": "ACTIVE"}}, "delivered": 2}
+{"turn": 12, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 0, "y": 2, "orientation": "N", "action": "COMMUNICATE", "status": "ACTIVE"}}, "delivered": 2}
+{"turn": 13, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 1, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 14, "agents": {"a1": {"x": 0, "y": 0, "orientation": "N", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 2, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 15, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 3, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 16, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 3, "y": 1, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 17, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 3, "y": 0, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 18, "agents": {"a1": {"x": 0, "y": 1, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 2, "y": 0, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}}}
+{"turn": 19, "agents": {"a1": {"x": 0, "y": 2, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 20, "agents": {"a1": {"x": 1, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 2, "y": 2, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 21, "agents": {"a1": {"x": 0, "y": 2, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}, "a2": {"x": 3, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 22, "agents": {"a1": {"x": 0, "y": 3, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 3, "y": 1, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 23, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}}}
+{"turn": 24, "agents": {"a1": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 2, "y": 0, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 25, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 26, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 3, "y": 1, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 27, "agents": {"a1": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 3, "y": 0, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 28, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 2, "y": 0, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}}}
+{"turn": 29, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 30, "agents": {"a1": {"x": 0, "y": 4, "orientation": "S", "action": "STAY", "status": "ACTIVE"}, "a2": {"x": 3, "y": 1, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}}
+{"turn": 31, "agents": {"a1": {"x": 0, "y": 3, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 3, "y": 2, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 32, "agents": {"a1": {"x": 0, "y": 2, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 2, "y": 2, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}}}
+{"turn": 33, "agents": {"a1": {"x": 0, "y": 1, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
+{"turn": 34, "agents": {"a1": {"x": 0, "y": 1, "orientation": "N", "action": "COMMUNICATE", "status": "ACTIVE"}, "a2": {"x": 3, "y": 1, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}}, "delivered": 1}
+{"turn": 35, "agents": {"a1": {"x": 0, "y": 2, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}, "a2": {"x": 3, "y": 2, "orientation": "S", "action": "MOVE_S", "status": "ACTIVE"}}}
+{"turn": 36, "agents": {"a1": {"x": 1, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 2, "y": 2, "orientation": "W", "action": "MOVE_W", "status": "ACTIVE"}}}
+{"turn": 37, "agents": {"a1": {"x": 2, "y": 2, "orientation": "E", "action": "MOVE_E", "status": "ACTIVE"}, "a2": {"x": 2, "y": 1, "orientation": "N", "action": "MOVE_N", "status": "ACTIVE"}}}
