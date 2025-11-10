@@ -174,8 +174,7 @@ Multiple experiments were conducted to reach this validated configuration:
 4. **Final fix (commit fe3ffda, THIS EXPERIMENT)** - Removed "DEFAULT TO MOVE" from structured only, kept priority clarification "(no announcement needed)". Result: 73% structured, 33% freeform, 20% none. VALIDATED.
 
 The exploratory experiments are documented in:
-- `experiments/long_corridor_comms_test_20251110T020144Z/` - First fix attempt
-- `experiments/long_corridor_validation_20251110T135528Z/` - Second fix attempt logs
+- `experiments/long_corridor_comms_test_20251110T020144Z/` - First fix attempt (commit 419c6aa)
 
 ## Command to Reproduce
 
