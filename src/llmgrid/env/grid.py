@@ -13,7 +13,6 @@ from llmgrid.schema import (
     AgentSelf,
     AdjacentCell,
     AdjacentState,
-    BlockReason,
     CommLimits,
     Direction,
     GoalSensorBearing,
@@ -22,7 +21,6 @@ from llmgrid.schema import (
     LocalPatch,
     MoveOutcome,
     MessageBrief,
-    MsgHere,
     MsgIntent,
     NeighborSummary,
     Observation,
@@ -523,12 +521,7 @@ class GridWorld:
         env = received.envelope
         kind = getattr(env, "kind", "")
         details = None
-        if kind == "HERE":
-            try:
-                details = f"pos=({env.pos.x},{env.pos.y})"
-            except Exception:
-                details = None
-        elif kind == "INTENT":
+        if kind == "INTENT":
             details = getattr(env, "next_action", None)
         elif kind == "REQUEST":
             parts = [getattr(env, "req", None)]
@@ -536,21 +529,6 @@ class GridWorld:
             if tgt is not None:
                 parts.append(f"target=({tgt.x},{tgt.y})")
             details = " ".join([p for p in parts if p]) or None
-        elif kind == "MAP_REQUEST":
-            try:
-                details = f"origin=({env.origin.x},{env.origin.y}) r={getattr(env, 'radius', '?')}"
-            except Exception:
-                details = None
-        elif kind == "MAP_PATCH":
-            try:
-                details = f"origin=({env.origin.x},{env.origin.y}) rows={len(env.rows)}"
-            except Exception:
-                details = None
-        elif kind == "MAP_NO_PATCH":
-            try:
-                details = f"origin=({env.origin.x},{env.origin.y})"
-            except Exception:
-                details = None
         elif kind == "CHAT":
             txt = getattr(env, "text", None)
             if isinstance(txt, str):
@@ -727,13 +705,3 @@ class GridWorld:
     # ------------------------------------------------------------------
     # Message constructors to keep schema usage centralised
     # ------------------------------------------------------------------
-
-    @staticmethod
-    def message_here(sender_id: str, seq: int, pos: Position, orientation: Direction) -> MsgHere:
-        return MsgHere(kind="HERE", sender_id=sender_id, seq=seq, pos=pos, orientation=orientation)
-
-    @staticmethod
-    def message_intent(sender_id: str, seq: int, intent: str) -> MsgIntent:
-        return MsgIntent(kind="INTENT", sender_id=sender_id, seq=seq, next_action=intent)
-
-    # Removed legacy radio helper constructors (SENSE, MARK_INFO) in this branch.

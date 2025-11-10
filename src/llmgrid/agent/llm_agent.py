@@ -37,7 +37,6 @@ class LlmPolicy:
         loop_guidance: str,
         history_limit: int,
         radio_range: int,
-        freeform_global: bool = False,
     ) -> None:
         self.model_id = model_id
         self.strategy = strategy
@@ -45,7 +44,6 @@ class LlmPolicy:
         self.history_limit = max(1, history_limit)
         self.radio_range = max(0, radio_range)
         self.capabilities = resolve_strategy_capabilities(strategy)
-        self.freeform_global = freeform_global
         self.unified = UnifiedLLM()
         self._wire_decision_model = build_decision_model(strategy)
 
@@ -62,21 +60,18 @@ class LlmPolicy:
             strategy_rules = ["Communication disabled; do not choose COMMUNICATE."]
         elif strategy == "structured":
             strategy_rules = [
-                "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE, MAP_REQUEST(origin=(x,y),radius=2). One message max per turn.",
+                "Allowed: INTENT or REQUEST(YIELD|GUIDE target=(x,y)). One message max per turn.",
                 "When to communicate: only if any_peer_in_range is true and you have useful info (collision risk, new corridor, map gap) that a nearby peer benefits from.",
                 "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",
                 "Priority: when 2+ agents want the same cell, LOWEST agent_id MOVES immediately (no announcement needed). Higher IDs MUST yield (stay/reroute). No mutual yielding, no wasted turns announcing priority.",
-                "MAP_REQUEST returns either MAP_PATCH (5×5 snippet) or MAP_NO_PATCH. Use MAP_REQUEST when `nearest_frontier` stays unchanged for several turns—include that coordinate in the origin field.",
-                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position; MAP_REQUEST to fetch a snippet when stuck.",
-                "MAP_PATCH arrives automatically—treat it as authoritative and cite the new coordinates in your comment. Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
+                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G or help a stuck teammate.",
+                "Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
             ]
         elif strategy == "freeform":
             strategy_rules = [
                 "DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares critical info (goal location, dead end, you're rerouting around a peer).",
                 "Allowed: one CHAT (<=96 chars) per turn. Write naturally to help your teammate.",
-                ("When to communicate: share new useful info each turn; radio has unlimited range."
-                 if self.freeform_global else
-                 "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck)."),
+                "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
                 "Use coordinates so teammates can mark their maps: e.g., 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'sharing loop at (3,1)-(3,2)'.",
                 "Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield. Example: 'I'm a5, yielding (5,5) to you, going west' or just move without announcing if you're yielding.",
                 "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",

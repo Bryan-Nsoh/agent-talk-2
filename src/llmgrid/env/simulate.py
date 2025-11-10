@@ -28,13 +28,7 @@ from llmgrid.schema import (
     ReceivedMessage,
     StayAction,
     TurnHistory,
-    MsgMapPatch,
-    MsgMapRequest,
-    MsgMapNoPatch,
 )
-
-
-MAP_REQUEST_DEFAULT_RADIUS = 2
 
 
 @dataclass
@@ -332,80 +326,6 @@ def _resolve_policy(
     return GreedyBaseline(seed=seed)
 
 
-def _handle_map_requests(
-    world: GridWorld,
-    map_requests: List[Tuple[str, Position, int]],
-    radio_range: int,
-    turn_index: int,
-) -> Tuple[int, int]:
-    """Process structured MAP_REQUEST actions and inject patches if available."""
-
-    extra_sent = 0
-    extra_delivered = 0
-
-    if not map_requests:
-        return extra_sent, extra_delivered
-
-    for requester_id, origin, radius in map_requests:
-        if requester_id not in world.agent_maps:
-            continue
-        req_map = world.agent_maps[requester_id]
-        center = (origin.x, origin.y)
-        clamped_radius = max(1, min(radius or MAP_REQUEST_DEFAULT_RADIUS, MAP_REQUEST_DEFAULT_RADIUS))
-        candidates = _recipients_in_range(world, requester_id, radio_range)
-        best_provider = None
-        best_top_left = None
-        best_rows: Optional[List[str]] = None
-        best_new_cells = 0
-
-        for provider_id in candidates:
-            if provider_id not in world.agent_maps:
-                continue
-            top_left, rows = world.agent_maps[provider_id].extract_window(center, clamped_radius)
-            new_cells = _count_new_cells(req_map, top_left, rows)
-            if new_cells > best_new_cells:
-                best_new_cells = new_cells
-                best_provider = provider_id
-                best_top_left = top_left
-                best_rows = rows
-
-        if best_provider and best_rows and best_top_left:
-            req_map.apply_patch(best_top_left, best_rows)
-            seq = world.next_message_seq(best_provider)
-            patch_msg = MsgMapPatch(
-                kind="MAP_PATCH",
-                sender_id=best_provider,
-                seq=seq,
-                origin=origin,
-                top_left=best_top_left,
-                radius=clamped_radius,
-                rows=best_rows,
-                provided_at=turn_index,
-            )
-            px, py = world.occupancy[best_provider]
-            qx, qy = world.occupancy[requester_id]
-            rm = ReceivedMessage(
-                envelope=patch_msg,
-                hop_distance=abs(px - qx) + abs(py - qy),
-                age=0,
-            )
-            world.deliver_message(requester_id, rm)
-            extra_sent += 1
-            extra_delivered += 1
-        else:
-            seq = world.next_message_seq(requester_id)
-            no_patch = MsgMapNoPatch(
-                kind="MAP_NO_PATCH",
-                sender_id=requester_id,
-                seq=seq,
-                origin=origin,
-            )
-            rm = ReceivedMessage(envelope=no_patch, hop_distance=0, age=0)
-            world.deliver_message(requester_id, rm)
-
-    return extra_sent, extra_delivered
-
-
 class PolicyProtocol:
     """Protocol shim for type checking."""
 
@@ -686,7 +606,6 @@ async def _run_episode_async(
             had_retry = False
 
         decisions: Dict[str, Decision] = {}
-        map_requests: List[Tuple[str, Position, int]] = []
         for aid in active_agents:
             outcome = outcomes[aid]
             decision = outcome.decision
@@ -699,9 +618,6 @@ async def _run_episode_async(
                 else:
                     message.seq = seq_value  # type: ignore[union-attr]
                 decision.action.message = message  # type: ignore[assignment]
-                if isinstance(message, MsgMapRequest):
-                    radius = getattr(message, "radius", MAP_REQUEST_DEFAULT_RADIUS) or MAP_REQUEST_DEFAULT_RADIUS
-                    map_requests.append((aid, message.origin, int(radius)))
                 if outcome.record is not None:
                     try:
                         outcome.record["decision"]["action"]["message"]["seq"] = seq_value
@@ -756,10 +672,6 @@ async def _run_episode_async(
                     messages_sent += 1
                     delivered_this_turn += len(recipients)
                 # Oracle actions are not supported in this branch.
-
-        extra_sent, extra_delivered = _handle_map_requests(world, map_requests, radio_range, turn)
-        messages_sent += extra_sent
-        delivered_this_turn += extra_delivered
 
         intents: Dict[str, Optional[Direction]] = {}
         before = dict(world.occupancy)
@@ -1034,21 +946,6 @@ def _recipients_in_range(world: GridWorld, sender_id: str, radio_range: int) -> 
     return recipients
 
 
-def _count_new_cells(requester_map: AgentMap, top_left: Position, rows: List[str]) -> int:
-    """Return how many cells in `rows` are unknown to the requester."""
-
-    new_cells = 0
-    for dy, line in enumerate(rows):
-        y = top_left.y - dy
-        for dx, char in enumerate(line):
-            if char == AgentMap.UNKNOWN:
-                continue
-            x = top_left.x + dx
-            if requester_map.get_tile(x, y) == AgentMap.UNKNOWN:
-                new_cells += 1
-    return new_cells
-
-
 def _compute_contended_mask(position: Tuple[int, int], contested_cells: Iterable[Optional[Tuple[int, int]]]) -> int:
     """Return a NESW bitmask for contested neighbour cells relative to `position`."""
 
@@ -1102,30 +999,17 @@ def _truncate(text: Optional[str], limit: int = 160) -> Optional[str]:
 def _summarise_outgoing(message: OutgoingMessage) -> MessageBrief:
     details = None
     kind = getattr(message, "kind", "")
-    if kind == "HERE":
-        details = f"pos=({message.pos.x},{message.pos.y})"
-    elif kind == "INTENT":
+    if kind == "INTENT":
         details = message.next_action
-    elif kind == "SENSE":
-        parts = []
-        if message.mode:
-            parts.append(message.mode)
-        if getattr(message, "bearing", None):
-            parts.append(f"bearing={message.bearing}")
-        if getattr(message, "strength", None):
-            parts.append(f"strength={message.strength}")
-        if getattr(message, "value_bin", None):
-            parts.append(f"value={message.value_bin}")
-        if getattr(message, "approx_bearing", None):
-            parts.append(f"approx={message.approx_bearing}")
-        details = " ".join(parts) if parts else None
-    elif kind == "BLOCKED":
-        details = f"({message.where.x},{message.where.y}) {message.reason}"
     elif kind == "REQUEST":
         parts = [message.req]
         if message.target is not None:
             parts.append(f"target=({message.target.x},{message.target.y})")
         details = " ".join(parts)
+    elif kind == "CHAT":
+        txt = getattr(message, "text", None)
+        if isinstance(txt, str):
+            details = txt[:96]
     # legacy MARK_INFO/ORACLE removed in this branch
     return MessageBrief(kind=kind, details=details)
 

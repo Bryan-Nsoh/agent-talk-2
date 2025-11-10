@@ -8,8 +8,8 @@ from llmgrid.schema import (
     Decision,
     Direction,
     MoveOutcome,
-    MsgHere,
     MsgIntent,
+    MsgRequest,
     Position,
     ReceivedMessage,
     TurnHistory,
@@ -196,11 +196,11 @@ def test_observation_history_includes_turn_summary():
 
     decision = Decision(
         action=CommunicateAction(
-            message=MsgHere(
+            message=MsgRequest(
                 sender_id="a1",
                 seq=0,
-                pos=Position(x=2, y=2),
-                orientation=Direction.N,
+                req="GUIDE",
+                target=Position(x=2, y=2),
             ),
         ),
         comment="Acknowledged",

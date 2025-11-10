@@ -32,14 +32,6 @@ class AgentMap:
         self._agents_last_seen: Dict[str, SeenAgent] = {}
         self._recent_positions: List[Coordinate] = []
 
-    def reset(self) -> None:
-        """Clear all knowledge (used rarely in tests)."""
-
-        for row in self._tiles:
-            for x in range(len(row)):
-                row[x] = self.UNKNOWN
-        self._agents_last_seen.clear()
-
     def stamp_patch(
         self,
         *,
@@ -190,44 +182,6 @@ class AgentMap:
                             frontiers.append((x, y))
                             break
         return frontiers
-
-    def extract_window(self, center: Coordinate, radius: int) -> Tuple[Position, List[str]]:
-        """Return the top-left (min x, max y) coordinate and rows for a window."""
-
-        cx, cy = center
-        left = max(0, cx - radius)
-        right = min(self.width - 1, cx + radius)
-        top = min(self.height - 1, cy + radius)
-        bottom = max(0, cy - radius)
-
-        rows: List[str] = []
-        for y in range(top, bottom - 1, -1):
-            row_chars: List[str] = []
-            for x in range(left, right + 1):
-                row_chars.append(self._tiles[y][x])
-            rows.append("".join(row_chars))
-
-        return Position(x=left, y=top), rows
-
-    def apply_patch(self, top_left: Position, rows: List[str]) -> None:
-        """Merge a rectangular patch (row 0 == highest y) into the map."""
-
-        for dy, line in enumerate(rows):
-            y = top_left.y - dy
-            if not (0 <= y < self.height):
-                continue
-            for dx, char in enumerate(line):
-                x = top_left.x + dx
-                if not (0 <= x < self.width):
-                    continue
-                if char == self.UNKNOWN:
-                    continue
-                self._tiles[y][x] = char
-
-    def get_tile(self, x: int, y: int) -> str:
-        if 0 <= x < self.width and 0 <= y < self.height:
-            return self._tiles[y][x]
-        return "#"
 
 
 def _neighbors4(x: int, y: int) -> Iterable[Coordinate]:

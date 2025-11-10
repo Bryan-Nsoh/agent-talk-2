@@ -50,16 +50,15 @@ All code used for this experiment is frozen at commit fe3ffda with zero changes 
 
 ## Strategy Prompts (commit fe3ffda)
 
-**STRUCTURED** (src/llmgrid/agent/llm_agent.py lines 64-73):
+**STRUCTURED** (src/llmgrid/agent/llm_agent.py lines 64-71):
 ```python
 strategy_rules = [
-    "Allowed: INTENT, REQUEST(YIELD|GUIDE target=(x,y)), HERE, MAP_REQUEST(origin=(x,y),radius=2). One message max per turn.",
+    "Allowed: INTENT or REQUEST(YIELD|GUIDE target=(x,y)). One message max per turn.",
     "When to communicate: only if any_peer_in_range is true and you have useful info (collision risk, new corridor, map gap) that a nearby peer benefits from.",
     "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",
     "Priority: when 2+ agents want the same cell, LOWEST agent_id MOVES immediately (no announcement needed). Higher IDs MUST yield (stay/reroute). No mutual yielding, no wasted turns announcing priority.",
-    "MAP_REQUEST returns either MAP_PATCH (5×5 snippet) or MAP_NO_PATCH. Use MAP_REQUEST when `nearest_frontier` stays unchanged for several turns—include that coordinate in the origin field.",
-    "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G; HERE to confirm your position; MAP_REQUEST to fetch a snippet when stuck.",
-    "MAP_PATCH arrives automatically—treat it as authoritative and cite the new coordinates in your comment. Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
+    "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G or help a stuck teammate.",
+    "Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
 ]
 ```
 

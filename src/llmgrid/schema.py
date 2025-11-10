@@ -44,31 +44,6 @@ class StrengthBucket(str, Enum):
     NEAR = "NEAR"
 
 
-class BlockReason(str, Enum):
-    """Minimal taxonomy for why a cell should be avoided."""
-
-    WALL = "WALL"
-    AGENT = "AGENT"
-    DEAD_END = "DEAD_END"
-    CONGESTION = "CONGESTION"
-
-
-class ActionKind(str, Enum):
-    """Single atomic choice available to the agent each turn (simplified)."""
-
-    MOVE = "MOVE"
-    STAY = "STAY"
-    COMMUNICATE = "COMMUNICATE"
-
-
-class GoalSensorMode(str, Enum):
-    """Which sensing modality produced the reading."""
-
-    BEARING = "BEARING"
-    SCALAR_GRADIENT = "SCALAR_GRADIENT"
-    SPARSE_PINGS = "SPARSE_PINGS"
-
-
 # ---------------------------------------------------------------------------
 # Geometry helpers
 # ---------------------------------------------------------------------------
@@ -113,36 +88,7 @@ class GoalSensorBearing(BaseModel):
     available: bool = Field(description="False when the sensor dropped out this turn.")
 
 
-class GoalSensorScalar(BaseModel):
-    """Quantised scalar gradient measurements."""
-
-    mode: Literal["SCALAR_GRADIENT"] = "SCALAR_GRADIENT"
-    value_bin: Optional[Literal["LOW", "MID", "HIGH"]] = Field(
-        default=None, description="Scalar value bucket at the current cell."
-    )
-    north_gt_south: Optional[bool] = Field(
-        default=None, description="True if value at y-1 > y+1 in the local patch."
-    )
-    east_gt_west: Optional[bool] = Field(
-        default=None, description="True if value at x+1 > x-1 in the local patch."
-    )
-    available: bool = Field(description="False when no reading is provided.")
-
-
-class GoalSensorPing(BaseModel):
-    """Sparse radio ping with coarse arrival bearing."""
-
-    mode: Literal["SPARSE_PINGS"] = "SPARSE_PINGS"
-    heard: bool = Field(description="True if a ping was detected this turn.")
-    approx_bearing: Optional[Octant] = Field(
-        default=None, description="Coarse direction from which the ping arrived."
-    )
-    jitter_ms: Optional[int] = Field(
-        default=None, description="Optional jitter bucket to support triangulation."
-    )
-
-
-GoalSensorReading = Union[GoalSensorBearing, GoalSensorScalar, GoalSensorPing]
+GoalSensorReading = GoalSensorBearing
 
 
 # Artifact/NO_GO purged in this branch
@@ -165,14 +111,6 @@ class BaseMsg(BaseModel):
     )
 
 
-class MsgHere(BaseMsg):
-    """Share absolute position and orientation."""
-
-    kind: Literal["HERE"] = "HERE"
-    pos: Position = Field(description="Absolute position of the sender.")
-    orientation: Direction = Field(description="Orientation of the sender.")
-
-
 class MsgIntent(BaseMsg):
     """Announce the next move or stay intent."""
 
@@ -182,63 +120,14 @@ class MsgIntent(BaseMsg):
     )
 
 
-class MsgSense(BaseMsg):
-    """Share a recent goal sensor reading."""
-
-    kind: Literal["SENSE"] = "SENSE"
-    at: Position = Field(description="Position where the reading was taken.")
-    mode: GoalSensorMode = Field(description="Sensor modality used.")
-    bearing: Optional[Octant] = Field(default=None)
-    strength: Optional[StrengthBucket] = Field(default=None)
-    value_bin: Optional[Literal["LOW", "MID", "HIGH"]] = Field(default=None)
-    approx_bearing: Optional[Octant] = Field(default=None)
-
-
-class MsgBlocked(BaseMsg):
-    """Report a blocked cell so teammates can avoid it."""
-
-    kind: Literal["BLOCKED"] = "BLOCKED"
-    where: Position = Field(description="Absolute position of the blockage.")
-    reason: BlockReason = Field(description="Why the cell is blocked.")
-
-
 class MsgRequest(BaseMsg):
     """Minimal negotiation primitives."""
 
     kind: Literal["REQUEST"] = "REQUEST"
-    req: Literal["YIELD", "GUIDE", "MEET"] = Field(description="Type of request.")
+    req: Literal["YIELD", "GUIDE"] = Field(description="Type of request.")
     target: Optional[Position] = Field(
         default=None, description="Optional absolute position relevant to the request."
     )
-
-
-class MsgMapRequest(BaseMsg):
-    """Ask nearby peers for a fixed-size map snippet."""
-
-    kind: Literal["MAP_REQUEST"] = "MAP_REQUEST"
-    origin: Position = Field(description="Center of the desired snippet.")
-    radius: int = Field(ge=1, le=5, description="Half-width of the requested window (cells).")
-
-
-class MsgMapPatch(BaseMsg):
-    """Return a rectangular snippet of explored map."""
-
-    kind: Literal["MAP_PATCH"] = "MAP_PATCH"
-    origin: Position = Field(description="Center coordinate originally requested.")
-    top_left: Position = Field(description="Top-left coordinate (min x, max y) of the snippet.")
-    radius: int = Field(ge=1, le=5, description="Half-width of the snippet (cells).")
-    rows: List[str] = Field(description="Rows ordered from highest y to lowest y.")
-    provided_at: int = Field(description="Turn index when the snippet was shared.")
-
-
-class MsgMapNoPatch(BaseMsg):
-    """Indicate that no new map info was available."""
-
-    kind: Literal["MAP_NO_PATCH"] = "MAP_NO_PATCH"
-    origin: Position = Field(description="Center that was requested.")
-
-
-# MsgMarkInfo removed in this branch
 
 
 class MsgChat(BaseMsg):
@@ -255,15 +144,7 @@ class MsgChat(BaseMsg):
 # Oracle messaging removed in this branch.
 
 
-OutgoingMessage = Union[
-    MsgHere,
-    MsgIntent,
-    MsgRequest,
-    MsgMapRequest,
-    MsgMapPatch,
-    MsgMapNoPatch,
-    MsgChat,
-]
+OutgoingMessage = Union[MsgIntent, MsgRequest, MsgChat]
 
 
 class ReceivedMessage(BaseModel):
@@ -510,7 +391,7 @@ class TurnHistory(BaseModel):
 
 _STRATEGY_MESSAGE_TYPES: Dict[str, List[Type[BaseModel]]] = {
     "none": [],
-    "structured": [MsgIntent, MsgRequest, MsgHere, MsgMapRequest],
+    "structured": [MsgIntent, MsgRequest],
     "freeform": [MsgChat],
 }
 

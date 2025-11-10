@@ -22,7 +22,6 @@ TOOL ARSENAL (with quick cues):
 - STAY — hold position when moving would collide or you need to coordinate first. Example: all sides blocked, teammate approaching → STAY + explain the pause.
 {comm_tool_line}
 - HISTORY — glance at prior intents/outcomes to avoid repeating the same blockage; `recent_positions` exposes short back-and-forth patterns so you can change tactics.
-{oracle_tool_line}
 
 DECISION HIERARCHY (apply in order every turn):
 1. PREVENT COLLISIONS: Respect WALL / contended cells. Yield or coordinate before entering tight corridors.
@@ -62,16 +61,10 @@ Emit only the structured `Decision` object.
 """
 
 
-def _optional_line(text: str) -> str:
-    return text + "\n" if text else ""
-
-
 def _actions_sentence(action_kinds: List[str], radio_range: int) -> str:
     parts = ["MOVE_N/E/S/W, STAY"]
     if "COMMUNICATE" in action_kinds:
         parts.append(f"COMMUNICATE (one structured radio message per turn, range {radio_range}).")
-    if "ASK_ORACLE" in action_kinds:
-        parts.append("ASK_ORACLE (request global guidance; peer radio is disabled while oracle is available).")
     return " ".join(parts)
 
 
@@ -87,7 +80,6 @@ def build_prompt_header(
     action_kinds: List[str],
 ) -> str:
     allow_comm = "COMMUNICATE" in action_kinds
-    allow_oracle = False
 
     actions_sentence = _actions_sentence(action_kinds, radio_range)
     message_behavior_line = _message_behavior_line(action_kinds)
@@ -98,8 +90,6 @@ def build_prompt_header(
             "- COMMUNICATE — one structured message to share intent, hazards, or reroutes (range "
             f"{radio_range}). Share new information, not repeats.\n"
         )
-
-    oracle_tool_line = ""
 
     if not allow_comm:
         comm_comment_line = "- Radio is disabled; rely on MOVE/STAY to coordinate implicitly."
@@ -120,7 +110,6 @@ def build_prompt_header(
         actions_sentence=actions_sentence,
         message_behavior_line=message_behavior_line,
         comm_tool_line=comm_tool_line,
-        oracle_tool_line=oracle_tool_line,
         comment_extra_line=comment_extra_line,
         action_contract=action_contract,
         communication_execution_line=communication_execution_line,
