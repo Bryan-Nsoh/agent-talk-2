@@ -1,0 +1,67 @@
+{
+  "status": "active",
+  "timestamp": "2025-11-10T17:58:00.711420Z",
+  "commit": "76d0799",
+  "runs": {
+    "structured": [
+      {
+        "turn": 100,
+        "finished": 4,
+        "messages": 21,
+        "run_num": 1
+      },
+      {
+        "turn": 100,
+        "finished": 4,
+        "messages": 20,
+        "run_num": 2
+      },
+      {
+        "turn": 100,
+        "finished": 3,
+        "messages": 10,
+        "run_num": 3
+      }
+    ],
+    "freeform": [
+      {
+        "turn": 100,
+        "finished": 2,
+        "messages": 14,
+        "run_num": 1
+      },
+      {
+        "turn": 100,
+        "finished": 2,
+        "messages": 1,
+        "run_num": 2
+      },
+      {
+        "turn": 100,
+        "finished": 1,
+        "messages": 28,
+        "run_num": 3
+      }
+    ],
+    "none": [
+      {
+        "turn": 100,
+        "finished": 1,
+        "messages": 0,
+        "run_num": 1
+      },
+      {
+        "turn": 100,
+        "finished": 1,
+        "messages": 0,
+        "run_num": 2
+      },
+      {
+        "turn": 100,
+        "finished": 1,
+        "messages": 0,
+        "run_num": 3
+      }
+    ]
+  }
+}
