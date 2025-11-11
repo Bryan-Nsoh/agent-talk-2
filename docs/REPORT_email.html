@@ -460,11 +460,11 @@ starting positions (seed 13). All code frozen at commit
 <h3 id="metric-1-success-rate">Metric 1: Success Rate</h3>
 <p><strong>Definition:</strong></p>
 <p><img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Ctext%7BSuccess%20Rate%7D%20%3D%20%5Cfrac%7B%5Ctext%7Bagents%20that%20finished%20across%20all%20runs%7D%7D%7B%5Ctext%7Btotal%20agents%7D%7D%20%5Ctimes%20100%5C%25"
-alt="\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%"
-title="\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Ctext%7BSuccess%20Rate%7D%20%3D%20%5Cfrac%7B%5Csum%20%5Ctext%7Bagents%20finished%7D%7D%7B%5Ctext%7Btotal%20agents%7D%7D%20%5Ctimes%20100%5C%25"
+alt="\text{Success Rate} = \frac{\sum \text{agents finished}}{\text{total agents}} \times 100\%"
+title="\text{Success Rate} = \frac{\sum \text{agents finished}}{\text{total agents}} \times 100\%"
 class="math display" /></p>
-<p>Total agents = 3 runs × 5 agents = 15 per strategy.</p>
+<p>where total agents = 3 runs × 5 agents = 15 per strategy.</p>
 <p><strong>Computation:</strong> For each run, we parsed
 <code>episode.json</code> and counted agents with
 <code>status == "FINISHED"</code> in the final frame (turn 100).</p>
@@ -508,8 +508,23 @@ tokens/message vs freeform’s 21.0 tokens/message).</p>
 <hr />
 <h3 id="metric-3-collision-rate">Metric 3: Collision Rate</h3>
 <p><strong>Definition:</strong></p>
-<p>Average collisions per run = mean across 3 runs Error bars = standard
-deviation across 3 runs</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Cbar%7BC%7D%20%3D%20%5Cfrac%7B1%7D%7B3%7D%5Csum_%7Br%3D1%7D%5E%7B3%7D%20C_r%20%5Cquad%20%5Cpm%20%5Cquad%20%5Csigma"
+alt="\bar{C} = \frac{1}{3}\sum_{r=1}^{3} C_r \quad \pm \quad \sigma"
+title="\bar{C} = \frac{1}{3}\sum_{r=1}^{3} C_r \quad \pm \quad \sigma"
+class="math display" /></p>
+<p>where <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20C_r" alt="C_r"
+title="C_r" class="math inline" /> = collisions in run <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20r" alt="r"
+title="r" class="math inline" />, <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cbar%7BC%7D"
+alt="\bar{C}" title="\bar{C}" class="math inline" /> = mean, <img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Csigma"
+alt="\sigma" title="\sigma" class="math inline" /> = standard
+deviation</p>
 <p><strong>Computation:</strong> Collision counts extracted from
 <code>metrics.json["collisions"]</code> for each run. Mean and standard
 deviation computed via NumPy.</p>
@@ -528,10 +543,14 @@ performance.</p>
 <hr />
 <h3 id="metric-4-completion-timeline">Metric 4: Completion Timeline</h3>
 <p><strong>Definition:</strong></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20F%28t%29%20%3D%20%5Cfrac%7B1%7D%7B3%7D%5Csum_%7Br%3D1%7D%5E%7B3%7D%20%5Ctext%7Bagents%20finished%20by%20turn%20%7D%20t%20%5Ctext%7B%20in%20run%20%7D%20r"
+alt="F(t) = \frac{1}{3}\sum_{r=1}^{3} \text{agents finished by turn } t \text{ in run } r"
+title="F(t) = \frac{1}{3}\sum_{r=1}^{3} \text{agents finished by turn } t \text{ in run } r"
+class="math display" /></p>
 <p>Cumulative agents finished at turn <img style="vertical-align:middle"
 src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20t" alt="t"
-title="t" class="math inline" />, averaged across 3 runs per
-strategy.</p>
+title="t" class="math inline" />, averaged across 3 runs.</p>
 <p><strong>Computation:</strong> For each run, we parsed
 <code>episode.json</code> frame by frame and tracked when each agent’s
 status changed to <code>FINISHED</code>. We computed cumulative count at
@@ -581,22 +600,28 @@ Turn 9, a5: INTENT STAY (confirming yield)</code></pre>
 <p>Total: ~54 bytes, 3 seconds to parse. No ambiguity. Schema enforces
 semantic clarity (INTENT vs REQUEST vs YIELD).</p>
 <p><strong>Freeform:</strong> Natural language appears more readable to
-an untrained observer but introduces practical challenges: 1.
-<strong>Volume:</strong> 2.1× more tokens on average (102 vs 54 for the
-6-message sequences above) makes auditing slower 2.
-<strong>Variability:</strong> “a5 yielding (7,4) to you; I’ll go north”
-vs “please yield so I can scout” express similar intent differently,
-requiring semantic parsing 3. <strong>Redundancy:</strong> Agent a4 sent
-3 nearly identical yield messages (turns 50, 52, 53) because natural
-language lacks deduplication constraints 4. <strong>Cognitive
-load:</strong> An operator must extract coordinates, intent, and agent
-ID from unstructured prose</p>
+an untrained observer but introduces practical challenges:</p>
+<ol type="1">
+<li><strong>Volume:</strong> 2.1× more tokens on average (102 vs 54 for
+the 6-message sequences above) makes auditing slower</li>
+<li><strong>Variability:</strong> “a5 yielding (7,4) to you; I’ll go
+north” vs “please yield so I can scout” express similar intent
+differently, requiring semantic parsing</li>
+<li><strong>Redundancy:</strong> Agent a4 sent 3 nearly identical yield
+messages (turns 50, 52, 53) because natural language lacks deduplication
+constraints</li>
+<li><strong>Cognitive load:</strong> An operator must extract
+coordinates, intent, and agent ID from unstructured prose</li>
+</ol>
 <p>In practice, structured communication is <strong>more
-interpretable</strong> because: - Consistent format enables
-regex/scripting for log analysis - Lower token budget reduces audit time
-(3.7× faster to review structured logs) - Schema prevents ambiguity and
-contradiction - Deduplication constraints eliminate redundant
-messages</p>
+interpretable</strong> because:</p>
+<ul>
+<li>Consistent format enables regex/scripting for log analysis</li>
+<li>Lower token budget reduces audit time (3.7× faster to review
+structured logs)</li>
+<li>Schema prevents ambiguity and contradiction</li>
+<li>Deduplication constraints eliminate redundant messages</li>
+</ul>
 <p>For trained operators or automated monitoring, structured wins
 decisively. For untrained humans reading one-off transcripts, freeform
 has superficial legibility advantage, but this does not scale to
@@ -647,11 +672,17 @@ protocols enable faster log auditing, automated monitoring, and
 deterministic behavior—all critical for reliable multi-agent
 systems.</p>
 <hr />
-<p><strong>Experiment Details:</strong> - Commit: <code>fe3ffda</code> -
-Model: <code>azure:gpt-5-mini</code> - Grid: 30×10, visibility radius 1,
-radio range 2 - Maze: <code>long_corridor</code> preset, obstacle seed
-606 - Agent starts: seed 13 (fixed positions) - Turn budget: 100 - Runs:
-3 per strategy × 3 strategies = 9 total - Token counting:
-<code>tiktoken</code> library, <code>o200k_base</code> encoding</p>
+<p><strong>Experiment Details:</strong></p>
+<ul>
+<li>Commit: <code>fe3ffda</code></li>
+<li>Model: <code>azure:gpt-5-mini</code></li>
+<li>Grid: 30×10, visibility radius 1, radio range 2</li>
+<li>Maze: <code>long_corridor</code> preset, obstacle seed 606</li>
+<li>Agent starts: seed 13 (fixed positions)</li>
+<li>Turn budget: 100</li>
+<li>Runs: 3 per strategy × 3 strategies = 9 total</li>
+<li>Token counting: <code>tiktoken</code> library,
+<code>o200k_base</code> encoding</li>
+</ul>
 </body>
 </html>

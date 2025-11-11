@@ -250,9 +250,9 @@ We ran 9 experiments (3 per strategy) with 5 agents, 100 turn budget, maze prese
 
 **Definition:**
 
-$$\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%$$
+$$\text{Success Rate} = \frac{\sum \text{agents finished}}{\text{total agents}} \times 100\%$$
 
-Total agents = 3 runs × 5 agents = 15 per strategy.
+where total agents = 3 runs × 5 agents = 15 per strategy.
 
 **Computation:**
 For each run, we parsed `episode.json` and counted agents with `status == "FINISHED"` in the final frame (turn 100).
@@ -289,8 +289,9 @@ We parsed `transcript.jsonl` for each run, extracted all `COMMUNICATE` actions, 
 
 **Definition:**
 
-Average collisions per run = mean across 3 runs
-Error bars = standard deviation across 3 runs
+$$\bar{C} = \frac{1}{3}\sum_{r=1}^{3} C_r \quad \pm \quad \sigma$$
+
+where $C_r$ = collisions in run $r$, $\bar{C}$ = mean, $\sigma$ = standard deviation
 
 **Computation:**
 Collision counts extracted from `metrics.json["collisions"]` for each run. Mean and standard deviation computed via NumPy.
@@ -307,7 +308,9 @@ Collision counts extracted from `metrics.json["collisions"]` for each run. Mean 
 
 **Definition:**
 
-Cumulative agents finished at turn $t$, averaged across 3 runs per strategy.
+$$F(t) = \frac{1}{3}\sum_{r=1}^{3} \text{agents finished by turn } t \text{ in run } r$$
+
+Cumulative agents finished at turn $t$, averaged across 3 runs.
 
 **Computation:**
 For each run, we parsed `episode.json` frame by frame and tracked when each agent's status changed to `FINISHED`. We computed cumulative count at each turn, then averaged the three runs together.
@@ -340,20 +343,24 @@ Each point represents one run: x = token count from tiktoken, y = finish count f
 ## Interpretability
 
 **Structured:** Compact, fixed-schema messages are highly interpretable despite requiring domain knowledge. An operator reviewing logs can quickly scan:
+
 ```
 Turn 3, a4: INTENT STAY (yield to a2)
 Turn 8, a5: REQUEST YIELD @ (8,1)
 Turn 9, a5: INTENT STAY (confirming yield)
 ```
+
 Total: ~54 bytes, 3 seconds to parse. No ambiguity. Schema enforces semantic clarity (INTENT vs REQUEST vs YIELD).
 
 **Freeform:** Natural language appears more readable to an untrained observer but introduces practical challenges:
+
 1. **Volume:** 2.1× more tokens on average (102 vs 54 for the 6-message sequences above) makes auditing slower
 2. **Variability:** "a5 yielding (7,4) to you; I'll go north" vs "please yield so I can scout" express similar intent differently, requiring semantic parsing
 3. **Redundancy:** Agent a4 sent 3 nearly identical yield messages (turns 50, 52, 53) because natural language lacks deduplication constraints
 4. **Cognitive load:** An operator must extract coordinates, intent, and agent ID from unstructured prose
 
 In practice, structured communication is **more interpretable** because:
+
 - Consistent format enables regex/scripting for log analysis
 - Lower token budget reduces audit time (3.7× faster to review structured logs)
 - Schema prevents ambiguity and contradiction
@@ -392,6 +399,7 @@ While natural language offers superficial legibility, it introduces variance and
 ---
 
 **Experiment Details:**
+
 - Commit: `fe3ffda`
 - Model: `azure:gpt-5-mini`
 - Grid: 30×10, visibility radius 1, radio range 2
