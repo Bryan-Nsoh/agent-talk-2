@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Agent Communication Study</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Agent Communication Study</h1>
+</header>
+<h1
+id="minimal-agent-communication-protocols-for-multi-agent-grid-navigation">Minimal
+Agent Communication Protocols for Multi-Agent Grid Navigation</h1>
+<h2 id="task-overview">Task Overview</h2>
+<p>Five LLM-controlled agents navigate a 30×10 grid world with partial
+observability (vision radius = 1). Each agent receives a directional
+bearing toward a shared goal at position (28,1) but cannot see beyond
+their immediate surroundings. The environment contains maze-like
+obstacles that force indirect routing. With five agents competing for
+limited corridor space, collisions are frequent. Agents have 100 turns
+to coordinate and reach the goal. We compare three communication
+protocols to determine which enables the most effective
+coordination.</p>
+<hr />
+<h2 id="communication-protocols">Communication Protocols</h2>
+<p>All agents share a base prompt instructing them to navigate toward
+the goal while avoiding collisions. The communication strategy
+determines what messages (if any) agents can exchange to coordinate.</p>
+<h3 id="none-no-communication">None (No Communication)</h3>
+<p><strong>Approach:</strong> Agents receive no communication
+capability. They must coordinate implicitly through observation of
+nearby agents (within vision radius = 1).</p>
+<p><strong>Prompt addition:</strong> <em>(none - agents simply navigate
+without message exchange)</em></p>
+<p><strong>Messages exchanged:</strong> 0 per run</p>
+<hr />
+<h3 id="structured">Structured</h3>
+<p><strong>Approach:</strong> Agents use a fixed message schema with two
+message types: <code>INTENT</code> (announce next action) and
+<code>REQUEST</code> (ask peer to yield or share goal location).
+Priority tiebreaker: lowest agent ID moves first in contested cells.</p>
+<p><strong>Prompt addition:</strong></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From src/llmgrid/agent/llm_agent.py, lines 64-71</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;Allowed: INTENT or REQUEST(YIELD|GUIDE target=(x,y)). One message max per turn.&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;When to communicate: only if any_peer_in_range is true and you have useful info</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="er"> (collision risk, new corridor, map gap) that a nearby peer benefits from.&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Good reasons: approaching a shared cell, you see G, you discovered a useful corridor</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="er"> or dead end, your buddy might be stuck, or you need a map snippet to progress.&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;Priority: when 2+ agents want the same cell, LOWEST agent_id MOVES immediately</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="er"> (no announcement needed). Higher IDs MUST yield (stay/reroute). No mutual yielding,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="er"> no wasted turns announcing priority.&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="er"> priority; REQUEST</span>(GUIDE,target<span class="op">=</span>(gx,gy)) to share G <span class="kw">or</span> <span class="bu">help</span> a stuck teammate.<span class="st">&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Avoid repeats: do not send the same content within 5 turns unless new information appeared.&quot;</span></span></code></pre></div>
+<p><strong>Full schema:</strong></p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>MsgIntent {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  kind<span class="op">:</span> <span class="st">&quot;INTENT&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  next_action<span class="op">:</span> <span class="st">&quot;MOVE_N&quot;</span> <span class="op">|</span> <span class="st">&quot;MOVE_E&quot;</span> <span class="op">|</span> <span class="st">&quot;MOVE_S&quot;</span> <span class="op">|</span> <span class="st">&quot;MOVE_W&quot;</span> <span class="op">|</span> <span class="st">&quot;STAY&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  sender_id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  seq<span class="op">:</span> int</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>MsgRequest {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  kind<span class="op">:</span> <span class="st">&quot;REQUEST&quot;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  req<span class="op">:</span> <span class="st">&quot;YIELD&quot;</span> <span class="op">|</span> <span class="st">&quot;GUIDE&quot;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  target<span class="op">?:</span> {x<span class="op">:</span> int<span class="op">,</span> y<span class="op">:</span> int}  <span class="co">// optional</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  sender_id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  seq<span class="op">:</span> int</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Actual usage (51 messages across 3 runs):</strong> - INTENT:
+STAY (23×), MOVE_E (13×), MOVE_S (3×) - REQUEST: YIELD (12×, all with
+target) - Never used: MOVE_N, MOVE_W, GUIDE</p>
+<p><strong>Example messages (serialized from actual
+transcripts):</strong></p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a4&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;REQUEST&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a5&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;req&quot;</span><span class="fu">:</span> <span class="st">&quot;YIELD&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;x&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;y&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a5&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MOVE_E&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Note:</strong> Other agents receive only the message envelope
+(kind, sender_id, seq, next_action/req/target). The “Reasoning” field
+shown in later examples is debug output for system builders, not
+transmitted to other agents.</p>
+<hr />
+<h3 id="freeform-natural-language">Freeform (Natural Language)</h3>
+<p><strong>Approach:</strong> Agents compose natural language messages
+(≤96 characters) describing their intent, requests, or observations.
+Same priority rule as structured, but expressed in prose.</p>
+<p><strong>Prompt addition:</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From src/llmgrid/agent/llm_agent.py, lines 74-84</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="er"> critical info </span>(goal location, dead end, you<span class="st">&#39;re rerouting around a peer).&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Allowed: one CHAT (&lt;=96 chars) per turn. Write naturally to help your teammate.&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;When to communicate: only if any_peer_in_range is true. Share something useful</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="er"> (new route, goal location, dead end you verified, you are rerouting, or you are stuck).&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Use coordinates so teammates can mark their maps: e.g., &#39;heading east toward (5,2)&#39;,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="er"> &#39;found goal at (14,4)&#39;, &#39;dead end north; trying south&#39;, &#39;sharing loop at (3,1)-(3,2)&#39;.&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield.</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="er"> Example: &#39;I&#39;m a5, yielding (5,5) to you, going west&#39; or just move without announcing</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> you<span class="st">&#39;re yielding.&quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Be cooperative and concise; avoid repeating unchanged info within ~5 turns.&quot;</span></span></code></pre></div>
+<p><strong>Example messages:</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a3&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a3 holding at (8,1); waiting to move west to (6,1). Please yield (7,1) if possible.&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a2&quot;</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<hr />
+<h2 id="communication-in-action-sequential-coordination">Communication
+in Action: Sequential Coordination</h2>
+<h3 id="structured-coordination-sequence-run-1-turns-3-12">Structured
+Coordination Sequence (Run 1, Turns 3-12)</h3>
+<p>This 6-message sequence shows agent a5 navigating a congested
+corridor while coordinating with nearby agents:</p>
+<p><strong>Turn 3, a4:</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding; holding at (3,8) so a2 can access (3,7) toward frontier (3,6).&quot;</span></span></code></pre></div>
+<p><strong>Turn 8, a5:</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;REQUEST&quot;</span><span class="fu">,</span> <span class="dt">&quot;req&quot;</span><span class="fu">:</span> <span class="st">&quot;YIELD&quot;</span><span class="fu">,</span> <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">&quot;x&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span> <span class="dt">&quot;y&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">}}</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="er">(requesting</span> <span class="er">priority</span> <span class="er">at</span> <span class="er">contested</span> <span class="er">cell)</span></span></code></pre></div>
+<p><strong>Turn 9, a5:</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding after previous YIELD; holding at (7,1) so lower-id peer may</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">advance toward frontier (9,1).&quot;</span></span></code></pre></div>
+<p><strong>Turn 10, a5:</strong></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing yield; staying to avoid collision.&quot;</span></span></code></pre></div>
+<p><strong>Turn 11, a5:</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MOVE_E&quot;</span><span class="fu">}</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing move E to scout frontier at (9,1) before proceeding; avoiding</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">repeated blocked attempt.&quot;</span></span></code></pre></div>
+<p><strong>Turn 12, a5:</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Avoiding repeated MOVE_E into (8,1) after a YIELD; broadcasting STAY to</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">coordinate with nearby peer.&quot;</span></span></code></pre></div>
+<p><strong>What happened:</strong> Agent a5 detected congestion at
+(8,1), requested yield from peer, waited for 2 turns, announced move,
+then yielded again when detecting continued blockage. The sequence shows
+repeated coordination with terse messages (6-10 tokens each). Result: 0
+collisions, forward progress maintained.</p>
+<hr />
+<h3 id="freeform-coordination-sequence-run-1-turns-48-53">Freeform
+Coordination Sequence (Run 1, Turns 48-53)</h3>
+<p>This 6-message sequence shows agents a2 and a4 negotiating access to
+a contested corridor:</p>
+<p><strong>Turn 48, a2:</strong></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Broadcasting intent: heading west to scout frontier at (8,1); requesting</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">yield to avoid collision.&quot;</span></span></code></pre></div>
+<p><strong>Turn 49, a4:</strong></p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding at (8,1); staying to let a2 scout west&quot;</span><span class="fu">}</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid collision and let them scout west.&quot;</span></span></code></pre></div>
+<p><strong>Turn 50, a4:</strong></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to let you scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding (8,1) to a2 per their request and to avoid collision; staying to</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">let them scout.&quot;</span></span></code></pre></div>
+<p><strong>Turn 52, a2:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (6,1); entering contested (7,1),</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">yielding if needed.&quot;</span><span class="fu">}</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing west toward (6,1); entering contested (7,1).&quot;</span></span></code></pre></div>
+<p><strong>Turn 52, a4:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid collision and</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">let you scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding at (8,1) to let a2 scout west; avoiding contended W.&quot;</span></span></code></pre></div>
+<p><strong>Turn 53, a4:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid contested (7,1).&quot;</span><span class="fu">}</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid contested (7,1).&quot;</span></span></code></pre></div>
+<p><strong>What happened:</strong> Agent a2 requested access, a4 yielded
+with confirmation, a2 advanced, a4 repeated yield confirmation (turns
+50, 52, 53). Messages are longer (15-20 tokens each) and show redundancy
+(3 nearly identical yield messages). Result: coordination successful but
+verbose.</p>
+<p><strong>Comparison:</strong> Both sequences achieve coordination.
+Structured uses 6 messages (54 tokens total). Freeform uses 6 messages
+(102 tokens total). Structured eliminates redundancy through schema
+constraints; freeform allows natural repetition.</p>
+<hr />
+<h2 id="results">Results</h2>
+<p>We ran 9 experiments (3 per strategy) with 5 agents, 100 turn budget,
+maze preset <code>long_corridor</code> (seed 606), and fixed agent
+starting positions (seed 13). All code frozen at commit
+<code>fe3ffda</code>.</p>
+<hr />
+<h3 id="metric-1-success-rate">Metric 1: Success Rate</h3>
+<p><strong>Definition:</strong></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Ctext%7BSuccess%20Rate%7D%20%3D%20%5Cfrac%7B%5Ctext%7Bagents%20that%20finished%20across%20all%20runs%7D%7D%7B%5Ctext%7Btotal%20agents%7D%7D%20%5Ctimes%20100%5C%25"
+alt="\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%"
+title="\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%"
+class="math display" /></p>
+<p>Total agents = 3 runs × 5 agents = 15 per strategy.</p>
+<p><strong>Computation:</strong> For each run, we parsed
+<code>episode.json</code> and counted agents with
+<code>status == "FINISHED"</code> in the final frame (turn 100).</p>
+<p><strong>Results:</strong></p>
+<figure>
+<img
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/1_success_rate.png"
+alt="Figure 1: Success Rate" />
+<figcaption aria-hidden="true">Figure 1: Success Rate</figcaption>
+</figure>
+<p><strong>Interpretation:</strong> Structured communication achieves
+73% success rate (11/15 agents), outperforming freeform (33%, 5/15) and
+none (20%, 3/15). Structured is 3.6× more effective than no
+communication.</p>
+<hr />
+<h3 id="metric-2-communication-volume">Metric 2: Communication
+Volume</h3>
+<p><strong>Definition:</strong></p>
+<ul>
+<li><strong>Messages</strong>: Count of COMMUNICATE actions per run</li>
+<li><strong>Tokens</strong>: Sum of tokens across all messages, using
+<code>tiktoken</code> library with <code>o200k_base</code> encoding</li>
+</ul>
+<p><strong>Computation:</strong> We parsed <code>transcript.jsonl</code>
+for each run, extracted all <code>COMMUNICATE</code> actions, and
+computed: 1. Message count (direct count) 2. Token count using
+<code>tiktoken.get_encoding("o200k_base").encode(message_text)</code></p>
+<p><strong>Results:</strong></p>
+<figure>
+<img
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/2_communication_volume.png"
+alt="Figure 2: Communication Volume" />
+<figcaption aria-hidden="true">Figure 2: Communication
+Volume</figcaption>
+</figure>
+<p><strong>Interpretation:</strong> Structured uses consistent moderate
+volume (avg 17.0 messages, 97.0 tokens/run). Freeform shows extreme
+variance (1-28 messages, 16-587 tokens), indicating unstable
+communication patterns. Structured messages are more compact (5.7
+tokens/message vs freeform’s 21.0 tokens/message).</p>
+<hr />
+<h3 id="metric-3-collision-rate">Metric 3: Collision Rate</h3>
+<p><strong>Definition:</strong></p>
+<p>Average collisions per run = mean across 3 runs Error bars = standard
+deviation across 3 runs</p>
+<p><strong>Computation:</strong> Collision counts extracted from
+<code>metrics.json["collisions"]</code> for each run. Mean and standard
+deviation computed via NumPy.</p>
+<p><strong>Results:</strong></p>
+<figure>
+<img
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/3_collision_rate.png"
+alt="Figure 3: Collision Rate" />
+<figcaption aria-hidden="true">Figure 3: Collision Rate</figcaption>
+</figure>
+<p><strong>Interpretation:</strong> Structured achieves lowest collision
+rate (10.0 ± 3.6), 2.2× fewer than freeform (22.3 ± 13.7) and 4.3× fewer
+than none (43.3 ± 8.7). Low standard deviation indicates consistent
+coordination. High freeform variance (σ = 13.7) shows unreliable
+performance.</p>
+<hr />
+<h3 id="metric-4-completion-timeline">Metric 4: Completion Timeline</h3>
+<p><strong>Definition:</strong></p>
+<p>Cumulative agents finished at turn <img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20t" alt="t"
+title="t" class="math inline" />, averaged across 3 runs per
+strategy.</p>
+<p><strong>Computation:</strong> For each run, we parsed
+<code>episode.json</code> frame by frame and tracked when each agent’s
+status changed to <code>FINISHED</code>. We computed cumulative count at
+each turn, then averaged the three runs together.</p>
+<p><strong>Results:</strong></p>
+<figure>
+<img
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/4_completion_timeline.png"
+alt="Figure 4: Completion Timeline" />
+<figcaption aria-hidden="true">Figure 4: Completion
+Timeline</figcaption>
+</figure>
+<p><strong>Interpretation:</strong> Structured shows steady upward
+trajectory reaching ~3.7 agents by turn 100. Freeform plateaus at ~1.7
+agents. None stagnates at ~1.0 agent. Structured enables faster and more
+consistent progress through effective coordination.</p>
+<hr />
+<h3 id="metric-5-success-vs-communication-cost">Metric 5: Success vs
+Communication Cost</h3>
+<p><strong>Definition:</strong></p>
+<p>Scatter plot showing tokens sent (x-axis) vs agents finished (y-axis)
+for each run.</p>
+<p><strong>Computation:</strong> Each point represents one run: x =
+token count from tiktoken, y = finish count from episode.json final
+frame.</p>
+<p><strong>Results:</strong></p>
+<figure>
+<img
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/5_success_vs_tokens.png"
+alt="Figure 5: Success vs Tokens" />
+<figcaption aria-hidden="true">Figure 5: Success vs Tokens</figcaption>
+</figure>
+<p><strong>Interpretation:</strong> Structured achieves Pareto frontier
+(upper-left: high success, moderate cost). All structured runs: 3-4
+agents finished with 56-126 tokens. Freeform shows no correlation
+between volume and success—run 3 sent 587 tokens but only 1 agent
+finished (0.17% efficiency), demonstrating that excessive communication
+without structure harms performance.</p>
+<hr />
+<h2 id="interpretability">Interpretability</h2>
+<p><strong>Structured:</strong> Compact, fixed-schema messages are
+highly interpretable despite requiring domain knowledge. An operator
+reviewing logs can quickly scan:</p>
+<pre><code>Turn 3, a4: INTENT STAY (yield to a2)
+Turn 8, a5: REQUEST YIELD @ (8,1)
+Turn 9, a5: INTENT STAY (confirming yield)</code></pre>
+<p>Total: ~54 bytes, 3 seconds to parse. No ambiguity. Schema enforces
+semantic clarity (INTENT vs REQUEST vs YIELD).</p>
+<p><strong>Freeform:</strong> Natural language appears more readable to
+an untrained observer but introduces practical challenges: 1.
+<strong>Volume:</strong> 2.1× more tokens on average (102 vs 54 for the
+6-message sequences above) makes auditing slower 2.
+<strong>Variability:</strong> “a5 yielding (7,4) to you; I’ll go north”
+vs “please yield so I can scout” express similar intent differently,
+requiring semantic parsing 3. <strong>Redundancy:</strong> Agent a4 sent
+3 nearly identical yield messages (turns 50, 52, 53) because natural
+language lacks deduplication constraints 4. <strong>Cognitive
+load:</strong> An operator must extract coordinates, intent, and agent
+ID from unstructured prose</p>
+<p>In practice, structured communication is <strong>more
+interpretable</strong> because: - Consistent format enables
+regex/scripting for log analysis - Lower token budget reduces audit time
+(3.7× faster to review structured logs) - Schema prevents ambiguity and
+contradiction - Deduplication constraints eliminate redundant
+messages</p>
+<p>For trained operators or automated monitoring, structured wins
+decisively. For untrained humans reading one-off transcripts, freeform
+has superficial legibility advantage, but this does not scale to
+operational use.</p>
+<hr />
+<h2 id="key-findings">Key Findings</h2>
+<ol type="1">
+<li><p><strong>Structured communication achieves 3.6× higher success
+rate</strong> than no communication (73% vs 20%) and 2.2× higher than
+freeform (73% vs 33%)</p></li>
+<li><p><strong>Consistency matters:</strong> Structured shows low
+variance (σ = 3.6 collisions); freeform is unpredictable (σ = 13.7
+collisions)</p></li>
+<li><p><strong>Collision reduction:</strong> Structured reduces
+collisions by 4.3× compared to no communication (10 vs 43
+collisions/run)</p></li>
+<li><p><strong>More communication ≠ better outcomes:</strong> Freeform
+run 3 sent the most tokens (587) but achieved the worst result (1/5
+agents finished), demonstrating that unstructured high-volume
+communication degrades performance</p></li>
+<li><p><strong>Token efficiency:</strong> Structured achieves 0.38
+agents finished per 100 tokens; freeform achieves 0.17 agents per 100
+tokens (2.2× less efficient)</p></li>
+<li><p><strong>Message compactness:</strong> Structured messages average
+5.7 tokens/message vs freeform’s 21.0 tokens/message (3.7× more
+compact)</p></li>
+<li><p><strong>Interpretability in practice:</strong> Structured logs
+are faster to audit (lower volume, consistent format) and prevent
+ambiguity/contradiction through schema constraints</p></li>
+</ol>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>In multi-agent navigation with partial observability and congestion,
+<strong>structured communication protocols with explicit priority rules
+and fixed message schemas outperform both natural language communication
+and no communication.</strong> The key advantage is not message volume
+but <strong>consistency, compactness, and coordination
+quality</strong>.</p>
+<p>Fixed schemas reduce ambiguity, enforce priority discipline, and
+enable agents to make fast, unambiguous coordination decisions.
+Sequential coordination sequences demonstrate that structured agents
+achieve the same outcomes with 47% fewer tokens (54 vs 102 in the
+comparison above) and no redundancy.</p>
+<p>While natural language offers superficial legibility, it introduces
+variance and inefficiency that undermine task performance in
+resource-constrained scenarios. For operational deployment, structured
+protocols enable faster log auditing, automated monitoring, and
+deterministic behavior—all critical for reliable multi-agent
+systems.</p>
+<hr />
+<p><strong>Experiment Details:</strong> - Commit: <code>fe3ffda</code> -
+Model: <code>azure:gpt-5-mini</code> - Grid: 30×10, visibility radius 1,
+radio range 2 - Maze: <code>long_corridor</code> preset, obstacle seed
+606 - Agent starts: seed 13 (fixed positions) - Turn budget: 100 - Runs:
+3 per strategy × 3 strategies = 9 total - Token counting:
+<code>tiktoken</code> library, <code>o200k_base</code> encoding</p>
+</body>
+</html>

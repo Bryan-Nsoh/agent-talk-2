@@ -250,16 +250,16 @@ We ran 9 experiments (3 per strategy) with 5 agents, 100 turn budget, maze prese
 
 **Definition:**
 
-$$\text{Success Rate} = \frac{\sum_{r=1}^{3} \sum_{a=1}^{5} \mathbb{1}[\text{agent } a \text{ finished in run } r]}{15} \times 100\%$$
+$$\text{Success Rate} = \frac{\text{agents that finished across all runs}}{\text{total agents}} \times 100\%$$
 
-where $\mathbb{1}[\cdot]$ is the indicator function. Total agents = 3 runs × 5 agents = 15 per strategy.
+Total agents = 3 runs × 5 agents = 15 per strategy.
 
 **Computation:**
 For each run, we parsed `episode.json` and counted agents with `status == "FINISHED"` in the final frame (turn 100).
 
 **Results:**
 
-![Figure 1: Success Rate](analysis/plots/1_success_rate.png)
+![Figure 1: Success Rate](https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/1_success_rate.png)
 
 **Interpretation:** Structured communication achieves 73% success rate (11/15 agents), outperforming freeform (33%, 5/15) and none (20%, 3/15). Structured is 3.6× more effective than no communication.
 
@@ -269,11 +269,8 @@ For each run, we parsed `episode.json` and counted agents with `status == "FINIS
 
 **Definition:**
 
-Messages: $M_r = |\{t : \text{action}_t = \text{COMMUNICATE}\}|$ for run $r$
-
-Tokens: $T_r = \sum_{m \in \text{messages}_r} |\text{tokenize}_{\text{o200k}}(m)|$
-
-where tokenization uses `tiktoken` library with `o200k_base` encoding (OpenAI's tokenizer).
+- **Messages**: Count of COMMUNICATE actions per run
+- **Tokens**: Sum of tokens across all messages, using `tiktoken` library with `o200k_base` encoding
 
 **Computation:**
 We parsed `transcript.jsonl` for each run, extracted all `COMMUNICATE` actions, and computed:
@@ -282,7 +279,7 @@ We parsed `transcript.jsonl` for each run, extracted all `COMMUNICATE` actions, 
 
 **Results:**
 
-![Figure 2: Communication Volume](analysis/plots/2_communication_volume.png)
+![Figure 2: Communication Volume](https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/2_communication_volume.png)
 
 **Interpretation:** Structured uses consistent moderate volume (avg 17.0 messages, 97.0 tokens/run). Freeform shows extreme variance (1-28 messages, 16-587 tokens), indicating unstable communication patterns. Structured messages are more compact (5.7 tokens/message vs freeform's 21.0 tokens/message).
 
@@ -292,16 +289,15 @@ We parsed `transcript.jsonl` for each run, extracted all `COMMUNICATE` actions, 
 
 **Definition:**
 
-$$\bar{C}_s = \frac{1}{3} \sum_{r=1}^{3} C_r, \quad \sigma_s = \sqrt{\frac{1}{3} \sum_{r=1}^{3} (C_r - \bar{C}_s)^2}$$
-
-where $C_r$ = collision count from `metrics.json` for run $r$, $\bar{C}_s$ = mean, $\sigma_s$ = standard deviation.
+Average collisions per run = mean across 3 runs
+Error bars = standard deviation across 3 runs
 
 **Computation:**
 Collision counts extracted from `metrics.json["collisions"]` for each run. Mean and standard deviation computed via NumPy.
 
 **Results:**
 
-![Figure 3: Collision Rate](analysis/plots/3_collision_rate.png)
+![Figure 3: Collision Rate](https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/3_collision_rate.png)
 
 **Interpretation:** Structured achieves lowest collision rate (10.0 ± 3.6), 2.2× fewer than freeform (22.3 ± 13.7) and 4.3× fewer than none (43.3 ± 8.7). Low standard deviation indicates consistent coordination. High freeform variance (σ = 13.7) shows unreliable performance.
 
@@ -311,16 +307,14 @@ Collision counts extracted from `metrics.json["collisions"]` for each run. Mean 
 
 **Definition:**
 
-$$F_s(t) = \frac{1}{3} \sum_{r=1}^{3} |\{a : a \text{ finished by turn } t \text{ in run } r\}|$$
-
-Cumulative agents finished at turn $t$, averaged across 3 runs per strategy $s$.
+Cumulative agents finished at turn $t$, averaged across 3 runs per strategy.
 
 **Computation:**
-For each run, we parsed `episode.json` frame by frame and tracked when each agent's status changed to `FINISHED`. We computed cumulative count at each turn $t \in [0, 100]$, then averaged across runs: $F_s(t) = \frac{1}{3}(F_{r1}(t) + F_{r2}(t) + F_{r3}(t))$.
+For each run, we parsed `episode.json` frame by frame and tracked when each agent's status changed to `FINISHED`. We computed cumulative count at each turn, then averaged the three runs together.
 
 **Results:**
 
-![Figure 4: Completion Timeline](analysis/plots/4_completion_timeline.png)
+![Figure 4: Completion Timeline](https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/4_completion_timeline.png)
 
 **Interpretation:** Structured shows steady upward trajectory reaching ~3.7 agents by turn 100. Freeform plateaus at ~1.7 agents. None stagnates at ~1.0 agent. Structured enables faster and more consistent progress through effective coordination.
 
@@ -330,14 +324,14 @@ For each run, we parsed `episode.json` frame by frame and tracked when each agen
 
 **Definition:**
 
-Direct scatter plot of $(T_r, F_r)$ where $T_r$ = tokens sent (Metric 2), $F_r$ = agents finished (Metric 1) for each run $r$.
+Scatter plot showing tokens sent (x-axis) vs agents finished (y-axis) for each run.
 
 **Computation:**
-Each point $(x, y)$ represents one run: $x$ = token count from tiktoken, $y$ = finish count from episode.json final frame.
+Each point represents one run: x = token count from tiktoken, y = finish count from episode.json final frame.
 
 **Results:**
 
-![Figure 5: Success vs Tokens](analysis/plots/5_success_vs_tokens.png)
+![Figure 5: Success vs Tokens](https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/5_success_vs_tokens.png)
 
 **Interpretation:** Structured achieves Pareto frontier (upper-left: high success, moderate cost). All structured runs: 3-4 agents finished with 56-126 tokens. Freeform shows no correlation between volume and success—run 3 sent 587 tokens but only 1 agent finished (0.17% efficiency), demonstrating that excessive communication without structure harms performance.
 
