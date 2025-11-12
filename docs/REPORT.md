@@ -6,6 +6,25 @@ Five LLM-controlled agents navigate a 30×10 grid world with partial observabili
 
 ---
 
+## Environment Design
+
+**Grid World:** 30×10 cells with walls forming maze-like corridors. Agents start at random positions and navigate toward a shared goal at (28,1).
+
+**Partial Observability:** Each agent observes only cells within radius 1 (3×3 local patch centered on their position). Agents cannot see the full map or other agents beyond this range.
+
+**Actions:** Each turn, agents choose one action:
+- `MOVE_N/E/S/W`: Move one cell in the specified direction
+- `STAY`: Remain in current position
+- `COMMUNICATE`: Send one message to nearby agents (radio range = 2 cells)
+
+**Collisions:** If two agents attempt to occupy the same cell, both are reset to their starting positions and lose that turn.
+
+**Turn Execution:** All agent decisions are computed in parallel to maximize throughput. Messages sent during turn T are delivered at the start of turn T+1. This introduces a one-turn communication lag: if agent A communicates to nearby agent B in turn T, agent B will not see that message until deciding their action for turn T+1. This design choice prioritizes parallelizable LLM inference over instantaneous local communication. The lag affects all communication modes equally and does not bias cross-condition comparisons.
+
+**Goal Sensor:** Each agent receives a noisy directional bearing (N/E/S/W) indicating the approximate direction to the goal, with distance hints (VERY_CLOSE/CLOSE/FAR/VERY_FAR). Agents must integrate this bearing with their local observations to navigate.
+
+---
+
 ## Communication Protocols
 
 All agents share a base prompt instructing them to navigate toward the goal while avoiding collisions. The communication strategy determines what messages (if any) agents can exchange to coordinate.

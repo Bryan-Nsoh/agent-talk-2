@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Agent Communication Study</title>
+  <title>REPORT</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -237,9 +237,6 @@
   </style>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">Agent Communication Study</h1>
-</header>
 <h1
 id="minimal-agent-communication-protocols-for-multi-agent-grid-navigation">Minimal
 Agent Communication Protocols for Multi-Agent Grid Navigation</h1>
@@ -253,6 +250,33 @@ limited corridor space, collisions are frequent. Agents have 100 turns
 to coordinate and reach the goal. We compare three communication
 protocols to determine which enables the most effective
 coordination.</p>
+<hr />
+<h2 id="environment-design">Environment Design</h2>
+<p><strong>Grid World:</strong> 30×10 cells with walls forming maze-like
+corridors. Agents start at random positions and navigate toward a shared
+goal at (28,1).</p>
+<p><strong>Partial Observability:</strong> Each agent observes only
+cells within radius 1 (3×3 local patch centered on their position).
+Agents cannot see the full map or other agents beyond this range.</p>
+<p><strong>Actions:</strong> Each turn, agents choose one action: -
+<code>MOVE_N/E/S/W</code>: Move one cell in the specified direction -
+<code>STAY</code>: Remain in current position -
+<code>COMMUNICATE</code>: Send one message to nearby agents (radio range
+= 2 cells)</p>
+<p><strong>Collisions:</strong> If two agents attempt to occupy the same
+cell, both are reset to their starting positions and lose that turn.</p>
+<p><strong>Turn Execution:</strong> All agent decisions are computed in
+parallel to maximize throughput. Messages sent during turn T are
+delivered at the start of turn T+1. This introduces a one-turn
+communication lag: if agent A communicates to nearby agent B in turn T,
+agent B will not see that message until deciding their action for turn
+T+1. This design choice prioritizes parallelizable LLM inference over
+instantaneous local communication. The lag affects all communication
+modes equally and does not bias cross-condition comparisons.</p>
+<p><strong>Goal Sensor:</strong> Each agent receives a noisy directional
+bearing (N/E/S/W) indicating the approximate direction to the goal, with
+distance hints (VERY_CLOSE/CLOSE/FAR/VERY_FAR). Agents must integrate
+this bearing with their local observations to navigate.</p>
 <hr />
 <h2 id="communication-protocols">Communication Protocols</h2>
 <p>All agents share a base prompt instructing them to navigate toward
