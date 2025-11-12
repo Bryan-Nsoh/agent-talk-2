@@ -1,6 +1,6 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-10T22:00:00Z
+**Last updated:** 2025-11-12T20:34:35Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
@@ -21,12 +21,13 @@ Triple-replication study with 9 parallel runs (3 per strategy) proves structured
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
+| 2025-11-12 | [robustness_study_20251112T143355Z](./robustness_study_20251112T143355Z/) | running | - | Seed 14 replication + seed 13 regression check in flight; extending communication study across seeds 13-17 |
 | **2025-11-10** | [**long_corridor_final_20251110T155342Z**](./long_corridor_final_20251110T155342Z/) | complete | **VALIDATED** | **DEFINITIVE: structured 73%, freeform 33%, none 20%** (commit fe3ffda) |
 | 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | complete | useful | Exploratory: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 419c6aa) |
 
 ### Other Experiments
 
-No other experiments are currently active. All exploratory work has been archived or deleted.
+None beyond the projects listed above.
 
 ### Status Legend
 - running | complete | failed | abandoned
