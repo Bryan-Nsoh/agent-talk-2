@@ -25,7 +25,6 @@ Seed 14 immediately exposed a 21× drop in structured message volume (one messag
 
 | Run | Started (UTC) | Status | Notes |
 |-----|---------------|--------|-------|
-| [seed14_structured_20251112T160750Z](./runs/seed14_structured_20251112T160750Z/) | 2025-11-12 16:07 | failed | False start; aborted at turn 5 before logging, produced 0 messages—discarded from replication counts. |
 | [seed14_structured_20251112T175321Z](./runs/seed14_structured_20251112T175321Z/) | 2025-11-12 17:53 | complete | Run 1 (structured) finished 100 turns with only 1 message and timeout failure. |
 | [seed14_freeform_20251112T175323Z](./runs/seed14_freeform_20251112T175323Z/) | 2025-11-12 17:53 | complete | Run 1 (freeform) finished 100 turns, 0 messages, timeout failure. |
 | [seed14_none_20251112T175325Z](./runs/seed14_none_20251112T175325Z/) | 2025-11-12 17:53 | complete | Run 1 (none) finished 100 turns, 0 messages, timeout failure. |
@@ -83,4 +82,3 @@ Pending the seed 13 rerun and completion of the remaining seed 14 replications. 
    *Metrics:* success flag, collisions, messages, hazard events.  
    *Linked runs:* will include all seeds once executed.  
    *Outcome:* TBD.
-
