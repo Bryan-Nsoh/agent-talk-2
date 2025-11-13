@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import os
 import random
 from collections import deque
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ from llmgrid.schema import (
     MoveOutcome,
     MessageBrief,
     MsgIntent,
+    MsgChat,
     NeighborSummary,
     Observation,
     Octant,
@@ -102,6 +104,8 @@ class GridWorld:
         self.message_seq: Dict[str, int] = {}
         self.agent_maps: Dict[str, AgentMap] = {}
         self.agent_icons: Dict[str, str] = {}
+        self._seeded_inbox_agents: set[str] = set()
+        self._seed_inbox_message = os.environ.get("LLMGRID_SEED_INBOX_MESSAGE")
 
     # ------------------------------------------------------------------
     # Agent placement and utility helpers
@@ -154,6 +158,13 @@ class GridWorld:
         local_patch = self._render_patch(ax, ay, visibility_radius)
         neighbors = self._neighbors_in_view(agent_id, visibility_radius)
         artifacts: List[dict] = []
+
+        if turn_index == 0 and self._seed_inbox_message and agent_id not in self._seeded_inbox_agents:
+            seed_msg = self._build_seed_message(agent_id)
+            if seed_msg is not None:
+                self.inboxes.setdefault(agent_id, []).append(seed_msg)
+                self._seeded_inbox_agents.add(agent_id)
+
         inbox = list(self.inboxes.get(agent_id, []))
         # Append received messages to brief history before clearing inbox
         for msg in inbox:
@@ -235,6 +246,29 @@ class GridWorld:
             world_map_ascii=world_map_ascii,
         )
         return obs
+
+    def _build_seed_message(self, agent_id: str) -> Optional[ReceivedMessage]:
+        if not self.occupancy or len(self.occupancy) <= 1:
+            sender_id = "seed"
+            hop = 1
+        else:
+            ax, ay = self.occupancy[agent_id]
+            sender_id = "seed"
+            hop = 1
+            best = None
+            for other_id, (ox, oy) in self.occupancy.items():
+                if other_id == agent_id:
+                    continue
+                dist = abs(ox - ax) + abs(oy - ay)
+                if best is None or dist < best[0]:
+                    best = (dist, other_id)
+            if best is not None:
+                hop = max(1, best[0])
+                sender_id = best[1]
+
+        text = (self._seed_inbox_message or "Seed ping: share your plan.")[:96]
+        chat = MsgChat(sender_id=sender_id, seq=0, text=text)
+        return ReceivedMessage(envelope=chat, hop_distance=hop, age=0)
 
     def _render_patch(self, cx: int, cy: int, radius: int) -> LocalPatch:
         rows: List[str] = []

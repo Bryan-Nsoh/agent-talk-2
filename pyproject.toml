@@ -13,6 +13,8 @@ dependencies = [
   "pyyaml>=6.0.1",
   "rich>=13.7.1",
   "Pillow>=10.3.0",
+  "matplotlib>=3.10.7",
+  "seaborn>=0.13.2",
 ]
 
 [project.scripts]

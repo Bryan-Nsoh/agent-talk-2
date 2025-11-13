@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+import os
 from typing import List
 
 from llmgrid.llm_clients.unified_llm import UnifiedLLM
@@ -65,8 +66,13 @@ class LlmPolicy:
                 "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",
                 "Priority: when 2+ agents want the same cell, LOWEST agent_id MOVES immediately (no announcement needed). Higher IDs MUST yield (stay/reroute). No mutual yielding, no wasted turns announcing priority.",
                 "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G or help a stuck teammate.",
-                "Avoid repeats: do not send the same content within 5 turns unless new information appeared.",
             ]
+            extra_rules = os.environ.get("LLMGRID_STRUCTURED_EXTRA_RULES")
+            if extra_rules:
+                for line in extra_rules.splitlines():
+                    text = line.strip()
+                    if text:
+                        strategy_rules.append(text)
         elif strategy == "freeform":
             strategy_rules = [
                 "DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares critical info (goal location, dead end, you're rerouting around a peer).",
