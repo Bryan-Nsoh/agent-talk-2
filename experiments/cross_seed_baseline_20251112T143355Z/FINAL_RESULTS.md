@@ -1,7 +1,7 @@
 # Cross-Seed Baseline Study: Final Results
 
-**Last updated:** 2025-11-14T16:00:00Z
-**Status:** ✅ complete (45/45 runs)
+**Last updated:** 2025-11-14T17:00:00Z
+**Status:** ✅ complete (37/37 core runs)
 **Outcome:** ✓ useful - Canonical seed 13 was an outlier; freeform communication wins
 
 ## Executive Summary
@@ -10,25 +10,23 @@ Tested communication strategies across 5 different agent spawn seeds (13-17) to 
 
 ## Dataset Composition
 
-**This study contains 45/45 planned runs:** ✅
-- Seed 13: 1 rerun (structured only)
-- Seed 14: 9 core runs
-- Seed 15: 9 core runs
-- Seed 16: 9 core runs
-- Seed 17: 9 core runs
+**This study contains 37/37 planned core runs:** ✅
+- Seed 13: 1 rerun (structured regression check only)
+- Seeds 14-17: 36 runs (4 seeds × 3 strategies × 3 replicates)
+- Plus: 4 experimental variants (seed14 structured)
 
-**Combined analysis dataset (53 total runs):**
+**Combined analysis dataset (46 total runs):**
 - Canonical seed 13: 9 runs from `experiments/long_corridor_final_20251110T155342Z/`
-- Cross-seed exploration: 44 runs from this study (includes experimental variants and duplicates)
-- **Clean dataset**: 45 runs (9 canonical + 36 from this study, excluding 4 experimental variants and 3 duplicates)
+- Cross-seed exploration: 37 core runs from this study
+- **Clean dataset**: 46 runs (9 canonical + 37 from this study)
 
 **Excluded from core analysis:**
 - 4 experimental structured variants (seed 14: collision_rule, frontier_share, heartbeat, seeded_inbox)
-- 3 duplicate runs from VPN recovery (seed 15)
+- ~~3 duplicate runs from VPN recovery (seed 15)~~ **PURGED**
 
 ## Dataset Details
 
-**Runs analyzed:** 44 from this study (37 core runs excluding experimental variants and duplicates)
+**Runs analyzed:** 41 runs from this study (37 core + 4 experimental variants)
 - **Seeds:** 13, 14, 15, 16, 17 (different agent starting positions)
 - **Strategies:**
   - Structured: INTENT/REQUEST messages with priority rules
@@ -149,7 +147,8 @@ When including the 9 canonical seed 13 runs from `long_corridor_final`:
 
 ## Study Status
 
-✅ **Complete** - All 45 planned runs executed across 5 seeds (13-17)
+✅ **Complete** - All 37 planned core runs executed
 - Final run (seed15_none_run3) completed 2025-11-14 16:58 UTC
-- All data files updated: `run_inventory.json` (44 runs), `aggregate_stats.json` (37 core runs)
-- Documentation finalized
+- Duplicates purged 2025-11-14 17:00 UTC
+- All data files updated: `run_inventory.json` (41 runs with precise UTC timestamps), `aggregate_stats.json` (37 core runs)
+- Documentation finalized with accurate coverage table

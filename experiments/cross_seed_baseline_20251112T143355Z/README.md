@@ -1,7 +1,7 @@
 # Cross-Seed Baseline Study
 
-**Last updated:** 2025-11-14T16:00:00Z
-**Status:** ✅ complete (45/45 runs)
+**Last updated:** 2025-11-14T17:00:00Z
+**Status:** ✅ complete (37/37 core runs)
 **Outcome:** ✓ useful
 **Started:** 2025-11-12
 
@@ -28,7 +28,7 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 - Bearing sensors: no noise (flip/drop/bias all 0.0)
 - History limit: 5 turns
 
-**Design**: 5 seeds × 3 strategies × 3 replicates = 45 runs planned
+**Design**: Seed 13 (1 regression check) + Seeds 14-17 (4 seeds × 3 strategies × 3 replicates) = 37 core runs
 
 **Strategies tested**:
 - `structured`: INTENT (announce moves) + REQUEST (yield/guide negotiations)
@@ -52,11 +52,12 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 | 2025-11-13 01:44-14:42 | Seeds 16-17 relaunched (18 runs total) |
 | 2025-11-13 13:38 | Analysis completed on 43 runs |
 | 2025-11-14 16:08 | **seed15_none_run3 launched** |
-| 2025-11-14 16:58 | **seed15_none_run3 completed - dataset complete (45/45 runs)** |
+| 2025-11-14 16:58 | **seed15_none_run3 completed - dataset complete (37/37 core runs)** |
+| 2025-11-14 17:00 | **Purged 3 duplicates from VPN recovery** |
 
 ## Dataset
 
-**45 runs complete** ✅
+**37 core runs complete** ✅ (plus 4 experimental variants)
 
 **Core baseline runs** (excluding experimental variants and duplicates):
 - Seed 13: 1 rerun (structured only - canonical 9 runs are in long_corridor_final experiment)
@@ -67,17 +68,17 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 
 **Additional runs in directory** (not part of core analysis):
 - Seed 14: 4 experimental variants (collision_rule, frontier_share, heartbeat, seeded_inbox)
-- Seed 15: 3 duplicate runs from VPN recovery (freeform_run2 ×2, structured_run2 ×2, structured_run3 ×2)
+- ~~Seed 15: 3 duplicate runs from VPN recovery~~ **PURGED**
 
-**Total directory contents**: 43 runs
+**Total directory contents**: 41 runs (37 core + 4 experimental)
 
 **Combined with canonical seed 13**: 52 runs total for full cross-seed analysis (9 canonical + 43 from this study)
 
 ## Data Files
 
 **Structured data files:**
-- [`run_inventory.json`](./run_inventory.json) - Complete list of all 43 runs with start/completion timestamps, agent counts, messages, collisions, etc.
-- [`aggregate_stats.json`](./aggregate_stats.json) - Computed statistics by strategy (success rates, message efficiency, collision stats, etc.)
+- [`run_inventory.json`](./run_inventory.json) - Complete list of all 41 runs with UTC timestamps (start/completion), durations, agent counts, messages, collisions
+- [`aggregate_stats.json`](./aggregate_stats.json) - Computed statistics for 37 core runs by strategy (success rates, message efficiency, collision stats)
 
 **Per-run data** (in `runs/[run_dir]/results/`):
 - `metrics.json` - Episode-level metrics (turns, success, messages, collisions, hazard events)
@@ -153,7 +154,7 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 | seed17_none_run2_20251113T144152Z | complete | 3/5 | 0 | |
 | seed17_none_run3_20251113T144225Z | complete | 4/5 | 0 | |
 
-## Results (45 runs from this study - COMPLETE)
+## Results (37 core runs - COMPLETE)
 
 Aggregating core runs only (excluding experimental variants and duplicates):
 
@@ -191,8 +192,10 @@ High variance in message counts and agent completion rates suggests the system h
 - [x] Complete seed 15 runs (9 runs)
 - [x] Complete seed 16 runs (9 runs)
 - [x] Complete seed 17 runs (9 runs)
-- [x] Launch seed15_none_run3 to complete 45-run matrix
-- [x] Recompute aggregate metrics with complete 45-run dataset
+- [x] Launch seed15_none_run3 to complete 37-run matrix
+- [x] Recompute aggregate metrics with complete 37-run dataset
+- [x] Purge 3 duplicate runs from VPN recovery
+- [x] Add precise UTC timestamps with durations
 - [x] Update FINAL_RESULTS.md with complete analysis
 
-**Study complete!** All 45 planned runs executed across 5 seeds.
+**Study complete!** All 37 core runs executed (seed 13: 1 run, seeds 14-17: 36 runs).
