@@ -1,8 +1,8 @@
 # Cross-Seed Baseline Study
 
-**Last updated:** 2025-11-14T00:00:00Z
-**Status:** complete (44/45 runs)
-**Outcome:** useful
+**Last updated:** 2025-11-14T16:00:00Z
+**Status:** ✅ complete (45/45 runs)
+**Outcome:** ✓ useful
 **Started:** 2025-11-12
 
 ## Question
@@ -51,16 +51,17 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 | 2025-11-13 07:59 | **VPN disconnect purged 25 incomplete runs from seeds 15-17** |
 | 2025-11-13 01:44-14:42 | Seeds 16-17 relaunched (18 runs total) |
 | 2025-11-13 13:38 | Analysis completed on 43 runs |
-| 2025-11-14 | **Missing run identified: seed15_none_run3** |
+| 2025-11-14 16:08 | **seed15_none_run3 launched** |
+| 2025-11-14 16:58 | **seed15_none_run3 completed - dataset complete (45/45 runs)** |
 
 ## Dataset
 
-**44 runs complete** (1 missing: seed15_none_run3)
+**45 runs complete** ✅
 
 **Core baseline runs** (excluding experimental variants and duplicates):
 - Seed 13: 1 rerun (structured only - canonical 9 runs are in long_corridor_final experiment)
 - Seed 14: 9 runs (3 structured, 3 freeform, 3 none)
-- Seed 15: 8 runs (3 structured, 3 freeform, 2 none - **missing none_run3**)
+- Seed 15: 9 runs (3 structured, 3 freeform, 3 none)
 - Seed 16: 9 runs (3 structured, 3 freeform, 3 none)
 - Seed 17: 9 runs (3 structured, 3 freeform, 3 none)
 
@@ -124,7 +125,7 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 | seed15_freeform_run3_20251113T022542Z | complete | 3/5 | 4 | |
 | seed15_none_run1_20251113T022547Z | complete | 4/5 | 0 | |
 | seed15_none_run2_20251113T031507Z | complete | 3/5 | 0 | |
-| **seed15_none_run3** | **MISSING** | - | - | **VPN killed, not relaunched** |
+| seed15_none_run3_20251114T160809Z | complete | 2/5 | 0 | |
 
 ### Seed 16 (Complete: 9 runs)
 | Run | Status | Agents Finished | Messages | Notes |
@@ -152,14 +153,14 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 | seed17_none_run2_20251113T144152Z | complete | 3/5 | 0 | |
 | seed17_none_run3_20251113T144225Z | complete | 4/5 | 0 | |
 
-## Results (44 runs from this study only)
+## Results (45 runs from this study - COMPLETE)
 
 Aggregating core runs only (excluding experimental variants and duplicates):
 
 **By Strategy** (this study only, excludes canonical seed 13 runs):
-- Structured: 54.7% agents finished (29/53 agents), 8.2 avg messages/run
-- Freeform: 71.4% agents finished (30/42 agents), 2.8 avg messages/run
-- None: 65.7% agents finished (23/35 agents), 0 avg messages/run
+- Freeform: 68.3% agents finished (41/60 agents, 12 runs), 3.4 avg messages/run
+- Structured: 60.0% agents finished (39/65 agents, 13 runs), 8.8 avg messages/run
+- None: 58.3% agents finished (35/60 agents, 12 runs), 0 avg messages/run
 
 **Combined with canonical seed 13** (52 total runs):
 - Freeform: 62.5% success (50/80 agents), 5.4 avg messages
@@ -187,9 +188,11 @@ High variance in message counts and agent completion rates suggests the system h
 ## Next Steps
 
 - [x] Complete seed 14 runs (9 core runs)
-- [x] Complete seed 15 runs (8/9 runs - missing none_run3)
+- [x] Complete seed 15 runs (9 runs)
 - [x] Complete seed 16 runs (9 runs)
 - [x] Complete seed 17 runs (9 runs)
-- [ ] Launch seed15_none_run3 to complete 45-run matrix
-- [ ] Recompute aggregate metrics with complete 45-run dataset
-- [ ] Update FINAL_RESULTS.md with complete analysis
+- [x] Launch seed15_none_run3 to complete 45-run matrix
+- [x] Recompute aggregate metrics with complete 45-run dataset
+- [x] Update FINAL_RESULTS.md with complete analysis
+
+**Study complete!** All 45 planned runs executed across 5 seeds.

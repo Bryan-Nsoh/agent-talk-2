@@ -1,7 +1,7 @@
 # Cross-Seed Baseline Study: Final Results
 
-**Last updated:** 2025-11-14T00:00:00Z
-**Status:** ⚠️ incomplete (44/45 runs)
+**Last updated:** 2025-11-14T16:00:00Z
+**Status:** ✅ complete (45/45 runs)
 **Outcome:** ✓ useful - Canonical seed 13 was an outlier; freeform communication wins
 
 ## Executive Summary
@@ -10,20 +10,17 @@ Tested communication strategies across 5 different agent spawn seeds (13-17) to 
 
 ## Dataset Composition
 
-**This study contains 44/45 planned runs:**
+**This study contains 45/45 planned runs:** ✅
 - Seed 13: 1 rerun (structured only)
 - Seed 14: 9 core runs
-- Seed 15: **8 core runs** (missing none_run3)
+- Seed 15: 9 core runs
 - Seed 16: 9 core runs
 - Seed 17: 9 core runs
 
-**Combined analysis dataset (52 total runs):**
+**Combined analysis dataset (53 total runs):**
 - Canonical seed 13: 9 runs from `experiments/long_corridor_final_20251110T155342Z/`
-- Cross-seed exploration: 43 runs from this study (includes experimental variants and duplicates)
-- **Clean dataset**: 44 runs (9 canonical + 35 from this study, excluding 4 experimental variants and 3 duplicates)
-
-**Missing data:**
-- `seed15_none_run3` - VPN killed during execution, not relaunched
+- Cross-seed exploration: 44 runs from this study (includes experimental variants and duplicates)
+- **Clean dataset**: 45 runs (9 canonical + 36 from this study, excluding 4 experimental variants and 3 duplicates)
 
 **Excluded from core analysis:**
 - 4 experimental structured variants (seed 14: collision_rule, frontier_share, heartbeat, seeded_inbox)
@@ -31,7 +28,7 @@ Tested communication strategies across 5 different agent spawn seeds (13-17) to 
 
 ## Dataset Details
 
-**Runs analyzed:** 43 from this study
+**Runs analyzed:** 44 from this study (37 core runs excluding experimental variants and duplicates)
 - **Seeds:** 13, 14, 15, 16, 17 (different agent starting positions)
 - **Strategies:**
   - Structured: INTENT/REQUEST messages with priority rules
@@ -45,9 +42,9 @@ Tested communication strategies across 5 different agent spawn seeds (13-17) to 
 
 | Rank | Strategy | Success Rate | Runs | Multiplier vs Baseline |
 |------|----------|--------------|------|------------------------|
-| 🥇 1 | Freeform | 69.2% (45/65) | 13 | 1.26x |
-| 🥈 2 | None | 60.0% (33/55) | 11 | 1.10x |
-| 🥉 3 | Structured | 54.7% (52/95) | 19 | 1.00x (baseline) |
+| 🥇 1 | Freeform | 68.3% (41/60) | 12 | 1.14x |
+| 🥈 2 | Structured | 60.0% (39/65) | 13 | 1.00x (baseline) |
+| 🥉 3 | None | 58.3% (35/60) | 12 | 0.97x |
 
 ### Communication Efficiency
 
@@ -150,8 +147,9 @@ When including the 9 canonical seed 13 runs from `long_corridor_final`:
 - Loop guidance: explore (aggressive escape from loops)
 - No bearing perturbations (flip/drop/bias all 0.0)
 
-## Next Steps
+## Study Status
 
-- [ ] Launch seed15_none_run3 to complete 45-run matrix
-- [ ] Recompute metrics with complete dataset
-- [ ] Regenerate visualizations if metrics change significantly
+✅ **Complete** - All 45 planned runs executed across 5 seeds (13-17)
+- Final run (seed15_none_run3) completed 2025-11-14 16:58 UTC
+- All data files updated: `run_inventory.json` (44 runs), `aggregate_stats.json` (37 core runs)
+- Documentation finalized

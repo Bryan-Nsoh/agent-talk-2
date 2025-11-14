@@ -1,6 +1,6 @@
 {
   "experiment": "cross_seed_baseline_20251112T143355Z",
-  "total_runs": 43,
+  "total_runs": 44,
   "runs": [
     {
       "run_dir": "seed13_structured_rerun_20251112T195905Z",
@@ -301,6 +301,21 @@
       "collisions": 18,
       "hazard_events": 9,
       "contended_exposures": 19
+    },
+    {
+      "run_dir": "seed15_none_run3_20251114T160809Z",
+      "seed": 15,
+      "strategy": "none",
+      "started_utc": "2025-11-14T16:08:09Z",
+      "completed_local": "2025-11-14 11:58:22",
+      "episode_success": false,
+      "agents_finished": 2,
+      "agents_total": 5,
+      "turns": 100,
+      "messages_sent": 0,
+      "collisions": 17,
+      "hazard_events": 8,
+      "contended_exposures": 16
     },
     {
       "run_dir": "seed15_structured_run1_20251113T022522Z",

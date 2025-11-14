@@ -1,7 +1,7 @@
 {
   "experiment": "cross_seed_baseline_20251112T143355Z",
   "dataset": {
-    "core_runs": 36,
+    "core_runs": 37,
     "seeds_tested": [
       13,
       14,
@@ -70,29 +70,29 @@
       }
     },
     "none": {
-      "runs": 11,
-      "agents_total": 55,
-      "agents_finished": 33,
-      "success_rate": 60.0,
+      "runs": 12,
+      "agents_total": 60,
+      "agents_finished": 35,
+      "success_rate": 58.3,
       "messages_per_run": {
         "mean": 0,
         "stdev": 0.0,
         "min": 0,
         "max": 0,
-        "median": 0
+        "median": 0.0
       },
       "messages_per_finished_agent": 0.0,
       "collisions_per_run": {
-        "mean": 18.1,
-        "stdev": 14.6
+        "mean": 18,
+        "stdev": 13.9
       },
       "hazard_events_per_run": {
         "mean": 8.8,
-        "stdev": 7.0
+        "stdev": 6.6
       },
       "contended_exposures_per_run": {
-        "mean": 17.6,
-        "stdev": 14.0
+        "mean": 17.5,
+        "stdev": 13.4
       }
     }
   },
@@ -107,7 +107,7 @@
     },
     {
       "strategy": "none",
-      "success_rate": 60.0
+      "success_rate": 58.3
     }
   ]
 }
