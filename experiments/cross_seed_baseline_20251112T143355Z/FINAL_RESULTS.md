@@ -1,6 +1,6 @@
 # Cross-Seed Baseline Study: Final Results
 
-**Last updated:** 2025-11-14T18:40:00Z
+**Last updated:** 2025-11-14T20:54:00Z
 **Status:** ✅ complete (45/45 runs)
 **Outcome:** ✓ useful - Freeform communication outperforms structured across all 5 seeds
 
