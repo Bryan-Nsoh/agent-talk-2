@@ -1,0 +1,113 @@
+{
+  "experiment": "cross_seed_baseline_20251112T143355Z",
+  "dataset": {
+    "core_runs": 36,
+    "seeds_tested": [
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "strategies": [
+      "structured",
+      "freeform",
+      "none"
+    ],
+    "note": "Excludes 4 experimental variants and 3 duplicate runs from VPN recovery"
+  },
+  "aggregate_by_strategy": {
+    "structured": {
+      "runs": 13,
+      "agents_total": 65,
+      "agents_finished": 39,
+      "success_rate": 60.0,
+      "messages_per_run": {
+        "mean": 7.2,
+        "stdev": 6.9,
+        "min": 0,
+        "max": 23,
+        "median": 5
+      },
+      "messages_per_finished_agent": 2.41,
+      "collisions_per_run": {
+        "mean": 15.5,
+        "stdev": 7.1
+      },
+      "hazard_events_per_run": {
+        "mean": 7.4,
+        "stdev": 3.4
+      },
+      "contended_exposures_per_run": {
+        "mean": 14.8,
+        "stdev": 6.9
+      }
+    },
+    "freeform": {
+      "runs": 12,
+      "agents_total": 60,
+      "agents_finished": 41,
+      "success_rate": 68.3,
+      "messages_per_run": {
+        "mean": 3.4,
+        "stdev": 4.4,
+        "min": 0,
+        "max": 15,
+        "median": 2.5
+      },
+      "messages_per_finished_agent": 1.0,
+      "collisions_per_run": {
+        "mean": 14.4,
+        "stdev": 12.0
+      },
+      "hazard_events_per_run": {
+        "mean": 6.8,
+        "stdev": 5.8
+      },
+      "contended_exposures_per_run": {
+        "mean": 13.8,
+        "stdev": 11.8
+      }
+    },
+    "none": {
+      "runs": 11,
+      "agents_total": 55,
+      "agents_finished": 33,
+      "success_rate": 60.0,
+      "messages_per_run": {
+        "mean": 0,
+        "stdev": 0.0,
+        "min": 0,
+        "max": 0,
+        "median": 0
+      },
+      "messages_per_finished_agent": 0.0,
+      "collisions_per_run": {
+        "mean": 18.1,
+        "stdev": 14.6
+      },
+      "hazard_events_per_run": {
+        "mean": 8.8,
+        "stdev": 7.0
+      },
+      "contended_exposures_per_run": {
+        "mean": 17.6,
+        "stdev": 14.0
+      }
+    }
+  },
+  "ranking": [
+    {
+      "strategy": "freeform",
+      "success_rate": 68.3
+    },
+    {
+      "strategy": "structured",
+      "success_rate": 60.0
+    },
+    {
+      "strategy": "none",
+      "success_rate": 60.0
+    }
+  ]
+}

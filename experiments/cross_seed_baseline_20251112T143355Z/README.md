@@ -72,6 +72,23 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 
 **Combined with canonical seed 13**: 52 runs total for full cross-seed analysis (9 canonical + 43 from this study)
 
+## Data Files
+
+**Structured data files:**
+- [`run_inventory.json`](./run_inventory.json) - Complete list of all 43 runs with start/completion timestamps, agent counts, messages, collisions, etc.
+- [`aggregate_stats.json`](./aggregate_stats.json) - Computed statistics by strategy (success rates, message efficiency, collision stats, etc.)
+
+**Per-run data** (in `runs/[run_dir]/results/`):
+- `metrics.json` - Episode-level metrics (turns, success, messages, collisions, hazard events)
+- `episode.json` - Full episode log with all frames and agent states
+- `episode_stream.jsonl` - Per-turn movement data (streaming format)
+- `transcript.jsonl` - LLM prompts and responses for each agent decision
+
+**Visualizations:**
+- `all_runs_analysis.png` - Individual run scatter plots
+- `complete_analysis_with_canonical.png` - Combined analysis (52 runs)
+- `per_seed_breakdown.png` - Success rates by seed
+
 ## Runs
 
 ### Seed 13 (Regression Check)
