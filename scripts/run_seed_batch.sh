@@ -17,7 +17,7 @@ SEED=$1
 # Load environment variables
 set -a && source ~/.env && set +a
 
-EXPERIMENT_DIR="experiments/robustness_study_20251112T143355Z"
+EXPERIMENT_DIR="experiments/cross_seed_baseline_20251112T143355Z"
 mkdir -p "${EXPERIMENT_DIR}/runs"
 
 echo "========================================"

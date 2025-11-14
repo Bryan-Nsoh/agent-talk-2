@@ -1,19 +1,24 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-12T20:34:35Z
+**Last updated:** 2025-11-14T00:00:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
 > WARNING: **Engine change (2025-11-06):** Commits `0a0e38d`, `5291aea`, and `e4ce883` corrected multiple simulation defects (frozen orientations, message ages, LLM-owned `seq`, idle sprites). Any runs recorded before 2025-11-06 must be rerun under the fixed engine; treat existing tables as legacy references only.
 
-## VALIDATED: Structured Communication Outperforms Freeform and None
+## Communication Strategy Results
 
-**DEFINITIVE RESULT (commit fe3ffda):**
-- STRUCTURED: 73% success (11/15 agents finished) - WINNER
+**Canonical seed 13 result (commit fe3ffda):**
+- STRUCTURED: 73% success (11/15 agents finished)
 - Freeform: 33% success (5/15 agents finished)
 - None: 20% success (3/15 agents finished)
 
-Triple-replication study with 9 parallel runs (3 per strategy) proves structured communication with priority clarification is reproducibly superior. This is the validated baseline for all future communication experiments. See [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) for complete documentation.
+**Cross-seed generalization test (seeds 13-17, 52 total runs):**
+- FREEFORM: 62.5% success (50/80 agents) - WINNER
+- Structured: 57.3% success (63/110 agents)
+- None: 51.4% success (36/70 agents)
+
+Canonical seed 13 showed structured winning, but testing across 5 different spawn seeds reverses the ranking. Freeform communication generalizes better across scenarios. See [cross_seed_baseline_20251112T143355Z](./cross_seed_baseline_20251112T143355Z/) for full analysis.
 
 ## Experiments
 
@@ -21,8 +26,8 @@ Triple-replication study with 9 parallel runs (3 per strategy) proves structured
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
-| 2025-11-12 | [robustness_study_20251112T143355Z](./robustness_study_20251112T143355Z/) | running | - | Seed 14 replication + seed 13 regression check in flight; extending communication study across seeds 13-17 |
-| **2025-11-10** | [**long_corridor_final_20251110T155342Z**](./long_corridor_final_20251110T155342Z/) | complete | **VALIDATED** | **DEFINITIVE: structured 73%, freeform 33%, none 20%** (commit fe3ffda) |
+| **2025-11-12** | [**cross_seed_baseline_20251112T143355Z**](./cross_seed_baseline_20251112T143355Z/) | complete (44/45) | **useful** | **Cross-seed test: freeform 62.5%, structured 57.3%, none 51.4% (52 runs across 5 seeds)** |
+| 2025-11-10 | [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) | complete | useful | Canonical seed 13: structured 73%, freeform 33%, none 20% (9 runs, seed-specific) |
 | 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | complete | useful | Exploratory: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 419c6aa) |
 
 ### Other Experiments

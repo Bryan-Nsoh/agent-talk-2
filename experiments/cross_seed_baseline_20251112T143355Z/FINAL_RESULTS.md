@@ -1,18 +1,39 @@
-# Robustness Study: Final Results
+# Cross-Seed Baseline Study: Final Results
 
-**Last updated:** 2025-11-13T10:45:00Z  
-**Status:** ✅ complete  
+**Last updated:** 2025-11-14T00:00:00Z
+**Status:** ⚠️ incomplete (44/45 runs)
 **Outcome:** ✓ useful - Canonical seed 13 was an outlier; freeform communication wins
 
 ## Executive Summary
 
 Tested communication strategies across 5 different agent spawn seeds (13-17) to determine if canonical seed 13 results generalize. **Key finding: Freeform communication (69.2% success) significantly outperforms structured protocols (54.7%), despite using 62% fewer messages.**
 
-## Dataset
+## Dataset Composition
 
-- **Total runs:** 43 (3 reps × 3 strategies × 5 seeds, with some missing data)
+**This study contains 44/45 planned runs:**
+- Seed 13: 1 rerun (structured only)
+- Seed 14: 9 core runs
+- Seed 15: **8 core runs** (missing none_run3)
+- Seed 16: 9 core runs
+- Seed 17: 9 core runs
+
+**Combined analysis dataset (52 total runs):**
+- Canonical seed 13: 9 runs from `experiments/long_corridor_final_20251110T155342Z/`
+- Cross-seed exploration: 43 runs from this study (includes experimental variants and duplicates)
+- **Clean dataset**: 44 runs (9 canonical + 35 from this study, excluding 4 experimental variants and 3 duplicates)
+
+**Missing data:**
+- `seed15_none_run3` - VPN killed during execution, not relaunched
+
+**Excluded from core analysis:**
+- 4 experimental structured variants (seed 14: collision_rule, frontier_share, heartbeat, seeded_inbox)
+- 3 duplicate runs from VPN recovery (seed 15)
+
+## Dataset Details
+
+**Runs analyzed:** 43 from this study
 - **Seeds:** 13, 14, 15, 16, 17 (different agent starting positions)
-- **Strategies:** 
+- **Strategies:**
   - Structured: INTENT/REQUEST messages with priority rules
   - Freeform: Natural language CHAT messages
   - None: No radio (radio_range=0)
@@ -74,14 +95,14 @@ Collision rates are similar across strategies, suggesting communication doesn't 
 
 4. **Canonical Seed 13 Was an Outlier**
    - Original result: 4/5 agents (80%) with ~21 messages
-   - Robustness study: avg 2.7/5 agents (54%) with 8.8 messages
+   - Cross-seed study: avg 2.7/5 agents (54%) with 8.8 messages
    - Single-seed results can be highly misleading
 
 5. **High LLM Variance**
    - Structured messages: 0-23 range (median 7)
    - Freeform messages: 0-15 range (median 3)
    - Standard deviations comparable to means
-   - Suggests time-of-day effects or backend non-determinism
+   - Suggests time-of-day effects or backend variation
 
 ## Per-Seed Breakdown
 
@@ -94,6 +115,18 @@ Collision rates are similar across strategies, suggesting communication doesn't 
 | 17 | 2.7/5 (8.7 msgs) | 2.7/5 (7.0 msgs) | 1.7/5 (0 msgs) |
 
 Performance varies significantly by seed, but freeform maintains advantage across most seeds.
+
+## Combined Analysis (with Canonical Seed 13)
+
+When including the 9 canonical seed 13 runs from `long_corridor_final`:
+
+| Strategy | Success Rate | Total Agents | Avg Messages |
+|----------|--------------|--------------|--------------|
+| Freeform | 62.5% (50/80) | 80 | 5.4 |
+| Structured | 57.3% (63/110) | 110 | 9.9 |
+| None | 51.4% (36/70) | 70 | 0.0 |
+
+**Total combined dataset:** 52 runs (9 canonical + 43 from this study)
 
 ## Implications
 
@@ -117,3 +150,8 @@ Performance varies significantly by seed, but freeform maintains advantage acros
 - Loop guidance: explore (aggressive escape from loops)
 - No bearing perturbations (flip/drop/bias all 0.0)
 
+## Next Steps
+
+- [ ] Launch seed15_none_run3 to complete 45-run matrix
+- [ ] Recompute metrics with complete dataset
+- [ ] Regenerate visualizations if metrics change significantly
