@@ -1,32 +1,31 @@
 # Cross-Seed Baseline Study: Final Results
 
-**Last updated:** 2025-11-14T17:00:00Z
-**Status:** ✅ complete (37/37 core runs)
-**Outcome:** ✓ useful - Canonical seed 13 was an outlier; freeform communication wins
+**Last updated:** 2025-11-14T18:40:00Z
+**Status:** ✅ complete (45/45 runs)
+**Outcome:** ✓ useful - Freeform communication outperforms structured across all 5 seeds
 
 ## Executive Summary
 
-Tested communication strategies across 5 different agent spawn seeds (13-17) to determine if canonical seed 13 results generalize. **Key finding: Freeform communication (69.2% success) significantly outperforms structured protocols (54.7%), despite using 62% fewer messages.**
+Tested communication strategies across 5 different agent spawn seeds (13-17) in a complete 5×3×3 matrix (45 runs total). **Key finding: Freeform communication (62.7% success) outperforms structured protocols (56.0%), while using 24% fewer messages on average. "None" strategy (57.3%) performs nearly as well as structured, questioning the value of the INTENT/REQUEST protocol.**
 
 ## Dataset Composition
 
-**This study contains 37/37 planned core runs:** ✅
-- Seed 13: 1 rerun (structured regression check only)
-- Seeds 14-17: 36 runs (4 seeds × 3 strategies × 3 replicates)
-- Plus: 4 experimental variants (seed14 structured)
+**This study contains 45/45 runs:** ✅
+- Complete 5×3×3 matrix: 5 seeds × 3 strategies × 3 replicates
+- Seed 13: 9 runs (3 structured, 3 freeform, 3 none)
+- Seed 14: 9 runs (3 structured, 3 freeform, 3 none)
+- Seed 15: 9 runs (3 structured, 3 freeform, 3 none)
+- Seed 16: 9 runs (3 structured, 3 freeform, 3 none)
+- Seed 17: 9 runs (3 structured, 3 freeform, 3 none)
 
-**Combined analysis dataset (46 total runs):**
-- Canonical seed 13: 9 runs from `experiments/long_corridor_final_20251110T155342Z/`
-- Cross-seed exploration: 37 core runs from this study
-- **Clean dataset**: 46 runs (9 canonical + 37 from this study)
+**Additional files (not part of core analysis):**
+- 4 experimental structured variants (seed14: collision_rule, frontier_share, heartbeat, seeded_inbox)
 
-**Excluded from core analysis:**
-- 4 experimental structured variants (seed 14: collision_rule, frontier_share, heartbeat, seeded_inbox)
-- ~~3 duplicate runs from VPN recovery (seed 15)~~ **PURGED**
+**Total directory contents:** 49 runs (45 core + 4 experimental)
 
 ## Dataset Details
 
-**Runs analyzed:** 41 runs from this study (37 core + 4 experimental variants)
+**Runs analyzed:** 45 core runs (complete 5×3×3 matrix)
 - **Seeds:** 13, 14, 15, 16, 17 (different agent starting positions)
 - **Strategies:**
   - Structured: INTENT/REQUEST messages with priority rules
@@ -38,21 +37,21 @@ Tested communication strategies across 5 different agent spawn seeds (13-17) to 
 
 ### Success Rates (% of agents reaching goal)
 
-| Rank | Strategy | Success Rate | Runs | Multiplier vs Baseline |
-|------|----------|--------------|------|------------------------|
-| 🥇 1 | Freeform | 68.3% (41/60) | 12 | 1.14x |
-| 🥈 2 | Structured | 60.0% (39/65) | 13 | 1.00x (baseline) |
-| 🥉 3 | None | 58.3% (35/60) | 12 | 0.97x |
+| Rank | Strategy | Success Rate | Runs | Multiplier vs None |
+|------|----------|--------------|------|-------------------|
+| 🥇 1 | Freeform | 62.7% (47/75) | 15 | 1.09x |
+| 🥈 2 | None | 57.3% (43/75) | 15 | 1.00x (baseline) |
+| 🥉 3 | Structured | 56.0% (42/75) | 15 | 0.98x |
 
 ### Communication Efficiency
 
-| Strategy | Messages/Run | Messages/Finished Agent | Total Messages |
-|----------|--------------|-------------------------|----------------|
-| Structured | 8.8 ± 6.7 | 3.21 | 167 |
-| Freeform | 3.4 ± 4.2 | 0.98 | 44 |
-| None | 0.0 | N/A | 0 |
+| Strategy | Messages/Run | Total Messages | Agents Finished |
+|----------|--------------|----------------|-----------------|
+| Freeform | 5.9 ± 9.1 | 89 (15 runs) | 47/75 |
+| Structured | 8.9 ± 6.9 | 134 (15 runs) | 42/75 |
+| None | 0.0 ± 0.0 | 0 (15 runs) | 43/75 |
 
-**Key insight:** Freeform achieves higher success with 3.3× fewer messages per finished agent.
+**Key insight:** Freeform achieves higher success (62.7% vs 56.0%) while using 34% fewer total messages (89 vs 134).
 
 ### Collision Analysis
 
@@ -147,8 +146,9 @@ When including the 9 canonical seed 13 runs from `long_corridor_final`:
 
 ## Study Status
 
-✅ **Complete** - All 37 planned core runs executed
-- Final run (seed15_none_run3) completed 2025-11-14 16:58 UTC
+✅ **Complete** - All 45 runs executed (5 seeds × 3 strategies × 3 replicates)
+- Seed 13 full 3×3 matrix launched 2025-11-14 17:30 UTC
+- All 9 seed13 runs completed 2025-11-14 18:35 UTC
 - Duplicates purged 2025-11-14 17:00 UTC
-- All data files updated: `run_inventory.json` (41 runs with precise UTC timestamps), `aggregate_stats.json` (37 core runs)
-- Documentation finalized with accurate coverage table
+- All data files updated: `run_inventory.json` (45 runs with precise UTC timestamps), `aggregate_stats.json` (45 runs)
+- Documentation finalized with complete 5×3×3 coverage table

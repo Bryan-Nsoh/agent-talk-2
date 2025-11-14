@@ -1,7 +1,7 @@
 {
   "experiment": "cross_seed_baseline_20251112T143355Z",
   "dataset": {
-    "core_runs": 37,
+    "core_runs": 45,
     "seeds_tested": [
       13,
       14,
@@ -10,104 +10,80 @@
       17
     ],
     "strategies": [
-      "structured",
       "freeform",
-      "none"
-    ],
-    "note": "Excludes 4 experimental variants and 3 duplicate runs from VPN recovery"
+      "none",
+      "structured"
+    ]
   },
   "aggregate_by_strategy": {
-    "structured": {
-      "runs": 13,
-      "agents_total": 65,
-      "agents_finished": 39,
-      "success_rate": 60.0,
-      "messages_per_run": {
-        "mean": 7.2,
-        "stdev": 6.9,
-        "min": 0,
-        "max": 23,
-        "median": 5
-      },
-      "messages_per_finished_agent": 2.41,
-      "collisions_per_run": {
-        "mean": 15.5,
-        "stdev": 7.1
-      },
-      "hazard_events_per_run": {
-        "mean": 7.4,
-        "stdev": 3.4
-      },
-      "contended_exposures_per_run": {
-        "mean": 14.8,
-        "stdev": 6.9
-      }
-    },
     "freeform": {
-      "runs": 12,
-      "agents_total": 60,
-      "agents_finished": 41,
-      "success_rate": 68.3,
+      "runs": 15,
+      "agents_total": 75,
+      "agents_finished": 47,
+      "success_rate": 62.7,
       "messages_per_run": {
-        "mean": 3.4,
-        "stdev": 4.4,
+        "mean": 5.9,
+        "stdev": 9.1,
         "min": 0,
-        "max": 15,
-        "median": 2.5
+        "max": 35
       },
-      "messages_per_finished_agent": 1.0,
       "collisions_per_run": {
-        "mean": 14.4,
-        "stdev": 12.0
+        "mean": 18.1,
+        "stdev": 14.9,
+        "min": 0,
+        "max": 48
       },
-      "hazard_events_per_run": {
-        "mean": 6.8,
-        "stdev": 5.8
-      },
-      "contended_exposures_per_run": {
-        "mean": 13.8,
-        "stdev": 11.8
+      "duration_minutes": {
+        "mean": 73.5,
+        "min": 37.7,
+        "max": 189.7
       }
     },
     "none": {
-      "runs": 12,
-      "agents_total": 60,
-      "agents_finished": 35,
-      "success_rate": 58.3,
+      "runs": 15,
+      "agents_total": 75,
+      "agents_finished": 43,
+      "success_rate": 57.3,
       "messages_per_run": {
         "mean": 0,
         "stdev": 0.0,
         "min": 0,
-        "max": 0,
-        "median": 0.0
+        "max": 0
       },
-      "messages_per_finished_agent": 0.0,
       "collisions_per_run": {
-        "mean": 18,
-        "stdev": 13.9
+        "mean": 18.4,
+        "stdev": 13.6,
+        "min": 0,
+        "max": 49
       },
-      "hazard_events_per_run": {
-        "mean": 8.8,
-        "stdev": 6.6
+      "duration_minutes": {
+        "mean": 57.0,
+        "min": 30.3,
+        "max": 151.6
+      }
+    },
+    "structured": {
+      "runs": 15,
+      "agents_total": 75,
+      "agents_finished": 42,
+      "success_rate": 56.0,
+      "messages_per_run": {
+        "mean": 8.9,
+        "stdev": 6.9,
+        "min": 0,
+        "max": 23
       },
-      "contended_exposures_per_run": {
-        "mean": 17.5,
-        "stdev": 13.4
+      "collisions_per_run": {
+        "mean": 16.3,
+        "stdev": 7.0,
+        "min": 0,
+        "max": 25
+      },
+      "duration_minutes": {
+        "mean": 55.3,
+        "min": 35.9,
+        "max": 95.8
       }
     }
-  },
-  "ranking": [
-    {
-      "strategy": "freeform",
-      "success_rate": 68.3
-    },
-    {
-      "strategy": "structured",
-      "success_rate": 60.0
-    },
-    {
-      "strategy": "none",
-      "success_rate": 58.3
-    }
-  ]
+  }
 }
