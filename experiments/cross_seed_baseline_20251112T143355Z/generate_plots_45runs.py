@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Generate refined, high-clarity plots for cross-seed baseline study.
-Adapted from analysis/claude_generate_plots.py to work with 45 runs.
+Generate refined, high-clarity plots for the cross-seed baseline study.
+Adapted from the earlier plotting utility to work with 45 runs.
 Uses tiktoken o200k_base tokenizer for accurate token counting.
 """
 
@@ -23,7 +23,7 @@ plt.rcParams['axes.grid'] = True
 plt.rcParams['grid.alpha'] = 0.3
 
 EXPERIMENT_ROOT = Path(__file__).parent / "runs"
-OUTPUT_DIR = Path(__file__).parent / "claude_plots"
+OUTPUT_DIR = Path(__file__).parent / "plots"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 # Initialize tokenizer
