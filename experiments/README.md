@@ -1,6 +1,6 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-14T00:00:00Z
+**Last updated:** 2025-11-14T20:54:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
@@ -13,12 +13,12 @@ This document is the complete reference for running experiments, managing long-r
 - Freeform: 33% success (5/15 agents finished)
 - None: 20% success (3/15 agents finished)
 
-**Cross-seed generalization test (seeds 13-17, 52 total runs):**
-- FREEFORM: 62.5% success (50/80 agents) - WINNER
-- Structured: 57.3% success (63/110 agents)
-- None: 51.4% success (36/70 agents)
+**Cross-seed generalization test (seeds 13-17, 45 total runs):**
+- FREEFORM: 62.7% success (47/75 agents) - WINNER
+- None: 57.3% success (43/75 agents)
+- Structured: 56.0% success (42/75 agents)
 
-Canonical seed 13 showed structured winning, but testing across 5 different spawn seeds reverses the ranking. Freeform communication generalizes better across scenarios. See [cross_seed_baseline_20251112T143355Z](./cross_seed_baseline_20251112T143355Z/) for full analysis.
+Canonical seed 13 showed structured winning (73%), but testing across 5 different spawn seeds reverses the ranking. Freeform communication generalizes better across scenarios, and "none" performs nearly as well as structured (questioning the value of the INTENT/REQUEST protocol). See [cross_seed_baseline_20251112T143355Z](./cross_seed_baseline_20251112T143355Z/) for full analysis with token-counted visualizations.
 
 ## Experiments
 
@@ -26,7 +26,7 @@ Canonical seed 13 showed structured winning, but testing across 5 different spaw
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
-| **2025-11-12** | [**cross_seed_baseline_20251112T143355Z**](./cross_seed_baseline_20251112T143355Z/) | complete (44/45) | **useful** | **Cross-seed test: freeform 62.5%, structured 57.3%, none 51.4% (52 runs across 5 seeds)** |
+| **2025-11-12** | [**cross_seed_baseline_20251112T143355Z**](./cross_seed_baseline_20251112T143355Z/) | **✅ complete (45/45)** | **✓ useful** | **Cross-seed test: freeform 62.7%, none 57.3%, structured 56.0% (45 runs, 5 seeds, with token counting)** |
 | 2025-11-10 | [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) | complete | useful | Canonical seed 13: structured 73%, freeform 33%, none 20% (9 runs, seed-specific) |
 | 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | complete | useful | Exploratory: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 419c6aa) |
 

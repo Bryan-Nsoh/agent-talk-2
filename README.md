@@ -2,6 +2,19 @@
 
 This repository explores populations of LLM-driven agents that navigate fixed grid worlds with local observability, range-limited communication, and short-lived artifacts. The codebase is structured for repeatable experiments, strict JSON I/O via Pydantic models, and OpenRouter/Azure-based inference.
 
+## Key Results
+
+**Cross-Seed Baseline Study (45 runs, Nov 2025):**
+- 🥇 Freeform communication: **62.7% success**
+- 🥈 No communication: **57.3% success**
+- 🥉 Structured INTENT/REQUEST: **56.0% success**
+
+**Finding:** Freeform natural language communication generalizes better than structured protocols. Structured messages provide minimal benefit over no communication.
+
+📊 **[See full results →](./experiments/cross_seed_baseline_20251112T143355Z/)**
+
+---
+
 ## Quick Start
 
 1. Install [uv](https://docs.astral.sh/uv/)
@@ -38,6 +51,13 @@ PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
 **Important:** `--log-prompts` and `--log-movements` require `--emit-config`. The CLI fails fast if you forget.
 
 Azure users: use `--model azure:gpt-5-mini` (or your deployment name).
+
+## Experiments & Results
+
+All experiment documentation and results are in [`experiments/`](./experiments/):
+
+- **[experiments/README.md](./experiments/README.md)** - Master experiment index
+- **[cross_seed_baseline_20251112T143355Z/](./experiments/cross_seed_baseline_20251112T143355Z/)** - Final communication strategy study (45 runs)
 
 ### Visualising Runs
 
