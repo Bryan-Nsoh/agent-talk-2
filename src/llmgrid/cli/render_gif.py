@@ -25,8 +25,12 @@ def main(
     no_auras: bool = typer.Option(False, "--no-auras", help="Disable visibility auras."),
     no_grid: bool = typer.Option(False, "--no-grid", help="Disable grid lines."),
     title: Optional[str] = typer.Option(None, "--title", help="Override episode title."),
+    transcript: Optional[Path] = typer.Option(None, "--transcript", help="Path to transcript.jsonl (auto-detected if in same dir)."),
+    comms_panel: bool = typer.Option(True, "--comms-panel/--no-comms-panel", help="Show communications panel at bottom."),
+    comms_height: int = typer.Option(200, "--comms-height", help="Height of communications panel in pixels."),
+    font_size: int = typer.Option(28, "--font-size", help="Font size for text in panels."),
 ):
-    """Render an EpisodeLog JSON into an annotated animated GIF."""
+    """Render an EpisodeLog JSON into an annotated animated GIF with communications timeline."""
 
     try:
         data = json.loads(episode.read_text(encoding="utf-8"))
@@ -44,19 +48,45 @@ def main(
     if title:
         ep.meta.title = title
 
+    # Auto-detect transcript.jsonl in same directory as episode.json
+    transcript_path: Optional[Path] = transcript
+    if transcript_path is None and comms_panel:
+        auto_transcript = episode.parent / "transcript.jsonl"
+        if auto_transcript.exists():
+            transcript_path = auto_transcript
+            typer.secho(f"Auto-detected transcript: {auto_transcript}", fg=typer.colors.BLUE)
+
+    # Auto-detect model from metrics.json in same directory
+    model_name: Optional[str] = None
+    metrics_path = episode.parent / "metrics.json"
+    if metrics_path.exists():
+        try:
+            metrics_data = json.loads(metrics_path.read_text(encoding="utf-8"))
+            model_name = metrics_data.get("model")
+            if model_name:
+                typer.secho(f"Detected model: {model_name}", fg=typer.colors.BLUE)
+        except Exception:
+            pass  # If metrics can't be read, just skip
+
     options = RenderOptions(
         cell_size=cell_size,
         fps=fps,
         show_gradient=gradient,
         show_auras=not no_auras,
         show_gridlines=not no_grid,
+        show_comms_panel=comms_panel,
+        comms_panel_height=comms_height,
+        font_size=font_size,
+        show_legend=not comms_panel,  # Use legacy legend if comms panel disabled
     )
 
-    renderer = GifRenderer(ep, options)
+    renderer = GifRenderer(ep, options, transcript_path=transcript_path, model_name=model_name)
     frames = renderer.render_frames()
     out.parent.mkdir(parents=True, exist_ok=True)
     renderer.save_gif(frames, str(out))
-    typer.secho(f"Wrote {out} with {len(frames)} frames at {fps} fps", fg=typer.colors.GREEN)
+
+    msg_count = sum(len(msgs) for msgs in renderer.messages_by_turn.values())
+    typer.secho(f"Wrote {out} with {len(frames)} frames at {fps} fps ({msg_count} messages)", fg=typer.colors.GREEN)
 
 
 if __name__ == "__main__":

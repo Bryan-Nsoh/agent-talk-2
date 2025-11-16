@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -43,12 +44,15 @@ class RenderOptions:
     show_auras: bool = True
     show_gridlines: bool = True
     fps: int = 6
-    font_size: int = 14
+    font_size: int = 28  # Bumped to 28 for better readability
     show_legend: bool = True
+    show_comms_panel: bool = True  # Show split bottom panel with communications
+    comms_panel_height: int = 200  # Height of bottom communications panel
+    show_comm_indicators: bool = True  # Visual indicators in grid for send/receive
 
 
 class GifRenderer:
-    def __init__(self, episode: EpisodeLog, options: Optional[RenderOptions] = None):
+    def __init__(self, episode: EpisodeLog, options: Optional[RenderOptions] = None, transcript_path: Optional[Path] = None, model_name: Optional[str] = None):
         self.episode = episode
         self.opts = options or RenderOptions()
         self.grid_w = episode.meta.grid_size.width
@@ -62,6 +66,10 @@ class GifRenderer:
         self._infer_finished_turns()
         self.base_sprites = self._load_base_sprites()
         self.sprite_cache: Dict[Tuple[str, Tuple[int, int, int]], Image.Image] = {}
+        # Load messages from transcript if available
+        self.messages_by_turn: Dict[int, List[Dict]] = self._load_messages(transcript_path)
+        self.receivers_by_turn: Dict[int, Dict[str, List[str]]] = self._load_receivers(transcript_path)
+        self.model_name = model_name or "unknown"
 
     def _build_agent_colors(self) -> Dict[str, Tuple[int, int, int]]:
         colors: Dict[str, Tuple[int, int, int]] = {}
@@ -80,10 +88,120 @@ class GifRenderer:
         return colors
 
     def _load_font(self, size: int) -> ImageFont.ImageFont:
+        # Try multiple font paths for different systems
+        font_paths = [
+            "/System/Library/Fonts/Helvetica.ttc",  # macOS
+            "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux
+            "C:\\Windows\\Fonts\\arial.ttf",  # Windows
+            "arial.ttf",
+            "Arial.ttf",
+        ]
+
+        for font_path in font_paths:
+            try:
+                return ImageFont.truetype(font_path, size)  # type: ignore[no-any-return]
+            except Exception:
+                continue
+
+        # If all fail, use default (won't scale but better than crashing)
+        return ImageFont.load_default()
+
+    def _load_messages(self, transcript_path: Optional[Path]) -> Dict[int, List[Dict]]:
+        """Load messages from transcript.jsonl and organize by turn when they are SENT."""
+        messages_by_turn: Dict[int, List[Dict]] = {}
+        if not transcript_path or not transcript_path.exists():
+            return messages_by_turn
+
         try:
-            return ImageFont.truetype("arial.ttf", size)  # type: ignore[no-any-return]
+            with open(transcript_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    entry = json.loads(line)
+                    if 'observation' not in entry:
+                        continue
+
+                    inbox = entry['observation'].get('inbox', [])
+                    turn = entry['turn']
+
+                    # Messages appear in inbox 1 turn after being sent
+                    # So if agent receives message at turn T, it was sent at turn T-1
+                    for msg_data in inbox:
+                        envelope = msg_data.get('envelope', {})
+                        sender_id = envelope.get('sender_id')
+                        kind = envelope.get('kind', 'CHAT')
+                        age = msg_data.get('age', 1)
+
+                        # Calculate when message was sent
+                        send_turn = turn - age
+
+                        # Handle different message formats
+                        text = None
+                        if 'text' in envelope:
+                            # Freeform CHAT message
+                            text = envelope['text']
+                        elif kind == 'INTENT':
+                            # Structured INTENT message
+                            next_action = envelope.get('next_action', 'UNKNOWN')
+                            text = f"INTENT: {next_action}"
+                        elif kind == 'REQUEST':
+                            # Structured REQUEST message
+                            request_type = envelope.get('request_type', 'UNKNOWN')
+                            text = f"REQUEST: {request_type}"
+
+                        if text and sender_id:
+                            if send_turn not in messages_by_turn:
+                                messages_by_turn[send_turn] = []
+
+                            # Avoid duplicates (same message appears in multiple inboxes)
+                            msg_key = (sender_id, text, send_turn)
+                            existing = [(m['sender'], m['text'], m['turn']) for m in messages_by_turn[send_turn]]
+                            if msg_key not in existing:
+                                messages_by_turn[send_turn].append({
+                                    'sender': sender_id,
+                                    'text': text,
+                                    'turn': send_turn
+                                })
         except Exception:
-            return ImageFont.load_default()
+            # If transcript loading fails, just continue without messages
+            pass
+
+        return messages_by_turn
+
+    def _load_receivers(self, transcript_path: Optional[Path]) -> Dict[int, Dict[str, List[str]]]:
+        """Load who received what messages at each turn. Returns {turn: {receiver_id: [sender_ids]}}"""
+        receivers_by_turn: Dict[int, Dict[str, List[str]]] = {}
+        if not transcript_path or not transcript_path.exists():
+            return receivers_by_turn
+
+        try:
+            with open(transcript_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    entry = json.loads(line)
+                    if 'observation' not in entry:
+                        continue
+
+                    agent_id = entry['agent_id']
+                    inbox = entry['observation'].get('inbox', [])
+                    turn = entry['turn']
+
+                    if turn not in receivers_by_turn:
+                        receivers_by_turn[turn] = {}
+
+                    # Record who this agent received messages from
+                    for msg_data in inbox:
+                        envelope = msg_data.get('envelope', {})
+                        sender_id = envelope.get('sender_id')
+
+                        if sender_id:
+                            if agent_id not in receivers_by_turn[turn]:
+                                receivers_by_turn[turn][agent_id] = []
+                            if sender_id not in receivers_by_turn[turn][agent_id]:
+                                receivers_by_turn[turn][agent_id].append(sender_id)
+
+        except Exception:
+            pass
+
+        return receivers_by_turn
 
     def _compute_gradient(self) -> List[List[float]]:
         if not self.opts.show_gradient:
@@ -135,8 +253,15 @@ class GifRenderer:
             self._draw_goal(draw)
             self._draw_agents(canvas, frame)
             self._draw_hazards(canvas, frame)
+            # Draw communication indicators for agents sending/receiving messages
+            if self.opts.show_comm_indicators:
+                self._draw_comm_indicators(draw, frame)
             self._draw_hud(draw, frame.t)
-            if self.opts.show_legend:
+            # Draw split bottom panel with comms and metadata
+            if self.opts.show_comms_panel:
+                self._draw_comms_panel(draw, frame)
+            elif self.opts.show_legend:
+                # Legacy right-side legend (fallback)
                 self._draw_legend(draw, frame)
             frames.append(canvas.convert("RGB"))
         return frames
@@ -157,10 +282,22 @@ class GifRenderer:
     # Drawing helpers -------------------------------------------------
 
     def _create_canvas(self) -> Image.Image:
-        w = self.opts.border * 2 + self.grid_w * self.opts.cell_size
-        h = self.opts.border * 2 + self.grid_h * self.opts.cell_size
-        if self.opts.show_legend:
+        # Grid width (now extends across full canvas)
+        grid_pixel_w = self.grid_w * self.opts.cell_size
+        w = self.opts.border * 2 + grid_pixel_w
+
+        # Grid height
+        grid_pixel_h = self.grid_h * self.opts.cell_size
+        h = self.opts.border * 2 + grid_pixel_h
+
+        # Add space for communications panel at bottom
+        if self.opts.show_comms_panel:
+            h += self.opts.comms_panel_height
+
+        # Legacy right-side legend (deprecated in favor of bottom panel, but keep for compatibility)
+        if self.opts.show_legend and not self.opts.show_comms_panel:
             w += LEGEND_WIDTH + self.opts.border
+
         return Image.new("RGBA", (w, h), WHITE)
 
     def _cell_rect(self, x: int, y: int) -> Tuple[int, int, int, int]:
@@ -333,6 +470,199 @@ class GifRenderer:
     def _draw_hud(self, draw: ImageDraw.ImageDraw, turn: int) -> None:
         # HUD content rendered in legend; nothing extra here.
         return
+
+    def _draw_comm_indicators(self, draw: ImageDraw.ImageDraw, frame) -> None:
+        """Draw visual indicators on agents that are sending or receiving messages this turn."""
+        # Agents sending messages this turn
+        senders = set()
+        for agent in frame.agents:
+            if getattr(agent, 'action', None) == 'COMMUNICATE':
+                senders.add(agent.agent_id)
+
+        # Get actual receivers from transcript data
+        receivers = self.receivers_by_turn.get(frame.t, {})
+
+        # Draw indicators
+        for agent in frame.agents:
+            my_color = self.agent_colors.get(agent.agent_id, (100, 100, 100))
+            x, y = agent.pos.x, agent.pos.y
+            cs = self.opts.cell_size
+            cell_x = self.opts.border + x * cs
+            cell_y = self.opts.border + y * cs
+
+            # SENDING indicator - Upward triangle (top-right corner) in agent's own color
+            if agent.agent_id in senders:
+                # Draw filled upward-pointing triangle
+                tip_x = cell_x + cs - 8
+                tip_y = cell_y + 5
+                base_y = cell_y + 15
+                left_x = cell_x + cs - 14
+                right_x = cell_x + cs - 2
+
+                triangle_points = [
+                    (tip_x, tip_y),      # Top point
+                    (left_x, base_y),    # Bottom left
+                    (right_x, base_y),   # Bottom right
+                ]
+                draw.polygon(triangle_points, fill=my_color, outline=BLACK[:3])
+
+            # RECEIVING indicator - Downward triangles (top-left corner) in sender's colors
+            if agent.agent_id in receivers:
+                sender_ids = receivers[agent.agent_id][:3]  # Max 3 indicators
+                offset_x = 8
+
+                for sender_id in sender_ids:
+                    sender_color = self.agent_colors.get(sender_id, (100, 100, 100))
+
+                    # Draw filled downward-pointing triangle
+                    tip_x = cell_x + offset_x
+                    tip_y = cell_y + 15
+                    base_y = cell_y + 5
+                    left_x = cell_x + offset_x - 6
+                    right_x = cell_x + offset_x + 6
+
+                    triangle_points = [
+                        (tip_x, tip_y),      # Bottom point
+                        (left_x, base_y),    # Top left
+                        (right_x, base_y),   # Top right
+                    ]
+                    draw.polygon(triangle_points, fill=sender_color, outline=BLACK[:3])
+
+                    offset_x += 14  # Space for next indicator
+
+    def _draw_comms_panel(self, draw: ImageDraw.ImageDraw, frame) -> None:
+        """Draw split bottom panel: left 3/4 for comms timeline, right 1/4 for metadata."""
+        cs = self.opts.cell_size
+        grid_bottom = self.opts.border + self.grid_h * cs
+        panel_top = grid_bottom + self.opts.border
+        panel_height = self.opts.comms_panel_height
+        panel_width = self.opts.border * 2 + self.grid_w * cs
+
+        # Draw panel background
+        draw.rectangle(
+            [0, panel_top, panel_width, panel_top + panel_height],
+            fill=(245, 245, 245, 255),
+            outline=GRID_LINE
+        )
+
+        # Split panel: 3/4 for comms, 1/4 for metadata
+        split_x = int(panel_width * 0.75)
+
+        # Draw vertical divider
+        draw.line(
+            [split_x, panel_top, split_x, panel_top + panel_height],
+            fill=GRID_LINE,
+            width=2
+        )
+
+        # Left panel: Communications timeline
+        self._draw_comms_timeline(draw, panel_top, split_x, panel_height, frame.t)
+
+        # Right panel: Metadata
+        self._draw_metadata_panel(draw, split_x, panel_top, panel_width - split_x, panel_height, frame)
+
+    def _draw_comms_timeline(self, draw: ImageDraw.ImageDraw, top: int, width: int, height: int, current_turn: int) -> None:
+        """Draw communications timeline showing recent messages."""
+        x_start = 10
+        y_start = top + 10
+        line_height = 35  # Increased for font size 28
+        max_lines = (height - 20) // line_height
+        available_width = width - 20  # Account for margins
+
+        # Collect messages from recent turns (show last N turns of messages)
+        messages_to_show = []
+        for turn in range(max(0, current_turn - 20), current_turn + 1):
+            if turn in self.messages_by_turn:
+                for msg in self.messages_by_turn[turn]:
+                    messages_to_show.append(msg)
+
+        # Show most recent messages (up to max_lines)
+        recent_messages = messages_to_show[-max_lines:] if len(messages_to_show) > max_lines else messages_to_show
+
+        y = y_start
+        for msg in recent_messages:
+            sender = msg['sender']
+            text = msg['text']
+            turn = msg['turn']
+
+            # Get sender color
+            color = self.agent_colors.get(sender, (100, 100, 100))
+
+            # Format: "T12 a1: message text"
+            prefix = f"T{turn} {sender}: "
+
+            # Calculate how much space is left for text after prefix
+            prefix_width = self.font.getlength(prefix)  # type: ignore[attr-defined]
+            text_width_available = available_width - prefix_width
+
+            # Wrap text to fit available width
+            if self.font.getlength(text) > text_width_available:  # type: ignore[attr-defined]
+                # Truncate with ellipsis
+                while self.font.getlength(text + "...") > text_width_available and len(text) > 0:  # type: ignore[attr-defined]
+                    text = text[:-1]
+                text = text + "..."
+
+            # Draw turn and sender in color
+            draw.text((x_start, y), prefix, fill=color, font=self.font)
+
+            # Draw message text in black
+            draw.text((x_start + prefix_width, y), text, fill=BLACK, font=self.font)
+
+            y += line_height
+            if y > top + height - line_height:
+                break  # Don't overflow panel
+
+        # If no messages, show placeholder
+        if not recent_messages:
+            draw.text((x_start, y_start), "No communications yet", fill=(150, 150, 150, 255), font=self.font)
+
+    def _draw_metadata_panel(self, draw: ImageDraw.ImageDraw, left: int, top: int, width: int, height: int, frame) -> None:
+        """Draw metadata panel showing key info."""
+        x = left + 10
+        y = top + 10
+        line_height = 35  # Increased for font size 28
+        available_width = width - 20
+
+        # Helper function to wrap text
+        def wrap_text(text: str) -> str:
+            if self.font.getlength(text) > available_width:  # type: ignore[attr-defined]
+                while self.font.getlength(text) > available_width and len(text) > 0:  # type: ignore[attr-defined]
+                    text = text[:-1]
+            return text
+
+        # Turn number
+        text = wrap_text(f"T: {frame.t}")
+        draw.text((x, y), text, fill=BLACK, font=self.font)
+        y += line_height
+
+        # Goal position
+        text = wrap_text(f"Goal: ({self.goal[0]},{self.goal[1]})")
+        draw.text((x, y), text, fill=GOAL_GOLD[:3], font=self.font)
+        y += line_height
+
+        # Active agents count
+        active_count = sum(1 for a in frame.agents if self._agent_status(a, frame.t) == "ACTIVE")
+        total_count = len(frame.agents)
+        text = wrap_text(f"Active: {active_count}/{total_count}")
+        draw.text((x, y), text, fill=BLACK, font=self.font)
+        y += line_height
+
+        # Messages this turn
+        msg_count = len(self.messages_by_turn.get(frame.t, []))
+        text = wrap_text(f"Msgs: {msg_count}")
+        draw.text((x, y), text, fill=BLACK, font=self.font)
+        y += line_height
+
+        # Model used
+        text = wrap_text(f"Model:")
+        draw.text((x, y), text, fill=(100, 100, 100), font=self.font)
+        y += line_height
+        # Model name on next line (may need wrapping)
+        model_display = self.model_name
+        if self.font.getlength(model_display) > available_width:  # type: ignore[attr-defined]
+            while self.font.getlength(model_display) > available_width and len(model_display) > 0:  # type: ignore[attr-defined]
+                model_display = model_display[:-1]
+        draw.text((x, y), model_display, fill=(80, 80, 80), font=self.font)
 
     def _draw_legend(self, draw: ImageDraw.ImageDraw, frame) -> None:
         cs = self.opts.cell_size
