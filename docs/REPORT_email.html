@@ -168,7 +168,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
@@ -235,11 +234,40 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
 </head>
 <body>
 <h1
 id="minimal-agent-communication-protocols-for-multi-agent-grid-navigation">Minimal
 Agent Communication Protocols for Multi-Agent Grid Navigation</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p><strong>Central Question:</strong> Do structured communication
+protocols (INTENT/REQUEST schemas) help LLM agents coordinate better
+than natural language?</p>
+<p><strong>Answer:</strong> Structured protocols don’t help. After
+comprehensive cross-seed validation (45 runs), structured achieves 56.0%
+success—barely above no communication (57.3%). Freeform shows a modest
+advantage at 62.7%, but the effect size is small (5-agent difference out
+of 75) and we lack statistical testing to confirm significance.</p>
+<p><strong>The Bigger Puzzle:</strong> Communication doesn’t seem to
+help much at all in this environment. The no-communication baseline
+performs nearly as well as the best strategy (5.4 percentage point
+difference). We don’t know why. Possible explanations: partial
+observability makes communication ineffective, the one-turn message lag
+negates benefits, or the corridor environment doesn’t require
+coordination.</p>
+<p><strong>The Strong Finding (Methodological):</strong> Initial
+experiments using a single seed showed structured achieving 73% success,
+suggesting strong performance. Cross-seed validation (5 different spawn
+configurations) revealed this was an extreme outlier—the true average is
+56%. This demonstrates how single-scenario experiments produce
+completely misleading conclusions in stochastic multi-agent systems.
+Combined with extreme run-to-run variance (σ &gt; mean for message
+counts), this work shows that rigorous experimental design is critical
+for LLM agent research.</p>
+<hr />
 <h2 id="task-overview">Task Overview</h2>
 <p>Five LLM-controlled agents navigate a 30×10 grid world with partial
 observability (vision radius = 1). Each agent receives a directional
@@ -247,14 +275,15 @@ bearing toward a shared goal at position (28,1) but cannot see beyond
 their immediate surroundings. The environment contains maze-like
 obstacles that force indirect routing. With five agents competing for
 limited corridor space, collisions are frequent. Agents have 100 turns
-to coordinate and reach the goal. We compare three communication
-protocols to determine which enables the most effective
-coordination.</p>
+to coordinate and reach the goal.</p>
+<p>We compare three communication protocols to determine which enables
+the most effective coordination across different spawn
+configurations.</p>
 <hr />
 <h2 id="environment-design">Environment Design</h2>
 <p><strong>Grid World:</strong> 30×10 cells with walls forming maze-like
-corridors. Agents start at random positions and navigate toward a shared
-goal at (28,1).</p>
+corridors. Agents start at positions determined by a random seed and
+navigate toward a shared goal at (28,1).</p>
 <p><strong>Partial Observability:</strong> Each agent observes only
 cells within radius 1 (3×3 local patch centered on their position).
 Agents cannot see the full map or other agents beyond this range.</p>
@@ -283,12 +312,14 @@ this bearing with their local observations to navigate.</p>
 the goal while avoiding collisions. The communication strategy
 determines what messages (if any) agents can exchange to coordinate.</p>
 <h3 id="none-no-communication">None (No Communication)</h3>
-<p><strong>Approach:</strong> Agents receive no communication
-capability. They must coordinate implicitly through observation of
+<p><strong>Approach:</strong> Agents receive no communication capability
+(radio_range=0). They must coordinate implicitly through observation of
 nearby agents (within vision radius = 1).</p>
 <p><strong>Prompt addition:</strong> <em>(none - agents simply navigate
 without message exchange)</em></p>
 <p><strong>Messages exchanged:</strong> 0 per run</p>
+<p><strong>Strategy:</strong> Independent exploration with collision
+avoidance based solely on visual observation.</p>
 <hr />
 <h3 id="structured">Structured</h3>
 <p><strong>Approach:</strong> Agents use a fixed message schema with two
@@ -325,9 +356,6 @@ class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb2-
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  sender_id<span class="op">:</span> <span class="dt">string</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  seq<span class="op">:</span> int</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p><strong>Actual usage (51 messages across 3 runs):</strong> - INTENT:
-STAY (23×), MOVE_E (13×), MOVE_S (3×) - REQUEST: YIELD (12×, all with
-target) - Never used: MOVE_N, MOVE_W, GUIDE</p>
 <p><strong>Example messages (serialized from actual
 transcripts):</strong></p>
 <div class="sourceCode" id="cb3"><pre
@@ -348,16 +376,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;y&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a5&quot;</span><span class="fu">,</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MOVE_E&quot;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p><strong>Note:</strong> Other agents receive only the message envelope
 (kind, sender_id, seq, next_action/req/target). The “Reasoning” field
-shown in later examples is debug output for system builders, not
+shown in coordination examples is debug output for system builders, not
 transmitted to other agents.</p>
 <hr />
 <h3 id="freeform-natural-language">Freeform (Natural Language)</h3>
@@ -365,144 +386,231 @@ transmitted to other agents.</p>
 (≤96 characters) describing their intent, requests, or observations.
 Same priority rule as structured, but expressed in prose.</p>
 <p><strong>Prompt addition:</strong></p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From src/llmgrid/agent/llm_agent.py, lines 74-84</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="er"> critical info </span>(goal location, dead end, you<span class="st">&#39;re rerouting around a peer).&quot;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Allowed: one CHAT (&lt;=96 chars) per turn. Write naturally to help your teammate.&quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;When to communicate: only if any_peer_in_range is true. Share something useful</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="er"> (new route, goal location, dead end you verified, you are rerouting, or you are stuck).&quot;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Use coordinates so teammates can mark their maps: e.g., &#39;heading east toward (5,2)&#39;,</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="er"> &#39;found goal at (14,4)&#39;, &#39;dead end north; trying south&#39;, &#39;sharing loop at (3,1)-(3,2)&#39;.&quot;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield.</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="er"> Example: &#39;I&#39;m a5, yielding (5,5) to you, going west&#39; or just move without announcing</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> you<span class="st">&#39;re yielding.&quot;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Be cooperative and concise; avoid repeating unchanged info within ~5 turns.&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From src/llmgrid/agent/llm_agent.py, lines 74-84</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="er"> critical info </span>(goal location, dead end, you<span class="st">&#39;re rerouting around a peer).&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Allowed: one CHAT (&lt;=96 chars) per turn. Write naturally to help your teammate.&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;When to communicate: only if any_peer_in_range is true. Share something useful</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="er"> (new route, goal location, dead end you verified, you are rerouting, or you are stuck).&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Use coordinates so teammates can mark their maps: e.g., &#39;heading east toward (5,2)&#39;,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="er"> &#39;found goal at (14,4)&#39;, &#39;dead end north; trying south&#39;, &#39;sharing loop at (3,1)-(3,2)&#39;.&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield.</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="er"> Example: &#39;I&#39;m a5, yielding (5,5) to you, going west&#39; or just move without announcing</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> you<span class="st">&#39;re yielding.&quot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;Be cooperative and concise; avoid repeating unchanged info within ~5 turns.&quot;</span></span></code></pre></div>
 <p><strong>Example messages:</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a3&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a3 holding at (8,1); waiting to move west to (6,1). Please yield (7,1) if possible.&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a3&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a2&quot;</span><span class="fu">,</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a3 holding at (8,1); waiting to move west to (6,1). Please yield (7,1) if possible.&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sender_id&quot;</span><span class="fu">:</span> <span class="st">&quot;a2&quot;</span><span class="fu">,</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seq&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <hr />
-<h2 id="communication-in-action-sequential-coordination">Communication
-in Action: Sequential Coordination</h2>
-<h3 id="structured-coordination-sequence-run-1-turns-3-12">Structured
-Coordination Sequence (Run 1, Turns 3-12)</h3>
-<p>This 6-message sequence shows agent a5 navigating a congested
-corridor while coordinating with nearby agents:</p>
-<p><strong>Turn 3, a4:</strong></p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding; holding at (3,8) so a2 can access (3,7) toward frontier (3,6).&quot;</span></span></code></pre></div>
-<p><strong>Turn 8, a5:</strong></p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;REQUEST&quot;</span><span class="fu">,</span> <span class="dt">&quot;req&quot;</span><span class="fu">:</span> <span class="st">&quot;YIELD&quot;</span><span class="fu">,</span> <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">&quot;x&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span> <span class="dt">&quot;y&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">}}</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="er">(requesting</span> <span class="er">priority</span> <span class="er">at</span> <span class="er">contested</span> <span class="er">cell)</span></span></code></pre></div>
-<p><strong>Turn 9, a5:</strong></p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding after previous YIELD; holding at (7,1) so lower-id peer may</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">advance toward frontier (9,1).&quot;</span></span></code></pre></div>
-<p><strong>Turn 10, a5:</strong></p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing yield; staying to avoid collision.&quot;</span></span></code></pre></div>
-<p><strong>Turn 11, a5:</strong></p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MOVE_E&quot;</span><span class="fu">}</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing move E to scout frontier at (9,1) before proceeding; avoiding</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">repeated blocked attempt.&quot;</span></span></code></pre></div>
-<p><strong>Turn 12, a5:</strong></p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Avoiding repeated MOVE_E into (8,1) after a YIELD; broadcasting STAY to</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">coordinate with nearby peer.&quot;</span></span></code></pre></div>
-<p><strong>What happened:</strong> Agent a5 detected congestion at
-(8,1), requested yield from peer, waited for 2 turns, announced move,
-then yielded again when detecting continued blockage. The sequence shows
-repeated coordination with terse messages (6-10 tokens each). Result: 0
-collisions, forward progress maintained.</p>
+<h2
+id="experimental-journey-from-single-seed-to-cross-validation">Experimental
+Journey: From Single-Seed to Cross-Validation</h2>
+<h3 id="phase-1-initial-experiments-seed-13-only">Phase 1: Initial
+Experiments (Seed 13 Only)</h3>
+<p><strong>What we did:</strong> Ran 9 experiments (3 replicates per
+strategy) using seed 13 for agent starting positions. All runs used the
+same maze (long_corridor, obstacle seed 606) and model
+(azure:gpt-5-mini).</p>
+<p><strong>What we saw:</strong> - Structured: 73% success (11/15 agents
+finished) - Freeform: 33% success (5/15 agents finished) - None: 20%
+success (3/15 agents finished)</p>
+<p><strong>What we thought:</strong> Structured communication provides a
+massive advantage (3.6× better than no communication). Rigid schemas
+with priority rules enable effective coordination. Fixed message formats
+reduce ambiguity and prevent the chaotic over-communication seen in
+freeform runs.</p>
+<p><strong>Why we were wrong:</strong> We had tested only one spawn
+configuration. Seed 13 happened to create agent starting positions that
+strongly favored structured coordination—but we didn’t know this
+yet.</p>
+<h3 id="phase-2-cross-seed-validation-seeds-13-17">Phase 2: Cross-Seed
+Validation (Seeds 13-17)</h3>
+<p><strong>What we did:</strong> Expanded to 45 total runs using 5
+different spawn seeds (13, 14, 15, 16, 17), running a complete 3×3
+matrix (3 strategies × 3 replicates) per seed.</p>
+<p><strong>Why we did it:</strong> Single-seed results felt too clean.
+We wanted to confirm the findings generalized across different starting
+configurations. This is standard practice in stochastic systems—validate
+across multiple scenarios before drawing conclusions.</p>
+<p><strong>What we discovered:</strong> Seed 13 was an extreme
+outlier.</p>
+<p><strong>Cross-seed results (45 runs total):</strong> - Freeform:
+62.7% success (47/75 agents) - None: 57.3% success (43/75 agents) -
+Structured: 56.0% success (42/75 agents)</p>
+<p><strong>The reversal:</strong> Structured dropped from 73% (seed 13
+only) to 56% (cross-seed average). It went from best performer to worst,
+performing barely better than no communication at all.</p>
+<p><strong>The lesson:</strong> Single-seed experiments can produce
+completely misleading conclusions. The spawn configuration in seed 13
+happened to create tight corridors where structured priority rules
+helped. Other seeds created configurations where freeform’s flexible
+coordination worked better.</p>
 <hr />
-<h3 id="freeform-coordination-sequence-run-1-turns-48-53">Freeform
-Coordination Sequence (Run 1, Turns 48-53)</h3>
-<p>This 6-message sequence shows agents a2 and a4 negotiating access to
-a contested corridor:</p>
-<p><strong>Turn 48, a2:</strong></p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span><span class="fu">}</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Broadcasting intent: heading west to scout frontier at (8,1); requesting</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">yield to avoid collision.&quot;</span></span></code></pre></div>
-<p><strong>Turn 49, a4:</strong></p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding at (8,1); staying to let a2 scout west&quot;</span><span class="fu">}</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid collision and let them scout west.&quot;</span></span></code></pre></div>
-<p><strong>Turn 50, a4:</strong></p>
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to let you scout.&quot;</span><span class="fu">}</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding (8,1) to a2 per their request and to avoid collision; staying to</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">let them scout.&quot;</span></span></code></pre></div>
-<p><strong>Turn 52, a2:</strong></p>
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (6,1); entering contested (7,1),</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">yielding if needed.&quot;</span><span class="fu">}</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing west toward (6,1); entering contested (7,1).&quot;</span></span></code></pre></div>
-<p><strong>Turn 52, a4:</strong></p>
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid collision and</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">let you scout.&quot;</span><span class="fu">}</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding at (8,1) to let a2 scout west; avoiding contended W.&quot;</span></span></code></pre></div>
-<p><strong>Turn 53, a4:</strong></p>
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid contested (7,1).&quot;</span><span class="fu">}</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid contested (7,1).&quot;</span></span></code></pre></div>
-<p><strong>What happened:</strong> Agent a2 requested access, a4 yielded
-with confirmation, a2 advanced, a4 repeated yield confirmation (turns
-50, 52, 53). Messages are longer (15-20 tokens each) and show redundancy
-(3 nearly identical yield messages). Result: coordination successful but
-verbose.</p>
-<p><strong>Comparison:</strong> Both sequences achieve coordination.
-Structured uses 6 messages (54 tokens total). Freeform uses 6 messages
-(102 tokens total). Structured eliminates redundancy through schema
-constraints; freeform allows natural repetition.</p>
+<h2 id="the-non-determinism-problem-extreme-llm-variability">The
+Non-Determinism Problem: Extreme LLM Variability</h2>
+<p>Before diving into results, we need to address a striking
+characteristic of LLM-based multi-agent systems: <strong>massive,
+unexplained behavioral variability</strong>.</p>
+<h3
+id="the-same-agents-the-same-environment-wildly-different-behavior">The
+Same Agents, The Same Environment, Wildly Different Behavior</h3>
+<p>Consider these examples from our dataset—all runs used identical
+prompts, model, maze, and parameters:</p>
+<p><strong>Freeform communication:</strong> - Run A: 0 messages sent, 3
+agents finished - Run B: 35 messages sent, 4 agents finished - Run C: 1
+message sent, 2 agents finished - Run D: 15 messages sent, 3 agents
+finished</p>
+<p><strong>Structured communication:</strong> - Run E: 0 messages sent,
+1 agent finished - Run F: 23 messages sent, 4 agents finished - Run G: 7
+messages sent, 3 agents finished</p>
+<p><strong>The puzzling part:</strong> Nothing obvious changed between
+these runs. Same prompt, same environment, same model. Yet agent
+behavior ranged from complete silence (0 messages) to heavy
+communication (35 messages). The standard deviations are comparable to
+or larger than the means:</p>
+<ul>
+<li>Freeform: mean 5.9 messages, σ=9.1 (157% of mean!)</li>
+<li>Structured: mean 8.9 messages, σ=6.9 (78% of mean)</li>
+</ul>
+<h3 id="its-not-just-messagesits-everything">It’s Not Just Messages—It’s
+Everything</h3>
+<p><strong>Collision counts:</strong> 0-48 range within the same
+strategy (freeform) <strong>Run duration:</strong> 37.7 to 189.7 minutes
+for identical task (freeform) <strong>Success outcomes:</strong>
+Identical configurations produce 1-4 agents finished</p>
+<h3 id="whats-causing-this">What’s Causing This?</h3>
+<p>We don’t know for certain, but likely contributors:</p>
+<p><strong>1. LLM sampling stochasticity</strong> Modern LLMs have
+inherent randomness in generation. The model (gpt-5-mini) does not
+accept temperature parameter, yet produces non-deterministic outputs.
+Different backend instances, hardware, or time-of-day load could affect
+sampling.</p>
+<p><strong>2. Cascade effects from early decisions</strong> One agent
+makes a slightly different turn-1 move, which changes what another agent
+observes, which changes their decision, which ripples forward.
+Multi-agent systems amplify small perturbations.</p>
+<p><strong>3. Backend infrastructure variability</strong>
+Azure/OpenRouter may route requests to different instances with
+different quantization, batching, or optimization strategies. What looks
+like “the same model” might not be byte-identical across calls.</p>
+<p><strong>4. Prompt interpretation variance</strong> LLMs don’t parse
+prompts deterministically. The same prompt on the same input can yield
+different responses based on internal state we can’t observe.</p>
+<h3 id="why-this-matters-for-research">Why This Matters for
+Research</h3>
+<p><strong>Standard deviation tells the story:</strong> When σ ≈ mean
+(or larger), you’re measuring noise as much as signal. Our freeform
+strategy has σ=9.1 messages with mean=5.9—that’s 157% variance.
+Structured has σ=6.9 with mean=8.9—that’s 78% variance.</p>
+<p><strong>Single runs are meaningless:</strong> One run with 35
+messages tells you nothing. Another identical run might send 0. You need
+large sample sizes (we used 15 runs per strategy) to see signal through
+noise.</p>
+<p><strong>Small studies will mislead:</strong> If we’d run only 3
+replicates per strategy (9 total runs), we might have happened to sample
+mostly high-communication or low-communication runs, producing
+completely wrong conclusions about typical behavior.</p>
+<p><strong>Cross-scenario validation is essential:</strong> Not only do
+you need multiple replicates within one seed, you need multiple seeds.
+Otherwise you’re measuring seed-specific quirks, not strategy
+effectiveness.</p>
+<h3 id="the-implication">The Implication</h3>
+<p>When reading our results below, remember: <strong>the averages hide
+extreme variability</strong>. A “mean of 5.9 messages” doesn’t mean
+agents typically send 6 messages. It means they send anywhere from 0 to
+35, with high unpredictability.</p>
+<p>This variability is a <strong>fundamental challenge for LLM-based
+multi-agent systems</strong>. Unlike classical algorithms, you cannot
+predict what LLM agents will do on any given run—even with identical
+inputs. You can only characterize their statistical behavior over many
+runs.</p>
+<p>This makes LLM agents both fascinating (emergent, adaptive behavior)
+and frustrating (unreliable, hard to debug). It also makes rigorous
+experimental design absolutely critical.</p>
 <hr />
-<h2 id="results">Results</h2>
-<p>We ran 9 experiments (3 per strategy) with 5 agents, 100 turn budget,
-maze preset <code>long_corridor</code> (seed 606), and fixed agent
-starting positions (seed 13). All code frozen at commit
-<code>fe3ffda</code>.</p>
+<h2 id="results-cross-seed-validation-45-runs">Results: Cross-Seed
+Validation (45 Runs)</h2>
+<p>All results below are from the complete cross-seed study: 5 seeds × 3
+strategies × 3 replicates = 45 runs total. Maze preset:
+<code>long_corridor</code> (obstacle seed 606). Agent spawn seeds: 13,
+14, 15, 16, 17. Model: <code>azure:gpt-5-mini</code>. Turn budget:
+100.</p>
+<p><strong>Remember:</strong> The statistics below represent averages
+over highly variable behavior. Standard deviations are large. Individual
+runs can differ dramatically from the mean.</p>
 <hr />
 <h3 id="metric-1-success-rate">Metric 1: Success Rate</h3>
 <p><strong>Definition:</strong></p>
-<p><img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Ctext%7BSuccess%20Rate%7D%20%3D%20%5Cfrac%7B%5Csum%20%5Ctext%7Bagents%20finished%7D%7D%7B%5Ctext%7Btotal%20agents%7D%7D%20%5Ctimes%20100%5C%25"
-alt="\text{Success Rate} = \frac{\sum \text{agents finished}}{\text{total agents}} \times 100\%"
-title="\text{Success Rate} = \frac{\sum \text{agents finished}}{\text{total agents}} \times 100\%"
-class="math display" /></p>
-<p>where total agents = 3 runs × 5 agents = 15 per strategy.</p>
+<p><span class="math display">\[\text{Success Rate} = \frac{\sum
+\text{agents finished}}{\text{total agents}} \times 100\%\]</span></p>
+<p>where total agents = 15 runs × 5 agents = 75 per strategy.</p>
 <p><strong>Computation:</strong> For each run, we parsed
 <code>episode.json</code> and counted agents with
-<code>status == "FINISHED"</code> in the final frame (turn 100).</p>
+<code>status == "FINISHED"</code> in the final frame (turn 100).
+Aggregated across all 45 runs.</p>
 <p><strong>Results:</strong></p>
 <figure>
 <img
-src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/1_success_rate.png"
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/experiments/cross_seed_baseline_20251112T143355Z/plots/1_success_rate.png"
 alt="Figure 1: Success Rate" />
 <figcaption aria-hidden="true">Figure 1: Success Rate</figcaption>
 </figure>
-<p><strong>Interpretation:</strong> Structured communication achieves
-73% success rate (11/15 agents), outperforming freeform (33%, 5/15) and
-none (20%, 3/15). Structured is 3.6× more effective than no
-communication.</p>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Strategy</th>
+<th>Success Rate</th>
+<th>Agents Finished</th>
+<th>Runs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🥇</td>
+<td>Freeform</td>
+<td>62.7%</td>
+<td>47/75</td>
+<td>15</td>
+</tr>
+<tr>
+<td>🥈</td>
+<td>None</td>
+<td>57.3%</td>
+<td>43/75</td>
+<td>15</td>
+</tr>
+<tr>
+<td>🥉</td>
+<td>Structured</td>
+<td>56.0%</td>
+<td>42/75</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> Freeform natural language achieves
+the highest success rate, outperforming both structured protocols and no
+communication. Structured provides minimal benefit over baseline (56.0%
+vs 57.3%)—a stark reversal from the seed-13-only results that showed
+structured at 73%.</p>
+<p><strong>What changed:</strong> Different spawn configurations
+revealed that structured priority rules don’t generalize well.
+Freeform’s flexible, context-aware coordination adapts better to varying
+scenarios.</p>
 <hr />
 <h3 id="metric-2-communication-volume">Metric 2: Communication
 Volume</h3>
@@ -519,194 +627,760 @@ computed: 1. Message count (direct count) 2. Token count using
 <p><strong>Results:</strong></p>
 <figure>
 <img
-src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/2_communication_volume.png"
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/experiments/cross_seed_baseline_20251112T143355Z/plots/2_communication_volume.png"
 alt="Figure 2: Communication Volume" />
 <figcaption aria-hidden="true">Figure 2: Communication
 Volume</figcaption>
 </figure>
-<p><strong>Interpretation:</strong> Structured uses consistent moderate
-volume (avg 17.0 messages, 97.0 tokens/run). Freeform shows extreme
-variance (1-28 messages, 16-587 tokens), indicating unstable
-communication patterns. Structured messages are more compact (5.7
-tokens/message vs freeform’s 21.0 tokens/message).</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 20%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Messages/Run</th>
+<th>Total Messages</th>
+<th>Tokens/Message</th>
+<th>Efficiency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Freeform</td>
+<td>5.9 ± 9.1</td>
+<td>89 (15 runs)</td>
+<td>~21.0</td>
+<td>0.98 msgs/finished agent</td>
+</tr>
+<tr>
+<td>Structured</td>
+<td>8.9 ± 6.9</td>
+<td>134 (15 runs)</td>
+<td>~5.7</td>
+<td>3.21 msgs/finished agent</td>
+</tr>
+<tr>
+<td>None</td>
+<td>0.0 ± 0.0</td>
+<td>0 (15 runs)</td>
+<td>0.0</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> Freeform achieves higher success
+(62.7% vs 56.0%) while using 34% fewer total messages (89 vs 134).
+Despite freeform messages being longer (21.0 vs 5.7 tokens/message), the
+strategy is more efficient: 0.98 messages per successful agent versus
+structured’s 3.21 messages per successful agent.</p>
+<p><strong>Key insight:</strong> More messages ≠ better coordination.
+Structured agents communicate more frequently but achieve worse
+outcomes, suggesting the rigid protocol creates coordination overhead
+rather than clarity.</p>
+<p><strong>Variance:</strong> Both strategies show high variance
+(freeform σ=9.1, structured σ=6.9), indicating LLM behavior variability
+across runs—likely due to time-of-day effects or backend
+differences.</p>
 <hr />
 <h3 id="metric-3-collision-rate">Metric 3: Collision Rate</h3>
 <p><strong>Definition:</strong></p>
-<p><img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5Cbar%7BC%7D%20%3D%20%5Cfrac%7B1%7D%7B3%7D%5Csum_%7Br%3D1%7D%5E%7B3%7D%20C_r%20%5Cquad%20%5Cpm%20%5Cquad%20%5Csigma"
-alt="\bar{C} = \frac{1}{3}\sum_{r=1}^{3} C_r \quad \pm \quad \sigma"
-title="\bar{C} = \frac{1}{3}\sum_{r=1}^{3} C_r \quad \pm \quad \sigma"
-class="math display" /></p>
-<p>where <img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20C_r" alt="C_r"
-title="C_r" class="math inline" /> = collisions in run <img
-style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20r" alt="r"
-title="r" class="math inline" />, <img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Cbar%7BC%7D"
-alt="\bar{C}" title="\bar{C}" class="math inline" /> = mean, <img
-style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Csigma"
-alt="\sigma" title="\sigma" class="math inline" /> = standard
-deviation</p>
+<p><span class="math display">\[\bar{C} = \frac{1}{N}\sum_{r=1}^{N} C_r
+\quad \pm \quad \sigma\]</span></p>
+<p>where <span class="math inline">\(C_r\)</span> = collisions in run
+<span class="math inline">\(r\)</span>, <span
+class="math inline">\(N\)</span> = 15 runs per strategy, <span
+class="math inline">\(\sigma\)</span> = standard deviation</p>
 <p><strong>Computation:</strong> Collision counts extracted from
 <code>metrics.json["collisions"]</code> for each run. Mean and standard
 deviation computed via NumPy.</p>
 <p><strong>Results:</strong></p>
 <figure>
 <img
-src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/3_collision_rate.png"
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/experiments/cross_seed_baseline_20251112T143355Z/plots/3_collision_rate.png"
 alt="Figure 3: Collision Rate" />
 <figcaption aria-hidden="true">Figure 3: Collision Rate</figcaption>
 </figure>
-<p><strong>Interpretation:</strong> Structured achieves lowest collision
-rate (10.0 ± 3.6), 2.2× fewer than freeform (22.3 ± 13.7) and 4.3× fewer
-than none (43.3 ± 8.7). Low standard deviation indicates consistent
-coordination. High freeform variance (σ = 13.7) shows unreliable
-performance.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 23%" />
+<col style="width: 26%" />
+<col style="width: 18%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Collisions/Run</th>
+<th>Total Collisions</th>
+<th>BLOCK_AGENT</th>
+<th>BLOCK_WALL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Freeform</td>
+<td>14.5 ± 11.5</td>
+<td>188</td>
+<td>178 (95%)</td>
+<td>10 (5%)</td>
+</tr>
+<tr>
+<td>Structured</td>
+<td>17.0 ± 8.6</td>
+<td>323</td>
+<td>313 (97%)</td>
+<td>12 (3%)</td>
+</tr>
+<tr>
+<td>None</td>
+<td>18.1 ± 14.6</td>
+<td>199</td>
+<td>196 (98%)</td>
+<td>3 (2%)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> Collision rates are similar across
+all three strategies (14.5-18.1 range), with freeform having slightly
+fewer. Communication does not significantly reduce agent-agent conflicts
+in this environment.</p>
+<p><strong>What changed from seed 13:</strong> The initial study showed
+structured with dramatically fewer collisions (10.0 ± 3.6). Cross-seed
+validation reveals this was specific to seed 13’s configuration. Across
+diverse scenarios, structured’s collision-avoidance advantage
+disappears.</p>
+<p><strong>Implication:</strong> The hypothesis that structured priority
+rules prevent collisions does not hold across different spawn
+configurations.</p>
 <hr />
 <h3 id="metric-4-completion-timeline">Metric 4: Completion Timeline</h3>
 <p><strong>Definition:</strong></p>
-<p><img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20F%28t%29%20%3D%20%5Cfrac%7B1%7D%7B3%7D%5Csum_%7Br%3D1%7D%5E%7B3%7D%20%5Ctext%7Bagents%20finished%20by%20turn%20%7D%20t%20%5Ctext%7B%20in%20run%20%7D%20r"
-alt="F(t) = \frac{1}{3}\sum_{r=1}^{3} \text{agents finished by turn } t \text{ in run } r"
-title="F(t) = \frac{1}{3}\sum_{r=1}^{3} \text{agents finished by turn } t \text{ in run } r"
-class="math display" /></p>
-<p>Cumulative agents finished at turn <img style="vertical-align:middle"
-src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20t" alt="t"
-title="t" class="math inline" />, averaged across 3 runs.</p>
+<p><span class="math display">\[F(t) = \frac{1}{N}\sum_{r=1}^{N}
+\text{agents finished by turn } t \text{ in run } r\]</span></p>
+<p>Cumulative agents finished at turn <span
+class="math inline">\(t\)</span>, averaged across 15 runs per
+strategy.</p>
 <p><strong>Computation:</strong> For each run, we parsed
 <code>episode.json</code> frame by frame and tracked when each agent’s
 status changed to <code>FINISHED</code>. We computed cumulative count at
-each turn, then averaged the three runs together.</p>
+each turn, then averaged across the 15 runs per strategy.</p>
 <p><strong>Results:</strong></p>
 <figure>
 <img
-src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/4_completion_timeline.png"
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/experiments/cross_seed_baseline_20251112T143355Z/plots/4_completion_timeline.png"
 alt="Figure 4: Completion Timeline" />
 <figcaption aria-hidden="true">Figure 4: Completion
 Timeline</figcaption>
 </figure>
-<p><strong>Interpretation:</strong> Structured shows steady upward
-trajectory reaching ~3.7 agents by turn 100. Freeform plateaus at ~1.7
-agents. None stagnates at ~1.0 agent. Structured enables faster and more
-consistent progress through effective coordination.</p>
+<p><strong>Interpretation:</strong> Freeform shows the strongest upward
+trajectory, reaching the highest final completion count. None and
+structured show similar progression patterns, with structured finishing
+slightly below baseline.</p>
+<p><strong>What this tells us:</strong> Freeform enables agents to
+complete the task more consistently across different spawn
+configurations. Structured’s completion timeline doesn’t match the
+strong performance seen in seed 13 alone.</p>
 <hr />
 <h3 id="metric-5-success-vs-communication-cost">Metric 5: Success vs
 Communication Cost</h3>
 <p><strong>Definition:</strong></p>
-<p>Scatter plot showing tokens sent (x-axis) vs agents finished (y-axis)
-for each run.</p>
+<p>Scatter plot showing total tokens sent (x-axis) vs agents finished
+(y-axis) for each run.</p>
 <p><strong>Computation:</strong> Each point represents one run: x =
 token count from tiktoken, y = finish count from episode.json final
 frame.</p>
 <p><strong>Results:</strong></p>
 <figure>
 <img
-src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/analysis/plots/5_success_vs_tokens.png"
+src="https://raw.githubusercontent.com/Bryan-Nsoh/agent-talk-2/main/experiments/cross_seed_baseline_20251112T143355Z/plots/5_success_vs_tokens.png"
 alt="Figure 5: Success vs Tokens" />
 <figcaption aria-hidden="true">Figure 5: Success vs Tokens</figcaption>
 </figure>
-<p><strong>Interpretation:</strong> Structured achieves Pareto frontier
-(upper-left: high success, moderate cost). All structured runs: 3-4
-agents finished with 56-126 tokens. Freeform shows no correlation
-between volume and success—run 3 sent 587 tokens but only 1 agent
-finished (0.17% efficiency), demonstrating that excessive communication
-without structure harms performance.</p>
+<p><strong>Interpretation:</strong> The ideal region is upper-left (high
+success, low tokens). Freeform achieves strong success (3-4 agents) with
+low token counts (most runs under 300 tokens). None performs nearly as
+well as structured despite zero communication cost. Structured shows no
+clear correlation between message volume and success.</p>
+<p><strong>Key finding:</strong> Structured’s compactness (5.7
+tokens/message) doesn’t translate to better outcomes. The 3.7× token
+advantage over freeform is irrelevant when success rates are 12% lower
+(56.0% vs 62.7%).</p>
 <hr />
-<h2 id="interpretability">Interpretability</h2>
-<p><strong>Structured:</strong> Compact, fixed-schema messages are
-highly interpretable despite requiring domain knowledge. An operator
-reviewing logs can quickly scan:</p>
+<h2 id="per-seed-breakdown">Per-Seed Breakdown</h2>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Structured Success</th>
+<th>Freeform Success</th>
+<th>None Success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13</td>
+<td>2.0/5 (40%)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>14</td>
+<td>3.0/5 (60%)</td>
+<td>3.0/5 (60%)</td>
+<td>3.0/5 (60%)</td>
+</tr>
+<tr>
+<td>15</td>
+<td>2.2/5 (44%)</td>
+<td>3.5/5 (70%)</td>
+<td>3.5/5 (70%)</td>
+</tr>
+<tr>
+<td>16</td>
+<td>3.3/5 (66%)</td>
+<td>4.7/5 (94%)</td>
+<td>4.0/5 (80%)</td>
+</tr>
+<tr>
+<td>17</td>
+<td>2.7/5 (54%)</td>
+<td>2.7/5 (54%)</td>
+<td>1.7/5 (34%)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> The table shows average agents finished per
+run within each seed group (3 replicates per cell).</p>
+<p><strong>Pattern:</strong> Performance varies significantly by seed.
+Freeform maintains advantage across most seeds (particularly strong in
+seeds 15 and 16). Structured performs inconsistently, never achieving
+the 73% success seen in preliminary seed-13 experiments.</p>
+<p><strong>The seed-13 outlier:</strong> When we ran the full 3×3 matrix
+for seed 13 in the cross-seed study, structured achieved only 40%
+success (2.0/5 agents)—far below the 73% from the initial experiments.
+This suggests even within seed 13, there was high variance, and the
+initial 3 runs happened to be lucky.</p>
+<hr />
+<h2 id="why-doesnt-communication-help">Why Doesn’t Communication
+Help?</h2>
+<p>The most surprising finding isn’t that freeform beats structured—it’s
+that <strong>communication barely helps at all</strong>. The
+no-communication baseline (57.3%) performs nearly as well as freeform
+(62.7%), and collision rates are similar across all strategies
+(14.5-18.1 range).</p>
+<p>This is unexpected. We designed communication specifically to help
+agents coordinate in tight corridors with partial observability. Why
+didn’t it work?</p>
+<h3 id="the-critical-missing-piece-we-have-no-reference-point">The
+Critical Missing Piece: We Have No Reference Point</h3>
+<p><strong>Before exploring environmental or technical explanations, we
+need to ask a more fundamental question:</strong> Is 60% success good or
+bad?</p>
+<p><strong>We have no idea.</strong> We’re comparing LLM strategies to
+each other, but we don’t know how humans would perform on this exact
+task. Without a baseline, we can’t interpret our results.</p>
+<p><strong>The fundamental question:</strong> What if the task itself is
+the bottleneck, not communication? Or what if spatial navigation is easy
+but we’re incorrectly attributing success to communication?</p>
+<p><strong>Why we need to know:</strong> - LLM agents achieve 56-63%
+success across strategies - Is this good or terrible? We have no
+reference point - Maybe 60% is near-optimal for this task and
+communication can’t help more - Or maybe humans would hit 95% and LLMs
+are just bad at spatial reasoning - Or maybe humans achieve 60% too,
+meaning the task is fundamentally hard</p>
+<p><strong>The critical test: Human baseline study</strong></p>
+<p>Run the identical experiment with human participants:</p>
+<p><strong>Setup:</strong> - 5 humans navigate the same 30×10 maze -
+Exact same constraints: vision radius=1 (only see immediate 3×3 patch),
+100 turns, goal bearing provided - Three conditions: (1) no
+communication, (2) text chat (freeform), (3) structured protocol -
+Multiple maze seeds, multiple groups</p>
+<p><strong>What this would reveal:</strong></p>
+<p><strong>Scenario A: Humans achieve ~60% (same as LLMs)</strong> → The
+task is fundamentally hard with radius=1 observability → Communication
+can’t overcome severe information constraints → LLMs are performing at
+human level on spatial navigation → <strong>Implication:</strong> This
+becomes a validated benchmark for “coordination under extreme partial
+observability”—potentially the ARC-AGI equivalent for multi-agent
+systems</p>
+<p><strong>Scenario B: Humans achieve ~95% without
+communication</strong> → Spatial navigation is the bottleneck, not
+communication → Humans have better spatial reasoning/memory than LLMs →
+Communication doesn’t help because good navigation solves the problem →
+<strong>Implication:</strong> LLM spatial reasoning is the capability
+gap, not communication processing</p>
+<p><strong>Scenario C: Humans achieve ~60% without comm, ~95% with
+comm</strong> → Humans benefit massively from communication, LLMs don’t
+→ LLMs can’t effectively use coordination information →
+<strong>Implication:</strong> Architectural or prompting gap in how LLMs
+process and act on peer messages</p>
+<p><strong>Scenario D: Humans achieve ~30% (worse than LLMs)</strong> →
+Humans struggle more with severe constraints than LLMs → Unexpected but
+possible—LLMs might handle systematic search better →
+<strong>Implication:</strong> LLMs have strengths in constrained
+exploration that exceed human performance</p>
+<p><strong>Why this matters more than anything else:</strong></p>
+<p>Without a human baseline, we’re making unfounded assumptions: - “60%
+seems low” ← compared to what? - “Communication should help” ← based on
+what evidence? - “LLMs are bad at this” ← relative to whom?</p>
+<p><strong>Every conclusion in this paper is uninterpretable without
+this data.</strong></p>
+<p><strong>The ARC-AGI parallel:</strong></p>
+<p>This could become <strong>the benchmark for multi-agent communication
+under constraints</strong>: - ARC-AGI tests individual reasoning under
+novel constraints - This would test coordination reasoning under severe
+observability constraints - Like ARC, it’s simple to state but
+potentially very hard - Human baseline is essential for ARC’s value—same
+here - If humans crush it, you’ve identified an LLM capability gap - If
+humans struggle too, you’ve validated a hard benchmark - If
+communication helps humans but not LLMs, you’ve isolated the
+coordination deficit</p>
+<p><strong>This transforms the work from “we compared LLM strategies” to
+“we identified a fundamental benchmark for testing multi-agent
+coordination capabilities.”</strong></p>
+<p><strong>Test this by:</strong> Running a human subjects study with
+the exact same environment, constraints, and measurement protocol. Could
+be conducted as an online multiplayer game with constrained visibility.
+Implementation would be straightforward—the environment already exists,
+just needs a human-playable interface.</p>
+<hr />
+<h3 id="possible-environmentaltechnical-explanations">Possible
+Environmental/Technical Explanations</h3>
+<p><em>If we had the human baseline and confirmed LLMs underperform,
+here are potential technical reasons:</em></p>
+<h3
+id="hypothesis-1-partial-observability-limits-communication-effectiveness">Hypothesis
+1: Partial Observability Limits Communication Effectiveness</h3>
+<p><strong>The problem:</strong> Agents can only see radius=1 (their
+immediate 3×3 patch). They can’t see the maze structure, where other
+agents are beyond immediate neighbors, or the full path to the goal.</p>
+<p><strong>Why this hurts communication:</strong> - An agent saying “I’m
+heading east toward (15,3)” doesn’t help if you can’t see where (15,3)
+is relative to you - You can’t build a shared mental model of the
+environment from local radio messages - By the time you receive a
+message (1-turn lag), the sender may have moved or changed plans</p>
+<p><strong>Test this by:</strong> Running experiments with increased
+vision radius (3 or 5) to see if communication becomes more effective
+when agents can contextualize messages.</p>
+<h3
+id="hypothesis-2-the-one-turn-message-lag-negates-coordination-benefits">Hypothesis
+2: The One-Turn Message Lag Negates Coordination Benefits</h3>
+<p><strong>The problem:</strong> Messages sent at turn T arrive at turn
+T+1. In a dynamic environment with 5 agents moving simultaneously, one
+turn is a long time.</p>
+<p><strong>Why this hurts communication:</strong> - Agent A: “I’m moving
+to (5,5)” [turn 10] - Agent B receives this at turn 11, but A is already
+there or blocked - By the time B acts on the info (turn 11), it’s stale
+- Coordination requires real-time feedback; async messaging creates race
+conditions</p>
+<p><strong>Test this by:</strong> Running experiments with synchronous
+communication (messages delivered same-turn) or look-ahead planning
+where agents commit to multi-turn paths.</p>
+<h3
+id="hypothesis-3-corridor-environment-doesnt-require-coordination">Hypothesis
+3: Corridor Environment Doesn’t Require Coordination</h3>
+<p><strong>The problem:</strong> The “long_corridor” maze might have
+natural traffic flow that doesn’t benefit from explicit
+coordination.</p>
+<p><strong>Why this hurts communication:</strong> - If corridors are
+wide enough for independent navigation, agents don’t <em>need</em> to
+coordinate - If corridors are too narrow, agents collide regardless of
+communication (bottleneck problem) - The sweet spot where communication
+helps (moderate congestion) might be rare in this environment</p>
+<p><strong>Supporting evidence:</strong> - Collision rates are similar
+across all strategies (communication doesn’t prevent collisions) -
+“None” strategy succeeds 57.3%—agents can navigate independently pretty
+well</p>
+<p><strong>Test this by:</strong> Running experiments in more complex
+mazes (branching paths, open rooms, multiple goals) where coordination
+should matter more.</p>
+<h3 id="hypothesis-4-llms-dont-use-communication-effectively">Hypothesis
+4: LLMs Don’t Use Communication Effectively</h3>
+<p><strong>The problem:</strong> Even when agents send messages, they
+may not <em>act</em> on them appropriately.</p>
+<p><strong>Why this hurts communication:</strong> - LLMs might generate
+messages to “follow the prompt” but not actually change behavior based
+on received messages - Agents might acknowledge messages (“a4 yielding”)
+but continue collision anyway due to planning errors - The history
+window (5 turns) might be too short to maintain consistent coordination
+state</p>
+<p><strong>Evidence:</strong> - High variance in message counts (0-35
+range) suggests agents aren’t following consistent communication
+strategies - Negative correlation (r=-0.516) between messages and
+success in structured runs—more messages → worse outcomes - Some runs
+succeed with zero messages, others fail with heavy messaging</p>
+<p><strong>Test this by:</strong> Analyzing transcripts to see if agents
+actually change behavior in response to messages, or if communication is
+performative.</p>
+<h3
+id="hypothesis-5-the-prompt-guidance-discourages-communication">Hypothesis
+5: The Prompt Guidance Discourages Communication</h3>
+<p><strong>The problem:</strong> We told agents “DEFAULT TO MOVE” and
+“only CHAT when the message prevents imminent collision or shares
+critical info.”</p>
+<p><strong>Why this hurts communication:</strong> - Agents may be too
+conservative about when to communicate - By the time collision is
+“imminent” (visible in radius=1), it’s too late to coordinate - Agents
+need to communicate <em>before</em> they’re in visual range, but prompt
+discourages this</p>
+<p><strong>Evidence:</strong> - Low message counts (mean 5.9-8.9 per
+run) suggest agents are staying quiet - Some agents send zero messages
+across entire 100-turn run</p>
+<p><strong>Test this by:</strong> Running experiments with different
+prompts encouraging proactive communication or removing the “DEFAULT TO
+MOVE” directive.</p>
+<hr />
+<h3 id="summary-why-these-explanations-are-secondary">Summary: Why These
+Explanations Are Secondary</h3>
+<p>The five technical/environmental hypotheses above are all speculation
+without the human baseline. We can’t know if “partial observability
+limits communication” or “LLMs don’t use messages effectively” until we
+know whether humans would perform better under identical
+constraints.</p>
+<p><strong>The human study is the critical next step.</strong>
+Everything else is guessing.</p>
+<hr />
+<h2
+id="communication-in-action-sequential-coordination-examples">Communication
+in Action: Sequential Coordination Examples</h2>
+<p>These examples come from the initial seed-13 experiments and
+illustrate how each strategy coordinates in practice. While seed 13 was
+an outlier in terms of overall success rates, these sequences show the
+typical communication patterns for each approach.</p>
+<h3
+id="structured-coordination-sequence-seed-13-run-1-turns-3-12">Structured
+Coordination Sequence (Seed 13, Run 1, Turns 3-12)</h3>
+<p>This 6-message sequence shows agent a5 navigating a congested
+corridor while coordinating with nearby agents:</p>
+<p><strong>Turn 3, a4:</strong></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding; holding at (3,8) so a2 can access (3,7) toward frontier (3,6).&quot;</span></span></code></pre></div>
+<p><strong>Turn 8, a5:</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;REQUEST&quot;</span><span class="fu">,</span> <span class="dt">&quot;req&quot;</span><span class="fu">:</span> <span class="st">&quot;YIELD&quot;</span><span class="fu">,</span> <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">&quot;x&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span> <span class="dt">&quot;y&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">}}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="er">(requesting</span> <span class="er">priority</span> <span class="er">at</span> <span class="er">contested</span> <span class="er">cell)</span></span></code></pre></div>
+<p><strong>Turn 9, a5:</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding after previous YIELD; holding at (7,1) so lower-id peer may</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">advance toward frontier (9,1).&quot;</span></span></code></pre></div>
+<p><strong>Turn 10, a5:</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing yield; staying to avoid collision.&quot;</span></span></code></pre></div>
+<p><strong>Turn 11, a5:</strong></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MOVE_E&quot;</span><span class="fu">}</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing move E to scout frontier at (9,1) before proceeding; avoiding</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="st">repeated blocked attempt.&quot;</span></span></code></pre></div>
+<p><strong>Turn 12, a5:</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;INTENT&quot;</span><span class="fu">,</span> <span class="dt">&quot;next_action&quot;</span><span class="fu">:</span> <span class="st">&quot;STAY&quot;</span><span class="fu">}</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Avoiding repeated MOVE_E into (8,1) after a YIELD; broadcasting STAY to</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">coordinate with nearby peer.&quot;</span></span></code></pre></div>
+<p><strong>What happened:</strong> Agent a5 detected congestion at
+(8,1), requested yield from peer, waited for 2 turns, announced move,
+then yielded again when detecting continued blockage. The sequence shows
+repeated coordination with terse messages (6-10 tokens each). Result: 0
+collisions in this sequence, forward progress maintained.</p>
+<hr />
+<h3
+id="freeform-coordination-sequence-seed-13-run-1-turns-48-53">Freeform
+Coordination Sequence (Seed 13, Run 1, Turns 48-53)</h3>
+<p>This 6-message sequence shows agents a2 and a4 negotiating access to
+a contested corridor:</p>
+<p><strong>Turn 48, a2:</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Broadcasting intent: heading west to scout frontier at (8,1); requesting</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">yield to avoid collision.&quot;</span></span></code></pre></div>
+<p><strong>Turn 49, a4:</strong></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding at (8,1); staying to let a2 scout west&quot;</span><span class="fu">}</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid collision and let them scout west.&quot;</span></span></code></pre></div>
+<p><strong>Turn 50, a4:</strong></p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to let you scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding (8,1) to a2 per their request and to avoid collision; staying to</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="st">let them scout.&quot;</span></span></code></pre></div>
+<p><strong>Turn 52, a2:</strong></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a2 heading west toward (6,1); entering contested (7,1),</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">yielding if needed.&quot;</span><span class="fu">}</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Announcing west toward (6,1); entering contested (7,1).&quot;</span></span></code></pre></div>
+<p><strong>Turn 52, a4:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid collision and</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">let you scout.&quot;</span><span class="fu">}</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding at (8,1) to let a2 scout west; avoiding contended W.&quot;</span></span></code></pre></div>
+<p><strong>Turn 53, a4:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="er">Message:</span> <span class="fu">{</span><span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAT&quot;</span><span class="fu">,</span> <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;a4 yielding (8,1) to a2; staying to avoid contested (7,1).&quot;</span><span class="fu">}</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="er">Reasoning:</span> <span class="st">&quot;Yielding to a2; staying at (8,1) to avoid contested (7,1).&quot;</span></span></code></pre></div>
+<p><strong>What happened:</strong> Agent a2 requested access, a4 yielded
+with confirmation, a2 advanced, a4 repeated yield confirmation (turns
+50, 52, 53). Messages are longer (15-20 tokens each) and show redundancy
+(3 nearly identical yield messages). Result: coordination successful but
+verbose.</p>
+<p><strong>Comparison:</strong> Both sequences achieve coordination.
+Structured uses 6 messages (54 tokens total). Freeform uses 6 messages
+(102 tokens total). Structured eliminates redundancy through schema
+constraints; freeform allows natural repetition.</p>
+<p><strong>But here’s the critical point:</strong> Despite freeform’s
+verbosity and apparent inefficiency in individual sequences, it achieves
+12% higher success rate across diverse scenarios (62.7% vs 56.0%). The
+redundancy doesn’t hurt—it might even help by reinforcing coordination
+intent across the one-turn message lag.</p>
+<hr />
+<h2 id="interpretability-revisited">Interpretability Revisited</h2>
+<p><strong>Initial hypothesis (from seed 13):</strong> Structured
+messages are more interpretable because they’re compact, consistent, and
+parseable.</p>
+<p><strong>What cross-seed validation showed:</strong> Interpretability
+doesn’t matter if the strategy doesn’t work.</p>
+<h3 id="structured-compact-but-ineffective">Structured: Compact but
+Ineffective</h3>
+<p>Compact, fixed-schema messages are easy to parse
+programmatically:</p>
 <pre><code>Turn 3, a4: INTENT STAY (yield to a2)
 Turn 8, a5: REQUEST YIELD @ (8,1)
 Turn 9, a5: INTENT STAY (confirming yield)</code></pre>
-<p>Total: ~54 bytes, 3 seconds to parse. No ambiguity. Schema enforces
-semantic clarity (INTENT vs REQUEST vs YIELD).</p>
-<p><strong>Freeform:</strong> Natural language appears more readable to
-an untrained observer but introduces practical challenges:</p>
-<ol type="1">
-<li><strong>Volume:</strong> 2.1× more tokens on average (102 vs 54 for
-the 6-message sequences above) makes auditing slower</li>
-<li><strong>Variability:</strong> “a5 yielding (7,4) to you; I’ll go
-north” vs “please yield so I can scout” express similar intent
-differently, requiring semantic parsing</li>
-<li><strong>Redundancy:</strong> Agent a4 sent 3 nearly identical yield
-messages (turns 50, 52, 53) because natural language lacks deduplication
-constraints</li>
-<li><strong>Cognitive load:</strong> An operator must extract
-coordinates, intent, and agent ID from unstructured prose</li>
-</ol>
-<p>In practice, structured communication is <strong>more
-interpretable</strong> because:</p>
-<ul>
-<li>Consistent format enables regex/scripting for log analysis</li>
-<li>Lower token budget reduces audit time (3.7× faster to review
-structured logs)</li>
-<li>Schema prevents ambiguity and contradiction</li>
-<li>Deduplication constraints eliminate redundant messages</li>
-</ul>
-<p>For trained operators or automated monitoring, structured wins
-decisively. For untrained humans reading one-off transcripts, freeform
-has superficial legibility advantage, but this does not scale to
-operational use.</p>
+<p><strong>Advantages:</strong> - Consistent format enables
+regex/scripting for log analysis - Lower token count (5.7 vs 21.0
+tokens/message) - Schema enforces semantic categories (INTENT vs
+REQUEST) - No ambiguity in message structure</p>
+<p><strong>Disadvantage that matters more:</strong> - Only 56.0% success
+rate across diverse scenarios - Rigid structure doesn’t adapt to
+different coordination contexts - Agents send 3.21 messages per
+successful finish (vs freeform’s 0.98)</p>
+<h3 id="freeform-verbose-but-effective">Freeform: Verbose but
+Effective</h3>
+<p>Natural language messages are longer and more variable:</p>
+<pre><code>&quot;a2 heading west toward (8,1); please yield so I can scout.&quot;
+&quot;a4 yielding at (8,1); staying to let a2 scout west&quot;
+&quot;a4 yielding (8,1) to a2; staying to let you scout.&quot; [repeated]</code></pre>
+<p><strong>Disadvantages:</strong> - 3.7× more tokens per message (21.0
+vs 5.7) - Variability requires semantic parsing - Redundancy (agent a4’s
+3 nearly identical yields) - Higher cognitive load for human log
+review</p>
+<p><strong>Advantage that matters more:</strong> - 62.7% success rate
+across diverse scenarios - Flexible coordination adapts to different
+contexts - Only 0.98 messages per successful finish - Natural language
+conveys nuance (intention, reasoning, context)</p>
+<h3 id="operational-reality">Operational Reality</h3>
+<p>For deployment, <strong>task success matters more than log
+compactness</strong>. Freeform’s 12% higher success rate (62.7% vs
+56.0%) outweighs structured’s 3.7× token advantage. If you need agents
+to actually complete tasks across varying conditions, choose the
+strategy that generalizes—even if it’s messier to audit.</p>
+<p>That said, structured logs are genuinely easier to parse for
+automated monitoring. If you could get structured to match freeform’s
+success rate, the interpretability advantage would be meaningful. But
+you can’t. The rigidity that makes structured interpretable also makes
+it inflexible.</p>
 <hr />
 <h2 id="key-findings">Key Findings</h2>
-<ol type="1">
-<li><p><strong>Structured communication achieves 3.6× higher success
-rate</strong> than no communication (73% vs 20%) and 2.2× higher than
-freeform (73% vs 33%)</p></li>
-<li><p><strong>Consistency matters:</strong> Structured shows low
-variance (σ = 3.6 collisions); freeform is unpredictable (σ = 13.7
-collisions)</p></li>
-<li><p><strong>Collision reduction:</strong> Structured reduces
-collisions by 4.3× compared to no communication (10 vs 43
-collisions/run)</p></li>
-<li><p><strong>More communication ≠ better outcomes:</strong> Freeform
-run 3 sent the most tokens (587) but achieved the worst result (1/5
-agents finished), demonstrating that unstructured high-volume
-communication degrades performance</p></li>
-<li><p><strong>Token efficiency:</strong> Structured achieves 0.38
-agents finished per 100 tokens; freeform achieves 0.17 agents per 100
-tokens (2.2× less efficient)</p></li>
-<li><p><strong>Message compactness:</strong> Structured messages average
-5.7 tokens/message vs freeform’s 21.0 tokens/message (3.7× more
-compact)</p></li>
-<li><p><strong>Interpretability in practice:</strong> Structured logs
-are faster to audit (lower volume, consistent format) and prevent
-ambiguity/contradiction through schema constraints</p></li>
-</ol>
+<h3 id="freeform-communication-generalizes-better">1. Freeform
+Communication Generalizes Better</h3>
+<p><strong>Result:</strong> Freeform achieves 62.7% success across 5
+spawn seeds, outperforming structured (56.0%) and no communication
+(57.3%).</p>
+<p><strong>Why:</strong> Natural language allows context-aware, flexible
+coordination. Agents express nuanced intent (“please yield so I can
+scout”) that adapts to different scenarios better than rigid
+INTENT/REQUEST schemas.</p>
+<h3 id="structured-protocols-provide-minimal-benefit">2. Structured
+Protocols Provide Minimal Benefit</h3>
+<p><strong>Result:</strong> Structured achieves 56.0% success—barely
+above no communication (57.3%) and 12% below freeform (62.7%).</p>
+<p><strong>Why:</strong> Rigid message schemas create coordination
+overhead without corresponding benefit. The fixed INTENT/REQUEST format
+doesn’t capture the contextual flexibility needed for effective
+multi-agent coordination across diverse scenarios.</p>
+<h3 id="communication-efficiency-sparse-beats-verbose">3. Communication
+Efficiency: Sparse Beats Verbose</h3>
+<p><strong>Result:</strong> Freeform uses only 5.9 messages/run on
+average but achieves the highest success. Structured uses 8.9
+messages/run for worse outcomes.</p>
+<p><strong>Metric:</strong> Messages per successful agent: - Freeform:
+0.98 messages - Structured: 3.21 messages (3.3× less efficient)</p>
+<p><strong>Why:</strong> Freeform agents coordinate opportunistically
+when needed and stay silent when not. Structured agents follow protocol
+even when communication doesn’t help.</p>
+<h3 id="collision-rates-are-similar-across-strategies">4. Collision
+Rates Are Similar Across Strategies</h3>
+<p><strong>Result:</strong> All strategies show 14.5-18.1 collisions/run
+with high variance.</p>
+<p><strong>Why:</strong> Communication doesn’t significantly reduce
+agent-agent conflicts in this environment. Collisions happen due to
+tight corridors and partial observability, not lack of coordination
+messages.</p>
+<p><strong>Implication:</strong> The hypothesis that structured priority
+rules prevent collisions (strongly supported by seed 13 alone) does not
+hold across diverse scenarios.</p>
+<h3 id="high-llm-variance-across-all-strategies">5. High LLM Variance
+Across All Strategies</h3>
+<p><strong>Result:</strong> - Structured messages: 0-23 range (median
+7), σ=6.9 - Freeform messages: 0-15 range (median 3), σ=9.1 - Success
+rates vary widely within each seed</p>
+<p><strong>Why:</strong> LLM behavior shows significant
+variability—likely due to time-of-day effects, backend differences, or
+stochastic sampling.</p>
+<p><strong>Implication:</strong> Large sample sizes across multiple
+scenarios are essential. Small studies will produce unreliable
+conclusions.</p>
+<h3 id="single-seed-studies-are-dangerously-misleading">6. Single-Seed
+Studies Are Dangerously Misleading</h3>
+<p><strong>Result:</strong> - Seed 13 only: Structured 73%, Freeform
+33%, None 20% - Cross-seed (13-17): Structured 56%, Freeform 62.7%, None
+57.3%</p>
+<p><strong>Complete reversal:</strong> The strategy that looked best
+(structured) became worst. The strategy that looked worst (none) became
+middle-tier.</p>
+<p><strong>Why:</strong> Seed 13 created a spawn configuration that
+strongly favored structured coordination. Other seeds revealed this was
+not representative.</p>
+<p><strong>Implication:</strong> This is the most important
+methodological lesson. In stochastic multi-agent systems,
+single-scenario experiments can produce completely wrong conclusions.
+Always validate across multiple seeds/configurations before drawing
+conclusions.</p>
+<h3 id="more-communication-better-outcomes">7. More Communication ≠
+Better Outcomes</h3>
+<p><strong>Result:</strong> Negative correlation (r=-0.516) between
+messages and success in structured runs. Some freeform runs succeeded
+with zero messages.</p>
+<p><strong>Why:</strong> Communication quality and timing matter more
+than volume. Excessive messaging can create coordination overhead that
+hurts performance.</p>
+<p><strong>Implication:</strong> Don’t optimize for message count.
+Optimize for task success.</p>
 <hr />
 <h2 id="conclusion">Conclusion</h2>
-<p>In multi-agent navigation with partial observability and congestion,
-<strong>structured communication protocols with explicit priority rules
-and fixed message schemas outperform both natural language communication
-and no communication.</strong> The key advantage is not message volume
-but <strong>consistency, compactness, and coordination
-quality</strong>.</p>
-<p>Fixed schemas reduce ambiguity, enforce priority discipline, and
-enable agents to make fast, unambiguous coordination decisions.
-Sequential coordination sequences demonstrate that structured agents
-achieve the same outcomes with 47% fewer tokens (54 vs 102 in the
-comparison above) and no redundancy.</p>
-<p>While natural language offers superficial legibility, it introduces
-variance and inefficiency that undermine task performance in
-resource-constrained scenarios. For operational deployment, structured
-protocols enable faster log auditing, automated monitoring, and
-deterministic behavior—all critical for reliable multi-agent
-systems.</p>
+<p>The primary contribution of this work is
+<strong>methodological</strong>: demonstrating how single-scenario
+experiments mislead, and how extreme LLM variance demands rigorous
+experimental design.</p>
+<h3 id="what-we-learned-with-certainty">What We Learned (With
+Certainty)</h3>
+<p><strong>About experimental methodology:</strong> -
+<strong>Single-seed studies are dangerously misleading:</strong> Seed 13
+showed structured at 73% success; cross-seed average was 56%. Complete
+ranking reversal. - <strong>LLM agents exhibit extreme
+non-determinism:</strong> Identical setups produce 0-35 message ranges,
+σ &gt; mean. You cannot predict behavior from single runs. -
+<strong>Large sample sizes are essential:</strong> Need 10+ replicates
+per condition to characterize behavior through noise. -
+<strong>Cross-scenario validation is mandatory:</strong> What works in
+one spawn configuration may fail in others. Test multiple
+seeds/environments before drawing conclusions.</p>
+<p>These findings are robust and important for anyone working with LLM
+multi-agent systems.</p>
+<h3 id="what-we-think-we-learned-with-uncertainty">What We Think We
+Learned (With Uncertainty)</h3>
+<p><strong>About communication strategies:</strong> - Freeform shows
+modest advantage: 62.7% vs 56.0% (structured) vs 57.3% (none) - Effect
+size is small: 5-agent difference out of 75 attempts - We lack
+statistical significance testing—this could be sampling noise -
+No-communication baseline performs nearly as well as best strategy
+(5.4pp difference)</p>
+<p><strong>The bigger puzzle:</strong> Communication doesn’t seem to
+help much in this environment. We generated five hypotheses for why
+(partial observability, message lag, corridor design, LLM limitations,
+prompt guidance), but haven’t tested them.</p>
+<h3 id="why-this-matters">Why This Matters</h3>
+<p><strong>For multi-agent system design:</strong> Don’t assume
+communication will help. Test it. In narrow corridors with partial
+observability and async messaging, our agents coordinated about as well
+without communication as with it. Your environment may differ, but
+communication is not automatically beneficial.</p>
+<p>If you do use communication: freeform natural language shows better
+generalization than rigid schemas in our tests, but the effect is
+modest.</p>
+<p><strong>For research methodology:</strong> If you’re evaluating LLM
+agent strategies, you need: 1. Multiple scenario seeds (5+ recommended)
+2. Multiple replicates per condition (10+ recommended) 3.
+Cross-validation before claiming effects 4. Honest reporting of effect
+sizes and variance</p>
+<p>Single-seed, low-replicate studies will produce spurious results. We
+almost published one.</p>
+<h3 id="the-bigger-picture">The Bigger Picture</h3>
+<p>This study demonstrates two things:</p>
+<p><strong>1. Methodological rigor is critical for LLM agent
+research.</strong> The variance is extreme, the behavior is
+unpredictable, and small sample sizes will mislead you. We got lucky by
+being skeptical of our initial results and running cross-validation.
+Most papers don’t.</p>
+<p><strong>2. Communication in multi-agent LLM systems is poorly
+understood.</strong> We expected it to help. It barely did. We don’t
+know if this is specific to our environment or a general finding. Future
+work should focus on understanding <em>when</em> and <em>why</em>
+communication helps, not just assuming it does.</p>
+<h3 id="what-we-dont-know-yet">What We Don’t Know Yet</h3>
+<p><strong>About communication strategies:</strong> - Would structured
+protocols work better with different prompting or schema design? - Do
+freeform’s advantages hold in even more diverse environments (different
+maze types, agent counts, visibility ranges)? - What aspects of natural
+language messages drive successful coordination—specificity, politeness,
+spatial references? - How much does the one-turn communication lag
+affect different strategies?</p>
+<p><strong>About non-determinism:</strong> - What’s the primary source
+of run-to-run variability—LLM sampling, backend infrastructure, cascade
+effects, or something else? - Can we reduce variability through prompt
+engineering or other techniques? (Note: model doesn’t accept temperature
+parameter) - Are there agent configurations or environment designs that
+produce more consistent behavior? - How much of the variance is “noise”
+versus meaningful exploration of the strategy space? - Is the
+non-determinism inherent to LLM inference, or can it be controlled?</p>
+<p><strong>About the benchmark itself (THE CRITICAL QUESTION):</strong>
+- <strong>What’s the human baseline?</strong> Would humans achieve 60%,
+95%, or 30% on this exact task (vision radius=1, 100 turns, same maze)?
+- <strong>Does communication help humans?</strong> If humans go from 60%
+(no-comm) to 95% (with-comm), but LLMs stay at 60%, that reveals LLMs
+can’t use coordination information effectively - <strong>What’s the
+bottleneck?</strong> Is it spatial navigation (LLMs bad at mental maps),
+communication processing (LLMs ignore messages), or task difficulty
+(humans would struggle too)? - <strong>Could this become a
+benchmark?</strong> Like ARC-AGI for individual reasoning, could this be
+the standard test for multi-agent coordination under severe constraints?
+- <strong>What would “good” performance look like?</strong> Without a
+reference point, we can’t interpret our results. 60% could be excellent
+or terrible.</p>
+<p><strong>This is the most important open question.</strong> Everything
+else is speculation without knowing how humans perform on the identical
+task. A human study would transform this from “we ran some LLM
+experiments” to “we identified a fundamental capability gap” or “we
+validated a benchmark for coordination reasoning.”</p>
+<p>These questions remain open for future work.</p>
 <hr />
-<p><strong>Experiment Details:</strong></p>
-<ul>
-<li>Commit: <code>fe3ffda</code></li>
-<li>Model: <code>azure:gpt-5-mini</code></li>
-<li>Grid: 30×10, visibility radius 1, radio range 2</li>
-<li>Maze: <code>long_corridor</code> preset, obstacle seed 606</li>
-<li>Agent starts: seed 13 (fixed positions)</li>
-<li>Turn budget: 100</li>
-<li>Runs: 3 per strategy × 3 strategies = 9 total</li>
-<li>Token counting: <code>tiktoken</code> library,
-<code>o200k_base</code> encoding</li>
-</ul>
+<h2 id="experiment-details">Experiment Details</h2>
+<p><strong>Cross-Seed Validation Study:</strong> - Runs: 45 total (5
+seeds × 3 strategies × 3 replicates) - Seeds: 13, 14, 15, 16, 17 (agent
+spawn positions) - Maze: <code>long_corridor</code> preset, obstacle
+seed 606, 30×10 grid - Model: <code>azure:gpt-5-mini</code> - Agent
+parameters: visibility=1, radio_range=2 (none=0), history_limit=5 - Turn
+budget: 100 turns per run - Token counting: <code>tiktoken</code>
+library, <code>o200k_base</code> encoding - Duration: November 12-14,
+2025</p>
+<p><strong>Initial Study (Seed 13 Only):</strong> - Runs: 9 total (3 per
+strategy) - Seed: 13 only - Same environment parameters - Commit:
+<code>fe3ffda</code> - This study produced misleading results due to
+single-seed bias</p>
+<p><strong>Data availability:</strong> - Full dataset:
+<code>experiments/cross_seed_baseline_20251112T143355Z/</code> - Run
+inventory: <code>run_inventory.json</code> (45 runs with UTC timestamps)
+- Aggregate statistics: <code>aggregate_stats.json</code> - Plots:
+<code>plots/</code> directory (5 publication-quality visualizations) -
+Individual runs: <code>runs/</code> directory (45 complete run
+directories with metrics, transcripts, episodes)</p>
+<hr />
+<p><strong>Last updated:</strong> 2025-11-15</p>
 </body>
 </html>
