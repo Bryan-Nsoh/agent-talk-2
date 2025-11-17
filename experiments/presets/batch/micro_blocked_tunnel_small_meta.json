@@ -1,0 +1,15 @@
+{
+  "maze": "micro_blocked_tunnel_small",
+  "width": 10,
+  "height": 7,
+  "goal": {
+    "x": 9,
+    "y": 6,
+    "rationale": "Farthest bottom-right cell to maximize agent-goal distance on this 10x7 grid."
+  },
+  "starts": {
+    "a1": { "x": 0, "y": 0 },
+    "a2": { "x": 0, "y": 6 }
+  },
+  "notes": "Blocked central tunnel forces detour along the outer loop; two agents start far left with maximal Manhattan distance to goal."
+}

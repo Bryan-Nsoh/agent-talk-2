@@ -82,6 +82,12 @@ class LlmPolicy:
                 "Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield. Example: 'I'm a5, yielding (5,5) to you, going west' or just move without announcing if you're yielding.",
                 "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
             ]
+            extra_rules = os.environ.get("LLMGRID_FREEFORM_EXTRA_RULES")
+            if extra_rules:
+                for line in extra_rules.splitlines():
+                    text = line.strip()
+                    if text:
+                        strategy_rules.append(text)
         else:
             strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]
 

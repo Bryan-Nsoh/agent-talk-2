@@ -1,0 +1,19 @@
+[
+  {"name":"none_passive","comm_strategy":"none","loop_guidance":"passive","rules_id":"none_default"},
+  {"name":"none_cautious","comm_strategy":"none","loop_guidance":"active","rules_id":"safety_bias"},
+
+  {"name":"freeform_default","comm_strategy":"freeform","loop_guidance":"passive","rules_id":"ff_default"},
+  {"name":"freeform_cautious","comm_strategy":"freeform","loop_guidance":"active","rules_id":"ff_cautious"},
+
+  {"name":"freeform_tag_light","comm_strategy":"freeform","loop_guidance":"passive","rules_id":"ff_tag_light"},
+  {"name":"freeform_tag_strict","comm_strategy":"freeform","loop_guidance":"active","rules_id":"ff_tag_strict"},
+
+  {"name":"freeform_kv_light","comm_strategy":"freeform","loop_guidance":"passive","rules_id":"ff_kv_light"},
+  {"name":"freeform_kv_strict","comm_strategy":"freeform","loop_guidance":"active","rules_id":"ff_kv_strict"},
+
+  {"name":"structured_intent_only","comm_strategy":"structured","loop_guidance":"passive","rules_id":"struct_intent_only"},
+  {"name":"structured_yield_rule","comm_strategy":"structured","loop_guidance":"active","rules_id":"struct_yield_rule"},
+
+  {"name":"structured_sparse_cautious","comm_strategy":"structured","loop_guidance":"explore","rules_id":"struct_sparse_cautious"},
+  {"name":"freeform_priority_lowest_goes","comm_strategy":"freeform","loop_guidance":"explore","rules_id":"ff_priority_lowest_goes"}
+]

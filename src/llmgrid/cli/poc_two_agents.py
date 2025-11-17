@@ -156,6 +156,14 @@ MAZE_PRESETS = {
         "meta_path": "experiments/presets/batch/micro_conflict_meta.json",
         "description": "Tight corridors forcing coordination - 2 agents start adjacent bottom left.",
     },
+    "micro_blocked_tunnel_small": {
+        "width": 10,
+        "height": 7,
+        "style": "manual",
+        "ascii_path": "experiments/presets/batch/micro_blocked_tunnel_small.txt",
+        "meta_path": "experiments/presets/batch/micro_blocked_tunnel_small_meta.json",
+        "description": "10x7 maze with a blocked central tunnel forcing a detour; goal bottom-right.",
+    },
     "direct_grid": {
         "width": 15,
         "height": 5,
