@@ -289,6 +289,7 @@ class EpisodeCheckpoint(BaseModel):
     episode_path: Optional[str] = None
     concurrency_window: int = 1
     comm_strategy: str = "none"
+    map_sharing: str = "none"
     history_limit: int = 5
     loop_guidance: str = "passive"
     # Oracle removed in this branch
@@ -375,6 +376,7 @@ async def _run_episode_async(
     retry_base_delay: float = 1.0,
     retry_jitter: float = 0.5,
     comm_strategy: str = "none",
+    map_sharing: str = "none",
     history_limit: int = 5,
     loop_guidance: str = "passive",
     freeform_global: bool = False,
@@ -388,12 +390,15 @@ async def _run_episode_async(
     history_limit = max(1, history_limit)
     loop_guidance = loop_guidance.lower()
     comm_strategy = comm_strategy.lower()
+    map_sharing = map_sharing.lower()
     # oracle disabled in this branch
     radio_enabled_strategies = {"structured", "freeform"}
     radio_enabled = comm_strategy in radio_enabled_strategies
+    # Keep radio_range available for map_sharing even if comms are off.
     if not radio_enabled:
-        radio_range = 0
-    radio_max_outbound = 1 if radio_enabled else 0
+        radio_max_outbound = 0
+    else:
+        radio_max_outbound = 1
     collision_cause_counts: Counter[str] = Counter()
     hazard_events = 0
     comments_clamped = 0
@@ -406,6 +411,9 @@ async def _run_episode_async(
         start_positions = resume.start_positions
 
     agent_ids = list(agent_order) if agent_order is not None else list(start_positions.keys())
+
+    if map_sharing not in {"none", "radio_sync", "global"}:
+        raise ValueError(f"Unsupported map_sharing mode: {map_sharing}")
 
     if resume is not None:
         world = resume.world.restore()
@@ -420,6 +428,11 @@ async def _run_episode_async(
                 f"Checkpoint recorded with loop_guidance={resume_loop_guidance!r}; got loop_guidance={loop_guidance!r}."
             )
         loop_guidance = resume_loop_guidance
+        resume_map_sharing = getattr(resume, "map_sharing", "none")
+        if map_sharing != resume_map_sharing:
+            raise ValueError(
+                f"Checkpoint recorded with map_sharing={resume_map_sharing!r}; got map_sharing={map_sharing!r}."
+            )
         messages_sent = resume.messages_sent
         marks_placed = resume.marks_placed
         collisions = resume.collisions
@@ -463,7 +476,7 @@ async def _run_episode_async(
                 movement_writer.write("\n")
                 movement_writer.flush()
 
-    if not radio_enabled:
+    if not radio_enabled and map_sharing == "none":
         radio_range = 0
         radio_max_outbound = 0
 
@@ -530,6 +543,7 @@ async def _run_episode_async(
                 episode_path=episode_path,
                 concurrency_window=concurrency_window,
                 comm_strategy=comm_strategy,
+                map_sharing=map_sharing,
                 history_limit=history_limit,
                 loop_guidance=loop_guidance,
                 oracle_requests=0,
@@ -580,6 +594,10 @@ async def _run_episode_async(
             for adjacent in obs.adjacent:
                 if adjacent.state == AdjacentState.CONTENDED:
                     contended_exposures += 1
+
+        if map_sharing != "none":
+            sync_maps(world, active_agents, map_sharing, radio_range)
+            _refresh_observation_maps(world, observations)
 
         capture_trace = transcript is not None and hasattr(policy, "decide_with_trace_async")
         if use_llm:
@@ -789,6 +807,7 @@ async def _run_episode_async(
                 episode_path=episode_path,
                 concurrency_window=concurrency_window,
                 comm_strategy=comm_strategy,
+                map_sharing=map_sharing,
                 history_limit=history_limit,
                 loop_guidance=loop_guidance,
                 oracle_enabled=False,
@@ -870,6 +889,7 @@ def run_episode(
     retry_base_delay: float = 1.0,
     retry_jitter: float = 0.5,
     comm_strategy: str = "none",
+    map_sharing: str = "none",
     history_limit: int = 5,
     loop_guidance: str = "passive",
     freeform_global: bool = False,
@@ -913,14 +933,84 @@ def run_episode(
             retry_base_delay=retry_base_delay,
             retry_jitter=retry_jitter,
             comm_strategy=comm_strategy,
+            map_sharing=map_sharing,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
             freeform_global=freeform_global,
             reasoning_effort=reasoning_effort,
             reasoning_verbosity=reasoning_verbosity,
             reasoning_include_encrypted=reasoning_include_encrypted,
-        )
     )
+)
+
+
+def sync_maps(world: GridWorld, agent_ids: Iterable[str], mode: str, radio_range: int) -> int:
+    """Synchronize agent maps according to the chosen mode.
+
+    Returns the number of merge operations applied (for diagnostics).
+    """
+
+    mode = (mode or "none").lower()
+    merges = 0
+
+    if mode == "none":
+        return merges
+
+    if mode == "radio_sync":
+        ids = list(agent_ids)
+        for i, aid in enumerate(ids):
+            if world.is_finished(aid):
+                continue
+            ax, ay = world.occupancy[aid]
+            for bid in ids[i + 1 :]:
+                if world.is_finished(bid):
+                    continue
+                bx, by = world.occupancy[bid]
+                if abs(ax - bx) + abs(ay - by) <= radio_range:
+                    world.agent_maps[aid].merge_from(world.agent_maps[bid])
+                    world.agent_maps[bid].merge_from(world.agent_maps[aid])
+                    merges += 2
+        return merges
+
+    if mode == "global":
+        shared = AgentMap(world.size.width, world.size.height)
+        first_seen = False
+        for aid in agent_ids:
+            if world.is_finished(aid):
+                continue
+            shared.merge_from(world.agent_maps[aid])
+            first_seen = True
+        if not first_seen:
+            return merges
+        for aid in agent_ids:
+            if world.is_finished(aid):
+                continue
+            world.agent_maps[aid].merge_from(shared)
+            merges += 1
+        return merges
+
+    raise ValueError(f"Unsupported map sharing mode: {mode}")
+
+
+def _refresh_observation_maps(world: GridWorld, observations: Dict[str, Observation]) -> None:
+    """Update map-derived fields in observations after a map sync."""
+
+    orientations = {aid: world.orientation.get(aid, Direction.N).name for aid in world.agent_maps.keys()}
+    for aid, obs in observations.items():
+        agent_map = world.agent_maps[aid]
+        obs.world_map_ascii = agent_map.render_ascii(icon_lookup=world.agent_icons, orientations=orientations)
+        frontiers = agent_map.find_frontiers()
+        ax, ay = world.occupancy[aid]
+        obs.adjacent_frontiers = [
+            Position(x=fx, y=fy)
+            for fx, fy in frontiers
+            if abs(fx - ax) + abs(fy - ay) == 1
+        ]
+        if frontiers:
+            fx, fy = min(frontiers, key=lambda coord: abs(coord[0] - ax) + abs(coord[1] - ay))
+            obs.nearest_frontier = Position(x=fx, y=fy)
+        else:
+            obs.nearest_frontier = None
 
 
 def _freeze_random_state(state: Any) -> List[Any]:

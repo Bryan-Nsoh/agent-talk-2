@@ -183,6 +183,30 @@ class AgentMap:
                             break
         return frontiers
 
+    def merge_from(self, other: "AgentMap") -> None:
+        """Merge known tiles and last-seen agents from another map.
+
+        - Fills unknown tiles with any known value from `other`.
+        - Does NOT overwrite already-known tiles to avoid thrashing.
+        - For agent sightings, keeps the newer `turn_index`.
+        - Recent trail remains per-agent and is not merged.
+        """
+
+        if self.width != other.width or self.height != other.height:
+            raise ValueError("Map dimensions must match to merge.")
+
+        for y in range(self.height):
+            for x in range(self.width):
+                here = self._tiles[y][x]
+                there = other._tiles[y][x]
+                if here == self.UNKNOWN and there != self.UNKNOWN:
+                    self._tiles[y][x] = there
+
+        for agent_id, seen in other._agents_last_seen.items():
+            current = self._agents_last_seen.get(agent_id)
+            if current is None or seen.turn_index > current.turn_index:
+                self._agents_last_seen[agent_id] = seen
+
 
 def _neighbors4(x: int, y: int) -> Iterable[Coordinate]:
     yield x + 1, y

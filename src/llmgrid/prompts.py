@@ -9,7 +9,9 @@ Keep the entire team safe and moving. Agents should be cooperative and do their 
 
 MISSION BRIEF:
 - Grid awareness comes from the JSON: `grid_size`, `local_patch`, and `adjacent` describe nearby tiles; `self_state` gives your orientation.
-- `world_map_ascii` is your stitched map (X=unknown, `~` marks your recent trail). `adjacent_frontiers` lists unknown cells you can reveal immediately; `nearest_frontier` points to the closest X tile overall.
+- Legend (world_map_ascii): `#` wall, `G` goal, `X` unknown, `.` free cell you’ve seen, `~` your own trail (cells you stepped on), digits/letters are agents (your icon is shown in the map).
+- Map sharing (if enabled): your map may include cells discovered by nearby teammates (radio_sync) or all teammates (global); treat any non-`X` cell as reliable.
+- `adjacent_frontiers` lists unknown cells you can reveal immediately; `nearest_frontier` points to the closest X tile overall.
 - Actions: {actions_sentence}
 - Collisions (BLOCK_AGENT or SWAP_CONFLICT) reset you and waste a turn. `contended_neighbors` tells you which adjacent directions collided last turn—treat them as hotspots and coordinate before retrying.
 - History: `history` captures your recent intents/outcomes and notes; `recent_positions` lists the cells you just visited.

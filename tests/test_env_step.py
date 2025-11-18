@@ -1,8 +1,9 @@
 import pytest
 
+from llmgrid.agent_map import AgentMap
 from llmgrid.env import simulate as simulate_module
 from llmgrid.env.grid import GridWorld, TRAFFIC_CONE_TTL
-from llmgrid.env.simulate import EpisodeCheckpoint, run_episode
+from llmgrid.env.simulate import EpisodeCheckpoint, run_episode, sync_maps
 from llmgrid.schema import (
     CommunicateAction,
     Decision,
@@ -334,3 +335,77 @@ def test_finished_agents_do_not_block_goal():
     assert results["a2"].outcome == MoveOutcome.FINISHED
     world.mark_finished("a2")
     assert world.is_finished("a2")
+
+
+def test_agent_map_merge_from():
+    m1 = AgentMap(3, 3)
+    m2 = AgentMap(3, 3)
+
+    m1.load_state(
+        {
+            "tiles": ["XXX", ".X.", "XXX"],
+            "agents": {"a": {"x": 0, "y": 0, "turn": 1}},
+        }
+    )
+    m2.load_state(
+        {
+            "tiles": ["XGX", "X#X", "XXX"],
+            "agents": {"a": {"x": 1, "y": 1, "turn": 3}, "b": {"x": 2, "y": 2, "turn": 2}},
+        }
+    )
+
+    m1.merge_from(m2)
+    state = m1.export_state()
+
+    assert state["tiles"][0][1] == "G"  # filled unknown
+    assert state["tiles"][1][0] == "."  # preserved known tile
+    assert state["agents"]["a"]["turn"] == 3  # newer turn kept
+    assert state["agents"]["b"]["x"] == 2  # new agent added
+
+
+def test_sync_maps_radio_range_merges_tiles():
+    world = GridWorld(
+        width=4,
+        height=3,
+        obstacles=[Position(x=3, y=1)],
+        goal=Position(x=3, y=2),
+        seed=0,
+    )
+    world.add_agent("a1", Position(x=0, y=1), Direction.E)
+    world.add_agent("a2", Position(x=2, y=1), Direction.W)
+
+    # Populate individual maps
+    world.build_observation("a1", turn_index=0, max_turns=5, visibility_radius=1, radio_range=2)
+    world.build_observation("a2", turn_index=0, max_turns=5, visibility_radius=1, radio_range=2)
+
+    # Only a2 sees the wall at (3,1) before sync
+    before = world.agent_maps["a1"].export_state()
+    assert before["tiles"][1][3] == "X"
+
+    sync_maps(world, ["a1", "a2"], "radio_sync", radio_range=2)
+
+    after = world.agent_maps["a1"].export_state()
+    assert after["tiles"][1][3] == "#"  # learned from a2
+
+
+def test_sync_maps_global_shares_all():
+    world = GridWorld(
+        width=6,
+        height=5,
+        obstacles=[Position(x=1, y=1), Position(x=4, y=3)],
+        goal=Position(x=5, y=4),
+        seed=1,
+    )
+    world.add_agent("a1", Position(x=1, y=2), Direction.E)  # sees wall at (1,1)
+    world.add_agent("a2", Position(x=4, y=2), Direction.W)  # sees wall at (4,3)
+    world.add_agent("a3", Position(x=3, y=2), Direction.N)  # central observer
+
+    for aid in ["a1", "a2", "a3"]:
+        world.build_observation(aid, turn_index=0, max_turns=5, visibility_radius=1, radio_range=0)
+
+    sync_maps(world, ["a1", "a2", "a3"], "global", radio_range=0)
+
+    for aid in ["a1", "a2", "a3"]:
+        tiles = world.agent_maps[aid].export_state()["tiles"]
+        assert tiles[1][1] == "#"  # wall from a1
+        assert tiles[3][4] == "#"  # wall from a2

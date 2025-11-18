@@ -1,0 +1,4 @@
+[
+  {"name":"map_radio_sync","comm_strategy":"none","loop_guidance":"explore","rules_id":"none_default","map_sharing":"radio_sync"},
+  {"name":"map_global","comm_strategy":"none","loop_guidance":"explore","rules_id":"none_default","map_sharing":"global"}
+]
