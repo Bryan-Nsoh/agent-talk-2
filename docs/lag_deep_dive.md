@@ -1,9 +1,9 @@
 # Lag & Communication Deep Dive — Consolidated Snapshot
 
-**Last updated:** 2025-11-16T15:36:00Z
+**Last updated:** 2025-11-17T18:50:00Z
 
 **One-look summary**
-- Micro sweep: ready to run; blocked by outbound Azure gpt‑5‑mini access. Run/monitor/aggregate steps and file paths are below.
+- Micro sweep: currently running in tmux with fixed Azure key export; metrics pending. Run/monitor/aggregate steps and file paths are below.
 - Cross-seed findings: lag is secondary; safety/coverage and message semantics dominate; a simple safety veto would remove most crashes.
 
 ---
@@ -13,7 +13,7 @@
 - Experiment: `experiments/micro_blocked_tunnel_small_20251116T000000Z/` with 12 baselines (`baselines.json`) and rule text (`rulesets.md`).
 - Run script: `scripts/run_micro_blocked_tunnel_small.sh`
   - Azure-only (`--model azure:gpt-5-mini`), key preflight, captures config/transcript/episode/checkpoint, concurrency=5.
-- Status: Azure gpt-5-mini calls do not return in this sandbox (likely network restriction). Runs dir is clean; no tmux sessions.
+- Status: rerun in tmux (`micro_sweep`) after fixing Azure key propagation (`AZURE_OPENAI_API_KEY` exported from `AZURE_API_KEY`). Checkpoints advance; waiting on metrics.
 - When network is available:
   1) Ensure `AZURE_API_KEY` or `AZURE_OPENAI_API_KEY` is set in `~/.env`.
   2) Launch: `tmux new -s micro_sweep "./scripts/run_micro_blocked_tunnel_small.sh"`

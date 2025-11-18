@@ -5,6 +5,7 @@ MAZE="micro_blocked_tunnel_small"
 EXPDIR="experiments/micro_blocked_tunnel_small_20251116T000000Z"
 SEEDS=(0 1 2 3 4)
 BASELINES_JSON="$EXPDIR/baselines.json"
+MAX_CONCURRENCY=${MAX_CONCURRENCY:-6}  # default smaller to avoid duplicate wave; override via env
 
 # Fail fast if no Azure key present
 check_keys() {
@@ -15,9 +16,49 @@ check_keys() {
   fi
 }
 
+find_latest_run_dir() {
+  local pattern="$1"
+  local latest=""
+  local candidate
+  shopt -s nullglob
+  for candidate in $pattern; do
+    if [ -d "$candidate" ]; then
+      latest="$candidate"
+    fi
+  done
+  shopt -u nullglob
+  echo "$latest"
+}
+
 run_one() {
-  local name="$1" comm="$2" loop="$3" rules="$4" seed="$5"
-  local run_dir="$EXPDIR/runs/${name}_seed${seed}_$(date -u +%Y%m%dT%H%M%SZ)"
+  local name="$1" comm="$2" loop="$3" rules="$4" mapshare="$5" seed="$6"
+
+  # Prefer resuming an existing run (runs/ then runs_inflight/) if a checkpoint is present.
+  local existing
+  existing=$(find_latest_run_dir "$EXPDIR/runs/${name}_seed${seed}_*" )
+  if [ -z "$existing" ]; then
+    existing=$(find_latest_run_dir "$EXPDIR/runs_inflight/${name}_seed${seed}_*" )
+  fi
+
+  local run_dir="$existing"
+  local resume_from=""
+  if [ -n "$existing" ] && [ -f "$existing/results/checkpoint.json" ]; then
+    local turn_next turns_total
+    turn_next=$(jq -r '.turn_next // 0' "$existing/results/checkpoint.json")
+    turns_total=$(jq -r '.turns_total // 0' "$existing/results/checkpoint.json")
+    if [ "$turn_next" -ge "$turns_total" ]; then
+      echo "SKIP completed: $existing (turn $turn_next/$turns_total)"
+      return
+    fi
+    resume_from="$existing/results/checkpoint.json"
+    run_dir="$existing"
+    echo "RESUME $name seed=$seed at turn $turn_next/$turns_total from $resume_from"
+  fi
+
+  if [ -z "$run_dir" ]; then
+    run_dir="$EXPDIR/runs/${name}_seed${seed}_$(date -u +%Y%m%dT%H%M%SZ)"
+  fi
+
   mkdir -p "$run_dir"
   mkdir -p "$run_dir/results"
 
@@ -41,8 +82,8 @@ run_one() {
   esac
 
   (set -a && [ -f "$HOME/.env" ] && source "$HOME/.env" && set +a; \
-   # bridge env var naming mismatches for SDKs
-   if [ -z "${AZURE_OPENAI_API_KEY:-}" ] && [ -n "${AZURE_API_KEY:-}" ]; then export AZURE_OPENAI_API_KEY="$AZURE_API_KEY"; fi; \
+   if [ -n "${AZURE_API_KEY:-}" ]; then export AZURE_OPENAI_API_KEY="$AZURE_API_KEY"; fi; \
+   echo "DEBUG AZURE_OPENAI_API_KEY len=${#AZURE_OPENAI_API_KEY}"; \
    PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
     --model azure:gpt-5-mini \
     --maze-preset "$MAZE" \
@@ -56,6 +97,8 @@ run_one() {
     --episode-json "$run_dir/results/episode.json" \
     --transcript-jsonl "$run_dir/results/transcript.jsonl" \
     --checkpoint-json "$run_dir/results/checkpoint.json" \
+    --map-sharing "$mapshare" \
+    ${resume_from:+--resume-from "$resume_from"} \
     ) > "$run_dir/run.log" 2>&1
 }
 
@@ -67,10 +110,11 @@ main() {
     comm=$(echo "$cfg" | jq -r '.comm_strategy')
     loop=$(echo "$cfg" | jq -r '.loop_guidance')
     rules=$(echo "$cfg" | jq -r '.rules_id')
+    mapshare=$(echo "$cfg" | jq -r '.map_sharing // "none"')
     for seed in "${SEEDS[@]}"; do
-      run_one "$name" "$comm" "$loop" "$rules" "$seed" &
+      run_one "$name" "$comm" "$loop" "$rules" "$mapshare" "$seed" &
       ((i++))
-      if (( i % 9 == 0 )); then
+      if (( i % MAX_CONCURRENCY == 0 )); then
         wait
       fi
     done

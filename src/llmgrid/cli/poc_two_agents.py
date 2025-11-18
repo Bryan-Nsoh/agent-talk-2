@@ -305,6 +305,11 @@ def main(
         "--comm-strategy",
         help="Communication strategy: none, structured, or freeform.",
     ),
+    map_sharing: str = typer.Option(
+        "none",
+        "--map-sharing",
+        help="Map sharing mode: none, radio_sync, or global.",
+    ),
     reasoning_effort: str = typer.Option(
         "minimal",
         "--reasoning-effort",
@@ -342,11 +347,19 @@ def main(
         raise typer.Exit(code=2)
 
     comm_strategy = comm_strategy.lower()
+    map_sharing = map_sharing.lower()
     loop_guidance = loop_guidance.lower()
     allowed_strategies = {"none", "structured", "freeform"}
+    allowed_map_sharing = {"none", "radio_sync", "global"}
     if comm_strategy not in allowed_strategies:
         typer.secho(
             f"Unknown communication strategy '{comm_strategy}'. Choose from: {', '.join(sorted(allowed_strategies))}.",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=2)
+    if map_sharing not in allowed_map_sharing:
+        typer.secho(
+            f"Unknown map-sharing mode '{map_sharing}'. Choose from: {', '.join(sorted(allowed_map_sharing))}.",
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=2)
@@ -358,7 +371,7 @@ def main(
         )
         raise typer.Exit(code=2)
 
-    if comm_strategy == "none" and radio_range != 0:
+    if comm_strategy == "none" and radio_range != 0 and map_sharing == "none":
         typer.secho(
             "Info: --comm-strategy none disables radio; overriding --radio-range to 0 for consistency.",
             fg=typer.colors.YELLOW,
@@ -715,6 +728,7 @@ def main(
             bearing_flip_p=bearing_flip_p,
             bearing_drop_p=bearing_drop_p,
             comm_strategy=comm_strategy,
+            map_sharing=map_sharing,
             history_limit=history_limit,
             loop_guidance=loop_guidance,
             reasoning_effort=reasoning_effort,
@@ -738,6 +752,7 @@ def main(
         metrics_payload = {
             "model": model,
             "comm_strategy": comm_strategy,
+            "map_sharing": map_sharing,
             "seed": seed,
             "agents": agents,
             "maze_preset": preset_name,
