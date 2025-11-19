@@ -652,26 +652,33 @@ class UnifiedLLM:
                 max_retries=0,
             ) as client:
                 provider_label = "azure"
+                # Reasoning models (gpt-5, o1, o3) reject temperature parameter
+                is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
+
                 if output_schema:
-                    completion = await client.beta.chat.completions.parse(
-                        model=model_name,
-                        messages=message_list,
-                        temperature=temperature,
-                        response_format=output_schema,
-                        timeout=float(timeout_s),
-                    )
+                    kwargs = {
+                        "model": model_name,
+                        "messages": message_list,
+                        "response_format": output_schema,
+                    }
+                    if not is_reasoning_model:
+                        kwargs["temperature"] = temperature
+
+                    completion = await client.beta.chat.completions.parse(**kwargs)
                     usage = getattr(completion, "usage", None)
                     in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                     out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
                     self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
                     return completion.choices[0].message.parsed, in_tokens, out_tokens
 
-                completion = await client.chat.completions.create(
-                    model=model_name,
-                    messages=message_list,
-                    temperature=temperature,
-                    timeout=float(timeout_s),
-                )
+                kwargs = {
+                    "model": model_name,
+                    "messages": message_list,
+                }
+                if not is_reasoning_model:
+                    kwargs["temperature"] = temperature
+
+                completion = await client.chat.completions.create(**kwargs)
                 usage = getattr(completion, "usage", None)
                 in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                 out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
@@ -685,26 +692,33 @@ class UnifiedLLM:
             api_key = os.getenv(api_key_env) or provider_cfg.get("api_key")
             async with AsyncOpenAI(base_url=base_url, api_key=api_key, timeout=float(timeout_s), max_retries=0) as client:
                 provider_label = "openai" if (base_url or "").startswith("https://api.openai.com") else "openai-compatible"
+                # Reasoning models (gpt-5, o1, o3) reject temperature parameter
+                is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
+
                 if output_schema:
-                    completion = await client.beta.chat.completions.parse(
-                        model=model_name,
-                        messages=message_list,
-                        temperature=temperature,
-                        response_format=output_schema,
-                        timeout=float(timeout_s),
-                    )
+                    kwargs = {
+                        "model": model_name,
+                        "messages": message_list,
+                        "response_format": output_schema,
+                    }
+                    if not is_reasoning_model:
+                        kwargs["temperature"] = temperature
+
+                    completion = await client.beta.chat.completions.parse(**kwargs)
                     usage = getattr(completion, "usage", None)
                     in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                     out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
                     self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
                     return completion.choices[0].message.parsed, in_tokens, out_tokens
 
-                completion = await client.chat.completions.create(
-                    model=model_name,
-                    messages=message_list,
-                    temperature=temperature,
-                    timeout=float(timeout_s),
-                )
+                kwargs = {
+                    "model": model_name,
+                    "messages": message_list,
+                }
+                if not is_reasoning_model:
+                    kwargs["temperature"] = temperature
+
+                completion = await client.chat.completions.create(**kwargs)
                 usage = getattr(completion, "usage", None)
                 in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                 out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
