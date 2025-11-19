@@ -113,12 +113,17 @@ class GifRenderer:
         return {f"a{i+1}": palette[i % len(palette)] for i in range(24)}
 
     # ------------- public API -------------
-    def render(self, episode_json: Path, out_path: Path) -> Path:
+    def render(self, episode_json: Path, out_path: Path, *, start: int = 0, max_frames: Optional[int] = None) -> Path:
         data = json.loads(episode_json.read_text())
         if "frames" not in data or "meta" not in data:
             raise ValueError("Episode JSON must have frames and meta.")
 
         frames = data["frames"]
+        if start or max_frames is not None:
+            end = None if max_frames is None else start + max_frames
+            frames = frames[start:end]
+            if not frames:
+                raise ValueError("No frames to render after applying start/max_frames.")
         meta = data["meta"]
         width = meta["grid_size"]["width"]
         height = meta["grid_size"]["height"]
@@ -356,10 +361,12 @@ def main() -> None:
     parser.add_argument("--episode", type=Path, required=True, help="Episode JSON with frames/meta.")
     parser.add_argument("--out", type=Path, required=True, help="Output GIF path.")
     parser.add_argument("--model-name", type=str, default="unknown", help="Model name to annotate.")
+    parser.add_argument("--start", type=int, default=0, help="Starting frame index (default: 0).")
+    parser.add_argument("--max-frames", type=int, default=None, help="Max frames to render (default: all).")
     args = parser.parse_args()
 
     renderer = GifRenderer(model_name=args.model_name)
-    renderer.render(args.episode, args.out)
+    renderer.render(args.episode, args.out, start=args.start, max_frames=args.max_frames)
     print(f"Saved GIF to {args.out}")
 
 

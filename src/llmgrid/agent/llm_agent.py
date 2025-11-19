@@ -1,35 +1,24 @@
-"""LLM-backed policy that produces structured actions."""
+"""LLM-backed policy that produces structured actions for the map-sharing environment."""
 
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-import os
 from typing import List
 
 from llmgrid.llm_clients.unified_llm import UnifiedLLM
 from llmgrid.prompts import build_prompt_header
-from llmgrid.schema import (
-    Decision,
-    Observation,
-    build_decision_model,
-    coerce_decision,
-    resolve_strategy_capabilities,
-)
+from llmgrid.schema import Decision, Observation, build_decision_model, coerce_decision, resolve_strategy_capabilities
 
 
 @dataclass
 class DecisionTrace:
-    """Structured decision bundle that includes the raw prompt (trace messages optional)."""
-
     decision: Decision
     prompt: str
     trace_messages: List[dict]
 
 
 class LlmPolicy:
-    """Async wrapper that turns observations into structured decisions via UnifiedLLM."""
-
     def __init__(
         self,
         model_id: str,
@@ -42,69 +31,15 @@ class LlmPolicy:
         self.model_id = model_id
         self.strategy = strategy
         self.loop_guidance = loop_guidance
-        self.history_limit = max(1, history_limit)
-        self.radio_range = max(0, radio_range)
+        self.history_limit = history_limit
+        self.radio_range = radio_range
         self.capabilities = resolve_strategy_capabilities(strategy)
         self.unified = UnifiedLLM()
         self._wire_decision_model = build_decision_model(strategy)
 
-    def _strategy_block(self) -> str:
-        strategy = self.strategy.lower()
-
-        general_rules = [
-            "Keep comments ≤25 words and use them to explain your reasoning (mention coordinates or map features when possible).",
-            "If last_move_outcome != OK, do not repeat the same direction; prefer STAY or a safe alternate and coordinate.",
-            "Treat CONTENDED neighbors as high risk: only enter if no safer option, and communicate or yield when you do.",
-        ]
-
-        if strategy == "none":
-            strategy_rules = ["Communication disabled; do not choose COMMUNICATE."]
-        elif strategy == "structured":
-            strategy_rules = [
-                "Allowed: INTENT or REQUEST(YIELD|GUIDE target=(x,y)). One message max per turn.",
-                "When to communicate: only if any_peer_in_range is true and you have useful info (collision risk, new corridor, map gap) that a nearby peer benefits from.",
-                "Good reasons: approaching a shared cell, you see G, you discovered a useful corridor or dead end, your buddy might be stuck, or you need a map snippet to progress.",
-                "Priority: when 2+ agents want the same cell, LOWEST agent_id MOVES immediately (no announcement needed). Higher IDs MUST yield (stay/reroute). No mutual yielding, no wasted turns announcing priority.",
-                "Message choice: INTENT to share your next move; REQUEST(YIELD,target=T) if you need priority; REQUEST(GUIDE,target=(gx,gy)) to share G or help a stuck teammate.",
-            ]
-            extra_rules = os.environ.get("LLMGRID_STRUCTURED_EXTRA_RULES")
-            if extra_rules:
-                for line in extra_rules.splitlines():
-                    text = line.strip()
-                    if text:
-                        strategy_rules.append(text)
-        elif strategy == "freeform":
-            strategy_rules = [
-                "DEFAULT TO MOVE. Only CHAT when the message prevents imminent collision or shares critical info (goal location, dead end, you're rerouting around a peer).",
-                "Allowed: one CHAT (<=96 chars) per turn. Write naturally to help your teammate.",
-                "When to communicate: only if any_peer_in_range is true. Share something useful (new route, goal location, dead end you verified, you are rerouting, or you are stuck).",
-                "Use coordinates so teammates can mark their maps: e.g., 'heading east toward (5,2)', 'found goal at (14,4)', 'dead end north; trying south', 'sharing loop at (3,1)-(3,2)'.",
-                "Priority: when 2+ agents want the same cell, LOWEST agent_id goes first. Higher IDs yield. Example: 'I'm a5, yielding (5,5) to you, going west' or just move without announcing if you're yielding.",
-                "Be cooperative and concise; avoid repeating unchanged info within ~5 turns.",
-            ]
-            extra_rules = os.environ.get("LLMGRID_FREEFORM_EXTRA_RULES")
-            if extra_rules:
-                for line in extra_rules.splitlines():
-                    text = line.strip()
-                    if text:
-                        strategy_rules.append(text)
-        else:
-            strategy_rules = ["Communication rules unspecified; default to MOVE and avoid COMMUNICATE."]
-
-        lines = general_rules + strategy_rules
-        rules = "\n".join(f"- {line}" for line in lines)
-        return f"COMMUNICATION_RULES:\n{rules}\n\n"
-
     def _prompt_for(self, observation: Observation) -> str:
         payload = observation.model_dump(mode="json")
-        header = build_prompt_header(
-            radio_range=self.radio_range,
-            action_kinds=self.capabilities.action_kinds,
-        ).replace(
-            "<OBSERVATION_JSON>\n",
-            f"{self._strategy_block()}<OBSERVATION_JSON>\n",
-            1,
-        )
+        header = build_prompt_header()
         return f"{header}{json.dumps(payload, separators=(',', ':'))}\n</OBSERVATION_JSON>"
 
     async def decide_async(self, observation: Observation) -> Decision:
@@ -129,11 +64,7 @@ class LlmPolicy:
         return DecisionTrace(decision=decision, prompt=prompt, trace_messages=[])
 
     def decide(self, observation: Observation) -> Decision:  # pragma: no cover - guard rail
-        raise RuntimeError(
-            "LlmPolicy.decide() is disabled; use decide_async() within the episode event loop."
-        )
+        raise RuntimeError("Use decide_async() within the async loop.")
 
     def decide_with_trace(self, observation: Observation) -> DecisionTrace:  # pragma: no cover - guard rail
-        raise RuntimeError(
-            "LlmPolicy.decide_with_trace() is disabled; use decide_with_trace_async()."
-        )
+        raise RuntimeError("Use decide_with_trace_async().")

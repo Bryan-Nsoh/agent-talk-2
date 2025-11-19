@@ -1,51 +1,35 @@
-"""Episode driver that wires the environment and agent policies together."""
+"""Episode driver for the map-sharing, no-comm environment."""
 
 from __future__ import annotations
 
 import asyncio
 import json
-import random
-from collections import Counter, deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional, TextIO, Tuple
-
-from pydantic import BaseModel, Field
+from typing import Any, Dict, Iterable, List, Optional, TextIO, Tuple
 
 from llmgrid.agent.llm_agent import DecisionTrace, LlmPolicy
 from llmgrid.agent.local_baseline import GreedyBaseline
-from llmgrid.agent_map import AgentMap
 from llmgrid.env.grid import GridWorld
-from llmgrid.schema import (
-    AdjacentState,
-    Decision,
-    Direction,
-    MessageBrief,
-    MoveOutcome,
-    Observation,
-    OutgoingMessage,
-    Position,
-    ReceivedMessage,
-    StayAction,
-    TurnHistory,
-)
+from llmgrid.schema import Decision, Direction, MoveOutcome, Observation, Position
 
 
 @dataclass
 class EpisodeMetrics:
     turns: int
     success: bool
-    messages_sent: int
-    marks_placed: int
     collisions: int
     reasoning_log: List[Dict[str, Any]]
-    collision_causes: Dict[str, int] = field(default_factory=dict)
+    collision_causes: Dict[str, int]
+    # Backwards-compat/CLI fields (not used in this spec)
+    messages_sent: int = 0
+    marks_placed: int = 0
     hazard_events: int = 0
     comments_clamped: int = 0
     comments_autofilled: int = 0
     no_go_exposures: int = 0
     contended_exposures: int = 0
-    history_limit: int = 5
+    history_limit: int = 0
     loop_guidance: str = "passive"
 
 
@@ -56,8 +40,19 @@ class DecisionOutcome:
     attempts: int
 
 
+class PolicyProtocol:
+    def decide(self, observation: Observation) -> Decision:  # pragma: no cover - baseline stub
+        raise NotImplementedError
+
+    async def decide_async(self, observation: Observation) -> Decision:  # pragma: no cover - LLM stub
+        raise NotImplementedError
+
+    async def decide_with_trace_async(self, observation: Observation) -> DecisionTrace:  # pragma: no cover - LLM stub
+        raise NotImplementedError
+
+
 async def _call_policy_once_async(
-    policy: "PolicyProtocol",
+    policy: PolicyProtocol,
     observation: Observation,
     capture_trace: bool,
     agent_id: str,
@@ -83,7 +78,7 @@ async def _call_policy_once_async(
 
 
 async def _decide_with_retry_async(
-    policy: "PolicyProtocol",
+    policy: PolicyProtocol,
     observation: Observation,
     capture_trace: bool,
     agent_id: str,
@@ -111,17 +106,17 @@ async def _decide_with_retry_async(
             last_exc = exc
             if attempts >= max_attempts:
                 raise
-            sleep_for = delay + random.uniform(0.0, jitter)
+            sleep_for = delay + jitter
             await asyncio.sleep(max(0.0, sleep_for))
             delay *= 2
     if last_exc is not None:
         raise last_exc
-    raise RuntimeError("unreachable: retry loop exited without result")
+    raise RuntimeError("unreachable")
 
 
 async def _gather_decisions_async(
     active_agents: List[str],
-    policy: "PolicyProtocol",
+    policy: PolicyProtocol,
     observations: Dict[str, Observation],
     capture_trace: bool,
     turn: int,
@@ -153,7 +148,6 @@ async def _gather_decisions_async(
 
     tasks = [asyncio.create_task(worker(aid)) for aid in active_agents]
     results = await asyncio.gather(*tasks, return_exceptions=True)
-
     for result in results:
         if isinstance(result, Exception):
             raise result
@@ -161,186 +155,42 @@ async def _gather_decisions_async(
         outcomes[aid] = outcome
         if outcome.attempts > 1:
             any_retry = True
-
     return outcomes, any_retry
-
-
-class GridWorldState(BaseModel):
-    width: int
-    height: int
-    goal: Position
-    walls: List[Position]
-    occupancy: Dict[str, Position]
-    orientation: Dict[str, Direction]
-    inboxes: Dict[str, List[ReceivedMessage]] = Field(default_factory=dict)
-    # artifacts removed in this branch
-    finished_agents: Dict[str, bool] = Field(default_factory=dict)
-    position_history: Dict[str, List[Position]] = Field(default_factory=dict)
-    turn_history: Dict[str, List[TurnHistory]] = Field(default_factory=dict)
-    agent_icons: Dict[str, str] = Field(default_factory=dict)
-    agent_maps: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
-    rng_state: List[Any]
-    bearing_flip_p: float
-    bearing_drop_p: float
-    bearing_bias_seed: Optional[int] = None
-    bearing_bias_p: float = 0.0
-    bearing_bias_wall_bonus: float = 0.0
-    history_limit: int = 5
-
-    @classmethod
-    def capture(cls, world: GridWorld) -> "GridWorldState":
-        return cls(
-            width=world.size.width,
-            height=world.size.height,
-            goal=Position(x=world.goal.x, y=world.goal.y),
-            walls=[Position(x=x, y=y) for x, y in sorted(world.walls)],
-            occupancy={aid: Position(x=pos[0], y=pos[1]) for aid, pos in world.occupancy.items()},
-            orientation=dict(world.orientation),
-            inboxes={aid: list(messages) for aid, messages in world.inboxes.items()},
-            # artifacts removed
-            finished_agents=dict(world.finished_agents),
-            position_history={
-                aid: [Position(x=px, y=py) for px, py in history]
-                for aid, history in world.position_history.items()
-            },
-            turn_history={
-                aid: [TurnHistory.model_validate(item) for item in history]
-                for aid, history in world.turn_history.items()
-            },
-            agent_icons=dict(world.agent_icons),
-            agent_maps={
-                aid: world.agent_maps[aid].export_state()
-                for aid in world.agent_maps
-            },
-            rng_state=_freeze_random_state(world.rng.getstate()),
-            bearing_flip_p=world.bearing_flip_p,
-            bearing_drop_p=world.bearing_drop_p,
-            bearing_bias_seed=world.bearing_bias_seed,
-            bearing_bias_p=world.bearing_bias_p,
-            bearing_bias_wall_bonus=world.bearing_bias_wall_bonus,
-            history_limit=world.history_limit,
-        )
-
-    def restore(self) -> GridWorld:
-        world = GridWorld(
-            self.width,
-            self.height,
-            self.walls,
-            self.goal,
-            seed=0,
-            bearing_flip_p=self.bearing_flip_p,
-            bearing_drop_p=self.bearing_drop_p,
-            bearing_bias_seed=self.bearing_bias_seed,
-            bearing_bias_p=self.bearing_bias_p,
-            bearing_bias_wall_bonus=self.bearing_bias_wall_bonus,
-            history_limit=self.history_limit,
-        )
-        world.walls = {(p.x, p.y) for p in self.walls}
-        world.occupancy = {aid: (pos.x, pos.y) for aid, pos in self.occupancy.items()}
-        world.orientation = dict(self.orientation)
-        world.inboxes = {aid: list(messages) for aid, messages in self.inboxes.items()}
-        world.artifacts = {}
-        world.finished_agents = dict(self.finished_agents)
-        world.position_history = {
-            aid: [(pos.x, pos.y) for pos in history]
-            for aid, history in self.position_history.items()
-        }
-        world.turn_history = {
-            aid: deque(
-                [history.model_dump() if isinstance(history, TurnHistory) else history for history in histories],
-                maxlen=self.history_limit,
-            )
-            for aid, histories in self.turn_history.items()
-        }
-        world.agent_icons = dict(self.agent_icons)
-        for agent_id in world.occupancy.keys():
-            agent_map = AgentMap(world.size.width, world.size.height)
-            payload = self.agent_maps.get(agent_id)
-            if payload:
-                agent_map.load_state(payload)
-            world.agent_maps[agent_id] = agent_map
-        world.rng.setstate(_thaw_random_state(self.rng_state))
-        return world
-
-
-class EpisodeCheckpoint(BaseModel):
-    version: Literal["1.0"] = "1.0"
-    use_llm: bool
-    model_id: str
-    turns_total: int
-    turn_next: int
-    visibility: int
-    radio_range: int
-    seed: int
-    maze_metadata: Dict[str, Any] = Field(default_factory=dict)
-    agent_ids: List[str]
-    start_positions: Dict[str, Position]
-    goal: Position
-    world: GridWorldState
-    messages_sent: int
-    marks_placed: int
-    collisions: int
-    reasoning_log: List[Dict[str, Any]] = Field(default_factory=list)
-    transcript: Optional[List[dict]] = None
-    movement: Optional[List[dict]] = None
-    baseline_rng_state: Optional[List[Any]] = None
-    transcript_path: Optional[str] = None
-    movement_stream_path: Optional[str] = None
-    episode_path: Optional[str] = None
-    concurrency_window: int = 1
-    comm_strategy: str = "none"
-    map_sharing: str = "none"
-    history_limit: int = 5
-    loop_guidance: str = "passive"
-    # Oracle removed in this branch
-    reasoning_effort: Optional[str] = None
-    reasoning_verbosity: Optional[str] = None
-    reasoning_include_encrypted: bool = False
-
-    @classmethod
-    def load(cls, path: Path) -> "EpisodeCheckpoint":
-        return cls.model_validate_json(path.read_text(encoding="utf-8"))
-
-    def write(self, path: Path) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(self.model_dump_json(indent=2), encoding="utf-8")
 
 
 def _resolve_policy(
     use_llm: bool,
     model_id: str,
     seed: int,
-    strategy: str,
-    loop_guidance: str,
-    history_limit: int,
     *,
+    history_limit: int,
     radio_range: int,
-) -> "PolicyProtocol":
+) -> PolicyProtocol:
     if use_llm:
         return LlmPolicy(
             model_id,
-            strategy=strategy,
-            loop_guidance=loop_guidance,
+            strategy="none",
+            loop_guidance="passive",
             history_limit=history_limit,
             radio_range=radio_range,
         )
     return GreedyBaseline(seed=seed)
 
 
-class PolicyProtocol:
-    """Protocol shim for type checking."""
-
-    def decide(self, observation: Observation) -> Decision:  # pragma: no cover - baseline stub
-        raise NotImplementedError
-
-    async def decide_async(self, observation: Observation) -> Decision:  # pragma: no cover - LLM stub
-        raise NotImplementedError
-
-    async def decide_with_trace_async(self, observation: Observation) -> DecisionTrace:  # pragma: no cover - LLM stub
-        raise NotImplementedError
+def _direction_from_move(decision: Decision) -> Optional[Direction]:
+    if decision.action.kind == "MOVE":  # type: ignore[attr-defined]
+        return decision.action.direction  # type: ignore[attr-defined]
+    return None
 
 
-async def _run_episode_async(
+def _intents_from_decisions(decisions: Dict[str, Decision]) -> Dict[str, Optional[Direction]]:
+    intents: Dict[str, Optional[Direction]] = {}
+    for aid, dec in decisions.items():
+        intents[aid] = _direction_from_move(dec)
+    return intents
+
+
+async def run_episode_async(
     *,
     use_llm: bool,
     model_id: str,
@@ -352,233 +202,64 @@ async def _run_episode_async(
     turns: int,
     visibility: int,
     radio_range: int,
+    map_sharing: str,
+    comm_strategy: str = "none",
+    history_limit: int = 10,
+    loop_guidance: str = "passive",
+    agent_order: Optional[List[str]] = None,
     seed: int = 0,
     transcript: Optional[List[dict]] = None,
-    movement: Optional[List[dict]] = None,
     transcript_writer: Optional[TextIO] = None,
+    movement: Optional[List[dict]] = None,
     movement_writer: Optional[TextIO] = None,
-    agent_order: Optional[List[str]] = None,
-    resume: Optional[EpisodeCheckpoint] = None,
     checkpoint_path: Optional[Path] = None,
-    checkpoint_interval: int = 1,
-    transcript_path: Optional[str] = None,
-    movement_stream_path: Optional[str] = None,
-    episode_path: Optional[str] = None,
-    maze_metadata: Optional[Dict[str, Any]] = None,
-    bearing_bias_seed: Optional[int] = None,
-    bearing_bias_p: float = 0.0,
-    bearing_bias_wall_bonus: float = 0.0,
-    bearing_flip_p: float = 0.15,
-    bearing_drop_p: float = 0.10,
     concurrency_start: Optional[int] = None,
     concurrency_max: Optional[int] = None,
-    retry_max_attempts: int = 5,
-    retry_base_delay: float = 1.0,
-    retry_jitter: float = 0.5,
-    comm_strategy: str = "none",
-    map_sharing: str = "none",
-    history_limit: int = 5,
-    loop_guidance: str = "passive",
-    freeform_global: bool = False,
-    # oracle removed in this branch
-    reasoning_effort: Optional[str] = None,
-    reasoning_verbosity: Optional[str] = None,
-    reasoning_include_encrypted: bool = False,
+    retry_max_attempts: int = 1,
+    retry_base_delay: float = 0.25,
+    retry_jitter: float = 0.05,
 ) -> EpisodeMetrics:
-    """Simulate a single episode and return aggregate metrics."""
-
-    history_limit = max(1, history_limit)
-    loop_guidance = loop_guidance.lower()
-    comm_strategy = comm_strategy.lower()
+    radio_range = max(0, radio_range)
     map_sharing = map_sharing.lower()
-    # oracle disabled in this branch
-    radio_enabled_strategies = {"structured", "freeform"}
-    radio_enabled = comm_strategy in radio_enabled_strategies
-    # Keep radio_range available for map_sharing even if comms are off.
-    if not radio_enabled:
-        radio_max_outbound = 0
-    else:
-        radio_max_outbound = 1
-    collision_cause_counts: Counter[str] = Counter()
-    hazard_events = 0
-    comments_clamped = 0
-    comments_autofilled = 0
-    no_go_exposures = 0
-    contended_exposures = 0
-    maze_meta = maze_metadata or {}
-
-    if resume is not None:
-        start_positions = resume.start_positions
-
-    agent_ids = list(agent_order) if agent_order is not None else list(start_positions.keys())
-
     if map_sharing not in {"none", "radio_sync", "global"}:
-        raise ValueError(f"Unsupported map_sharing mode: {map_sharing}")
+        raise ValueError(f"Unsupported map_sharing: {map_sharing}")
 
-    if resume is not None:
-        world = resume.world.restore()
-        if history_limit != world.history_limit:
-            raise ValueError(
-                f"Checkpoint recorded with history_limit={world.history_limit}; got history_limit={history_limit}."
-            )
-        history_limit = world.history_limit
-        resume_loop_guidance = getattr(resume, "loop_guidance", "passive")
-        if loop_guidance != resume_loop_guidance:
-            raise ValueError(
-                f"Checkpoint recorded with loop_guidance={resume_loop_guidance!r}; got loop_guidance={loop_guidance!r}."
-            )
-        loop_guidance = resume_loop_guidance
-        resume_map_sharing = getattr(resume, "map_sharing", "none")
-        if map_sharing != resume_map_sharing:
-            raise ValueError(
-                f"Checkpoint recorded with map_sharing={resume_map_sharing!r}; got map_sharing={map_sharing!r}."
-            )
-        messages_sent = resume.messages_sent
-        marks_placed = resume.marks_placed
-        collisions = resume.collisions
-        reasoning_log = list(resume.reasoning_log)
-        agent_ids = resume.agent_ids
-        start_turn = resume.turn_next
-        # oracle disabled in this branch
-        if transcript is not None and resume.transcript:
-            if not transcript:
-                transcript.extend(resume.transcript)
-        if movement is not None and resume.movement:
-            if not movement:
-                movement.extend(resume.movement)
-    else:
-        world = GridWorld(
-            width,
-            height,
-            obstacles,
-            goal,
-            seed=seed,
-            bearing_flip_p=bearing_flip_p,
-            bearing_drop_p=bearing_drop_p,
-            bearing_bias_seed=bearing_bias_seed,
-            bearing_bias_p=bearing_bias_p,
-            bearing_bias_wall_bonus=bearing_bias_wall_bonus,
-            history_limit=history_limit,
-        )
-        for idx, (agent_id, pos) in enumerate(start_positions.items()):
-            orientation = [Direction.N, Direction.S, Direction.E, Direction.W][idx % 4]
-            world.add_agent(agent_id, pos, orientation)
-        messages_sent = 0
-        marks_placed = 0
-        collisions = 0
-        reasoning_log: List[Dict[str, Any]] = []
-        start_turn = 0
-        pass
-        if movement is not None:
-            _append_snapshot(movement, world, 0, agent_ids, actions=None)
-            if movement_writer is not None:
-                movement_writer.write(json.dumps(movement[-1]))
-                movement_writer.write("\n")
-                movement_writer.flush()
-
-    if not radio_enabled and map_sharing == "none":
-        radio_range = 0
-        radio_max_outbound = 0
+    world = GridWorld(
+        width,
+        height,
+        obstacles,
+        goal,
+        seed=seed,
+        history_limit=history_limit,
+    )
+    agent_ids = list(agent_order) if agent_order else list(start_positions.keys())
+    for aid, pos in start_positions.items():
+        world.add_agent(aid, pos)
 
     policy = _resolve_policy(
         use_llm,
         model_id,
         seed,
-        comm_strategy,
-        loop_guidance,
-        history_limit,
+        history_limit=history_limit,
         radio_range=radio_range,
     )
-    # If freeform_global is requested and we're using LLM, set flag on policy for prompt wording
-    try:
-        if use_llm and hasattr(policy, "freeform_global"):
-            setattr(policy, "freeform_global", freeform_global)
-    except Exception:
-        pass
-    if resume is not None and isinstance(policy, GreedyBaseline) and resume.baseline_rng_state is not None:
-        policy.set_state(_thaw_random_state(resume.baseline_rng_state))
 
     if concurrency_max is None:
         concurrency_max = len(agent_ids) if agent_ids else 1
     concurrency_max = max(1, concurrency_max)
-
-    if resume is not None and resume.concurrency_window:
-        concurrency_window = max(1, min(resume.concurrency_window, concurrency_max))
-    else:
-        if concurrency_start is None:
-            # Default to 1 for safety - higher concurrency can cause connection pool issues
-            # with Azure and other providers when using asyncio.run() in threads
-            concurrency_start = 1
-        concurrency_window = max(1, min(concurrency_start, concurrency_max))
-
+    if concurrency_start is None:
+        concurrency_start = 1
+    concurrency_window = max(1, min(concurrency_start, concurrency_max))
     if not use_llm:
-        concurrency_max = 1
         concurrency_window = 1
+        concurrency_max = 1
 
-    if start_turn >= turns:
-        success_now = world.all_agents_on_goal(agent_ids)
-        if checkpoint_path is not None:
-            checkpoint = EpisodeCheckpoint(
-                use_llm=use_llm,
-                model_id=model_id,
-                turns_total=turns,
-                turn_next=start_turn,
-                visibility=visibility,
-                radio_range=radio_range,
-                seed=seed,
-                maze_metadata=maze_meta,
-                agent_ids=agent_ids,
-                start_positions=start_positions,
-                goal=goal,
-                world=GridWorldState.capture(world),
-                messages_sent=messages_sent,
-                marks_placed=marks_placed,
-                collisions=collisions,
-                reasoning_log=reasoning_log,
-                transcript=transcript,
-                movement=movement,
-                baseline_rng_state=_freeze_random_state(policy.get_state()) if hasattr(policy, "get_state") else None,
-                transcript_path=transcript_path,
-                movement_stream_path=movement_stream_path,
-                episode_path=episode_path,
-                concurrency_window=concurrency_window,
-                comm_strategy=comm_strategy,
-                map_sharing=map_sharing,
-                history_limit=history_limit,
-                loop_guidance=loop_guidance,
-                oracle_requests=0,
-                oracle_enabled=False,
-            )
-            checkpoint.write(checkpoint_path)
-        cause_dict = dict(collision_cause_counts)
-        return EpisodeMetrics(
-            turns=start_turn,
-            success=success_now,
-            messages_sent=messages_sent,
-            marks_placed=marks_placed,
-            collisions=collisions,
-            reasoning_log=reasoning_log,
-            collision_causes=cause_dict,
-            hazard_events=hazard_events,
-            comments_clamped=comments_clamped,
-            comments_autofilled=comments_autofilled,
-            no_go_exposures=no_go_exposures,
-            contended_exposures=contended_exposures,
-            history_limit=history_limit,
-            loop_guidance=loop_guidance,
-        )
+    collisions = 0
+    reasoning_log: List[Dict[str, Any]] = []
+    collision_cause_counts: Dict[str, int] = {}
 
-    oracle_seq_counter = 0
-
-    for turn in range(start_turn, turns):
-        goal_distances_before: Dict[str, int] = {
-            aid: abs(world.occupancy[aid][0] - world.goal.x) + abs(world.occupancy[aid][1] - world.goal.y)
-            for aid in agent_ids
-        }
+    for turn in range(0, turns):
         active_agents = [aid for aid in agent_ids if not world.is_finished(aid)]
-
-        world.increment_inbox_ages()
-
         observations: Dict[str, Observation] = {}
         for aid in active_agents:
             observations[aid] = world.build_observation(
@@ -586,630 +267,164 @@ async def _run_episode_async(
                 turn_index=turn,
                 max_turns=turns,
                 visibility_radius=visibility,
-                radio_range=radio_range,
-                max_outbound_per_turn=radio_max_outbound,
+                map_sharing=map_sharing,
             )
 
-        for obs in observations.values():
-            for adjacent in obs.adjacent:
-                if adjacent.state == AdjacentState.CONTENDED:
-                    contended_exposures += 1
-
+        # Map sharing after building obs? we want shared base before policy.
         if map_sharing != "none":
-            sync_maps(world, active_agents, map_sharing, radio_range)
-            _refresh_observation_maps(world, observations)
+            if map_sharing == "global":
+                _merge_global(world)
+            elif map_sharing == "radio_sync":
+                _merge_radio(world, active_agents, radio_range)
+            # rebuild observations with merged maps
+            for aid in active_agents:
+                observations[aid] = world.build_observation(
+                    aid,
+                    turn_index=turn,
+                    max_turns=turns,
+                    visibility_radius=visibility,
+                    map_sharing=map_sharing,
+                )
 
         capture_trace = transcript is not None and hasattr(policy, "decide_with_trace_async")
         if use_llm:
-            try:
-                outcomes, had_retry = await _gather_decisions_async(
-                    active_agents,
-                    policy,
-                    observations,
-                    capture_trace,
-                    turn,
-                    concurrency_window,
-                    retry_max_attempts,
-                    retry_base_delay,
-                    retry_jitter,
-                )
-            except Exception:
-                concurrency_window = max(1, concurrency_window // 2)
-                raise
+            outcomes, _ = await _gather_decisions_async(
+                active_agents,
+                policy,
+                observations,
+                capture_trace,
+                turn,
+                concurrency_window,
+                retry_max_attempts,
+                retry_base_delay,
+                retry_jitter,
+            )
         else:
             outcomes = {
                 aid: await _call_policy_once_async(policy, observations[aid], capture_trace, aid, turn)
                 for aid in active_agents
             }
-            had_retry = False
 
-        decisions: Dict[str, Decision] = {}
-        for aid in active_agents:
-            outcome = outcomes[aid]
-            decision = outcome.decision
-            if decision.action.kind == "COMMUNICATE":
-                message = decision.action.message
-                sender_id = getattr(message, "sender_id", None) or aid
-                seq_value = world.next_message_seq(sender_id)
-                if hasattr(message, "model_copy"):
-                    message = message.model_copy(update={"seq": seq_value})
-                else:
-                    message.seq = seq_value  # type: ignore[union-attr]
-                decision.action.message = message  # type: ignore[assignment]
-                if outcome.record is not None:
-                    try:
-                        outcome.record["decision"]["action"]["message"]["seq"] = seq_value
-                    except (KeyError, TypeError):
-                        pass
-            decisions[aid] = decision
-            if outcome.record is not None:
-                if transcript is not None:
-                    transcript.append(outcome.record)
-                if transcript_writer is not None:
-                    transcript_writer.write(json.dumps(outcome.record))
-                    transcript_writer.write("\n")
-                    transcript_writer.flush()
-            comment = _truncate(decisions[aid].comment)
-            reasoning_log.append(
-                {
-                    "turn": turn,
-                    "agent_id": aid,
-                    "comment": comment if comment is not None else "",
-                }
-            )
+        decisions = {aid: outcome.decision for aid, outcome in outcomes.items()}
 
-        if use_llm:
-            if had_retry:
-                concurrency_window = max(1, concurrency_window // 2)
-            elif concurrency_window < concurrency_max:
-                concurrency_window = min(concurrency_window + 1, concurrency_max)
-
-        delivered_this_turn = 0
-        for aid, decision in decisions.items():
-            if decision.action.kind == "COMMUNICATE":
-                if not radio_enabled:
-                    raise ValueError(
-                        "COMMUNICATE action received but peer radio is disabled for this run."
-                    )
-                message = decision.action.message
-                sender_pos = world.occupancy[aid]
-                recipients = (
-                    [other for other in world.occupancy.keys() if other != aid and not world.is_finished(other)]
-                    if (freeform_global and comm_strategy == "freeform")
-                    else _recipients_in_range(world, aid, radio_range)
-                )
-                for rid in recipients:
-                    rx, ry = world.occupancy[rid]
-                    rm = ReceivedMessage(
-                        envelope=message,
-                        hop_distance=abs(rx - sender_pos[0]) + abs(ry - sender_pos[1]),
-                        age=0,
-                    )
-                    world.deliver_message(rid, rm)
-                if recipients:
-                    messages_sent += 1
-                    delivered_this_turn += len(recipients)
-                # Oracle actions are not supported in this branch.
-
-        intents: Dict[str, Optional[Direction]] = {}
-        before = dict(world.occupancy)
-        for aid, decision in decisions.items():
-            intents[aid] = decision.action.direction if decision.action.kind == "MOVE" else None
-
+        intents = _intents_from_decisions(decisions)
         move_results = world.resolve_moves(intents)
-        after = dict(world.occupancy)
-        for aid, direction in intents.items():
-            if direction is None:
-                continue
-            if before[aid] == after[aid]:
+
+        for aid, res in move_results.items():
+            if res.outcome in {MoveOutcome.BLOCK_AGENT}:
                 collisions += 1
+                collision_cause_counts[res.outcome.value] = collision_cause_counts.get(res.outcome.value, 0) + 1
 
-        contested_cells = {
-            result.cause_cell
-            for result in move_results.values()
-            if result.cause_cell is not None and result.outcome in (MoveOutcome.BLOCK_AGENT, MoveOutcome.SWAP_CONFLICT)
-        }
-        for result in move_results.values():
-            if result.outcome not in (MoveOutcome.OK, MoveOutcome.FINISHED, MoveOutcome.YIELD):
-                collision_cause_counts[result.outcome.value] += 1
-        hazard_events += len(contested_cells)
-        world.contended_neighbors = {
-            aid: _compute_contended_mask(world.occupancy[aid], contested_cells)
-            for aid in world.occupancy.keys()
-        }
-
-        # artifacts removed
-
-        newly_finished = []
-        for aid in active_agents:
-            if world.agent_on_goal(aid):
-                world.mark_finished(aid)
-                newly_finished.append(aid)
-
-        for aid in newly_finished:
-            reasoning_log.append(
-                {
-                    "turn": turn,
-                    "agent_id": aid,
-                    "comment": "FINISHED",
-                }
-            )
-
-        for aid in active_agents:
-            result = move_results[aid]
-            observation = observations[aid]
-            distance_before = goal_distances_before.get(aid, world.last_goal_distance.get(aid, 0))
-            pos = world.occupancy[aid]
-            distance_after = abs(pos[0] - world.goal.x) + abs(pos[1] - world.goal.y)
-            delta = _goal_delta(distance_before, distance_after)
-            world.last_goal_distance[aid] = distance_after
-            world.last_move_outcome[aid] = result.outcome
-            world.last_intent_target[aid] = result.target
-            peer_bits = _peer_bits(observation)
-            note = _derive_note(result)
-            history_payload = _make_history_entry(
-                turn=turn,
-                decision=decisions[aid],
-                observation=observation,
-                result=result,
-                delta=delta,
-                loop_value=0,
-                peer_bits=peer_bits,
-                note=note,
-            )
-            world.record_history(aid, history_payload)
+        if transcript is not None:
+            for aid in active_agents:
+                rec = outcomes[aid].record
+                if rec is not None:
+                    transcript.append(rec)
+                    if transcript_writer:
+                        transcript_writer.write(json.dumps(rec))
+                        transcript_writer.write("\n")
+                        transcript_writer.flush()
 
         if movement is not None:
-            action_map: Dict[str, Optional[str]] = {}
-            for aid in agent_ids:
-                if aid in decisions:
-                    action_map[aid] = _decision_action_label(decisions.get(aid))
-                else:
-                    action_map[aid] = None
-            _append_snapshot(movement, world, turn + 1, agent_ids, actions=action_map, delivered=delivered_this_turn)
-            if movement_writer is not None:
-                movement_writer.write(json.dumps(movement[-1]))
+            pos_snapshot = worldsnapshot_positions(world)
+            goal_hits = [
+                aid
+                for aid, pos in pos_snapshot.items()
+                if pos == world.goal
+            ]
+            # per-agent manhattan distance to goal
+            dist_to_goal = {
+                aid: abs(pos[0] - world.goal[0]) + abs(pos[1] - world.goal[1])
+                for aid, pos in pos_snapshot.items()
+            }
+            snapshot = {
+                "turn": turn,
+                "positions": {aid: {"x": pos[0], "y": pos[1]} for aid, pos in pos_snapshot.items()},
+                "finished": [aid for aid, done in world.finished.items() if done],
+                "goal_hits": goal_hits,
+                "dist_to_goal": dist_to_goal,
+            }
+            movement.append(snapshot)
+            if movement_writer:
+                movement_writer.write(json.dumps(snapshot))
                 movement_writer.write("\n")
                 movement_writer.flush()
 
-        should_checkpoint = checkpoint_path is not None and (
-            (turn + 1) % max(1, checkpoint_interval) == 0
-            or world.all_agents_on_goal(agent_ids)
-            or turn + 1 == turns
-        )
-
-        if should_checkpoint and checkpoint_path is not None:
-            baseline_state = None
-            if hasattr(policy, "get_state"):
-                baseline_state = _freeze_random_state(policy.get_state())  # type: ignore[attr-defined]
-            checkpoint = EpisodeCheckpoint(
-                use_llm=use_llm,
-                model_id=model_id,
-                turns_total=turns,
-                turn_next=turn + 1,
-                visibility=visibility,
-                radio_range=radio_range,
-                seed=seed,
-                maze_metadata=maze_meta,
-                agent_ids=agent_ids,
-                start_positions=start_positions,
-                goal=goal,
-                world=GridWorldState.capture(world),
-                messages_sent=messages_sent,
-                marks_placed=marks_placed,
-                collisions=collisions,
-                reasoning_log=list(reasoning_log),
-                transcript=transcript,
-                movement=movement,
-                baseline_rng_state=baseline_state,
-                transcript_path=transcript_path,
-                movement_stream_path=movement_stream_path,
-                episode_path=episode_path,
-                concurrency_window=concurrency_window,
-                comm_strategy=comm_strategy,
-                map_sharing=map_sharing,
-                history_limit=history_limit,
-                loop_guidance=loop_guidance,
-                oracle_enabled=False,
-            )
-            checkpoint.write(checkpoint_path)
-
         if world.all_agents_on_goal(agent_ids):
-            cause_dict = dict(collision_cause_counts)
             return EpisodeMetrics(
                 turns=turn + 1,
                 success=True,
-                messages_sent=messages_sent,
-                marks_placed=marks_placed,
                 collisions=collisions,
                 reasoning_log=reasoning_log,
-                collision_causes=cause_dict,
-                hazard_events=hazard_events,
-                comments_clamped=comments_clamped,
-                comments_autofilled=comments_autofilled,
-                no_go_exposures=no_go_exposures,
-                contended_exposures=contended_exposures,
+                collision_causes=collision_cause_counts,
                 history_limit=history_limit,
-                loop_guidance=loop_guidance,
-                oracle_requests=0,
             )
 
-    cause_dict = dict(collision_cause_counts)
     return EpisodeMetrics(
         turns=turns,
-        success=False,
-        messages_sent=messages_sent,
-        marks_placed=marks_placed,
+        success=world.all_agents_on_goal(agent_ids),
         collisions=collisions,
         reasoning_log=reasoning_log,
-        collision_causes=cause_dict,
-        hazard_events=hazard_events,
-        comments_clamped=comments_clamped,
-        comments_autofilled=comments_autofilled,
-        no_go_exposures=no_go_exposures,
-        contended_exposures=contended_exposures,
+        collision_causes=collision_cause_counts,
         history_limit=history_limit,
-        loop_guidance=loop_guidance,
     )
 
 
-def run_episode(
-    *,
-    use_llm: bool,
-    model_id: str,
-    width: int,
-    height: int,
-    obstacles: Iterable[Position],
-    start_positions: Dict[str, Position],
-    goal: Position,
-    turns: int,
-    visibility: int,
-    radio_range: int,
-    seed: int = 0,
-    transcript: Optional[List[dict]] = None,
-    movement: Optional[List[dict]] = None,
-    transcript_writer: Optional[TextIO] = None,
-    movement_writer: Optional[TextIO] = None,
-    agent_order: Optional[List[str]] = None,
-    resume: Optional[EpisodeCheckpoint] = None,
-    checkpoint_path: Optional[Path] = None,
-    checkpoint_interval: int = 1,
-    transcript_path: Optional[str] = None,
-    movement_stream_path: Optional[str] = None,
-    episode_path: Optional[str] = None,
-    maze_metadata: Optional[Dict[str, Any]] = None,
-    bearing_bias_seed: Optional[int] = None,
-    bearing_bias_p: float = 0.0,
-    bearing_bias_wall_bonus: float = 0.0,
-    bearing_flip_p: float = 0.15,
-    bearing_drop_p: float = 0.10,
-    concurrency_start: Optional[int] = None,
-    concurrency_max: Optional[int] = None,
-    retry_max_attempts: int = 5,
-    retry_base_delay: float = 1.0,
-    retry_jitter: float = 0.5,
-    comm_strategy: str = "none",
-    map_sharing: str = "none",
-    history_limit: int = 5,
-    loop_guidance: str = "passive",
-    freeform_global: bool = False,
-    oracle_enabled: bool = False,
-    reasoning_effort: Optional[str] = None,
-    reasoning_verbosity: Optional[str] = None,
-    reasoning_include_encrypted: bool = False,
-) -> EpisodeMetrics:
-    """Synchronously run the async driver in a fresh event loop."""
-    return asyncio.run(
-        _run_episode_async(
-            use_llm=use_llm,
-            model_id=model_id,
-            width=width,
-            height=height,
-            obstacles=obstacles,
-            start_positions=start_positions,
-            goal=goal,
-            turns=turns,
-            visibility=visibility,
-            radio_range=radio_range,
-            seed=seed,
-            transcript=transcript,
-            movement=movement,
-            transcript_writer=transcript_writer,
-            movement_writer=movement_writer,
-            agent_order=agent_order,
-            resume=resume,
-            checkpoint_path=checkpoint_path,
-            checkpoint_interval=checkpoint_interval,
-            transcript_path=transcript_path,
-            movement_stream_path=movement_stream_path,
-            episode_path=episode_path,
-            maze_metadata=maze_metadata,
-            bearing_bias_seed=bearing_bias_seed,
-            bearing_bias_p=bearing_bias_p,
-            bearing_bias_wall_bonus=bearing_bias_wall_bonus,
-            concurrency_start=concurrency_start,
-            concurrency_max=concurrency_max,
-            retry_max_attempts=retry_max_attempts,
-            retry_base_delay=retry_base_delay,
-            retry_jitter=retry_jitter,
-            comm_strategy=comm_strategy,
-            map_sharing=map_sharing,
-            history_limit=history_limit,
-            loop_guidance=loop_guidance,
-            freeform_global=freeform_global,
-            reasoning_effort=reasoning_effort,
-            reasoning_verbosity=reasoning_verbosity,
-            reasoning_include_encrypted=reasoning_include_encrypted,
-    )
-)
-
-
-def sync_maps(world: GridWorld, agent_ids: Iterable[str], mode: str, radio_range: int) -> int:
-    """Synchronize agent maps according to the chosen mode.
-
-    Returns the number of merge operations applied (for diagnostics).
-    """
-
-    mode = (mode or "none").lower()
-    merges = 0
-
-    if mode == "none":
-        return merges
-
-    if mode == "radio_sync":
-        ids = list(agent_ids)
-        for i, aid in enumerate(ids):
-            if world.is_finished(aid):
-                continue
-            ax, ay = world.occupancy[aid]
-            for bid in ids[i + 1 :]:
-                if world.is_finished(bid):
-                    continue
-                bx, by = world.occupancy[bid]
-                if abs(ax - bx) + abs(ay - by) <= radio_range:
-                    world.agent_maps[aid].merge_from(world.agent_maps[bid])
-                    world.agent_maps[bid].merge_from(world.agent_maps[aid])
-                    merges += 2
-        return merges
-
-    if mode == "global":
-        shared = AgentMap(world.size.width, world.size.height)
-        first_seen = False
-        for aid in agent_ids:
-            if world.is_finished(aid):
-                continue
-            shared.merge_from(world.agent_maps[aid])
-            first_seen = True
-        if not first_seen:
-            return merges
-        for aid in agent_ids:
-            if world.is_finished(aid):
-                continue
-            world.agent_maps[aid].merge_from(shared)
-            merges += 1
-        return merges
-
-    raise ValueError(f"Unsupported map sharing mode: {mode}")
-
-
-def _refresh_observation_maps(world: GridWorld, observations: Dict[str, Observation]) -> None:
-    """Update map-derived fields in observations after a map sync."""
-
-    orientations = {aid: world.orientation.get(aid, Direction.N).name for aid in world.agent_maps.keys()}
-    for aid, obs in observations.items():
-        agent_map = world.agent_maps[aid]
-        obs.world_map_ascii = agent_map.render_ascii(icon_lookup=world.agent_icons, orientations=orientations)
-        frontiers = agent_map.find_frontiers()
-        ax, ay = world.occupancy[aid]
-        obs.adjacent_frontiers = [
-            Position(x=fx, y=fy)
-            for fx, fy in frontiers
-            if abs(fx - ax) + abs(fy - ay) == 1
-        ]
-        if frontiers:
-            fx, fy = min(frontiers, key=lambda coord: abs(coord[0] - ax) + abs(coord[1] - ay))
-            obs.nearest_frontier = Position(x=fx, y=fy)
-        else:
-            obs.nearest_frontier = None
-
-
-def _freeze_random_state(state: Any) -> List[Any]:
-    if isinstance(state, tuple):
-        return [_freeze_random_state(item) for item in state]
-    return state
-
-
-def _thaw_random_state(state: Any) -> Any:
-    if isinstance(state, list):
-        return tuple(_thaw_random_state(item) for item in state)
-    return state
-
-
-def _recipients_in_range(world: GridWorld, sender_id: str, radio_range: int) -> List[str]:
-    sx, sy = world.occupancy[sender_id]
-    recipients: List[str] = []
-    for aid, (x, y) in world.occupancy.items():
-        if aid == sender_id:
+def _merge_radio(world: GridWorld, agents: List[str], radio_range: int) -> None:
+    for i, aid in enumerate(agents):
+        ax, ay = world.occupancy.get(aid, (None, None))
+        if ax is None:
             continue
-        if abs(x - sx) + abs(y - sy) <= radio_range:
-            recipients.append(aid)
-    return recipients
+        for bid in agents[i + 1 :]:
+            bx, by = world.occupancy.get(bid, (None, None))
+            if bx is None:
+                continue
+            if abs(ax - bx) + abs(ay - by) <= radio_range:
+                world.merge_base_maps(aid, bid)
+                world.merge_base_maps(bid, aid)
 
 
-def _compute_contended_mask(position: Tuple[int, int], contested_cells: Iterable[Optional[Tuple[int, int]]]) -> int:
-    """Return a NESW bitmask for contested neighbour cells relative to `position`."""
-
-    if not contested_cells:
-        return 0
-
-    x, y = position
-    mask = 0
-    for cell in contested_cells:
-        if cell is None:
-            continue
-        cx, cy = cell
-        dx = cx - x
-        dy = cy - y
-        if dx == 0 and dy == -1:
-            mask |= 0b0001  # north
-        elif dx == 1 and dy == 0:
-            mask |= 0b0010  # east
-        elif dx == 0 and dy == 1:
-            mask |= 0b0100  # south
-        elif dx == -1 and dy == 0:
-            mask |= 0b1000  # west
-    return mask
+def _merge_global(world: GridWorld) -> None:
+    # pick first agent map as accumulator
+    agents = list(world.agent_maps.keys())
+    if not agents:
+        return
+    acc = world.agent_maps[agents[0]]
+    for aid in agents[1:]:
+        acc.merge_base_from(world.agent_maps[aid])
+    for aid in agents[1:]:
+        world.agent_maps[aid].merge_base_from(acc)
 
 
-def _decision_action_label(decision: Optional[Decision]) -> Optional[str]:
-    if decision is None:
-        return None
-    action = decision.action
-    kind = action.kind
-    if kind == "MOVE":
-        return f"MOVE_{action.direction.value}"
-    if kind == "STAY":
-        return "STAY"
-    if kind == "COMMUNICATE":
-        return "COMMUNICATE"
-    return None
+# --------------------------------------------------------------------------- #
+# Convenience sync wrapper
+# --------------------------------------------------------------------------- #
 
 
-def _truncate(text: Optional[str], limit: int = 160) -> Optional[str]:
-    if not text:
-        return None
-    trimmed = text.strip()
-    if not trimmed:
-        return None
-    if len(trimmed) <= limit:
-        return trimmed
-    return trimmed[: limit - 3].rstrip() + "..."
+def run_episode(**kwargs) -> EpisodeMetrics:
+    return asyncio.run(run_episode_async(**kwargs))
 
 
-def _summarise_outgoing(message: OutgoingMessage) -> MessageBrief:
-    details = None
-    kind = getattr(message, "kind", "")
-    if kind == "INTENT":
-        details = message.next_action
-    elif kind == "REQUEST":
-        parts = [message.req]
-        if message.target is not None:
-            parts.append(f"target=({message.target.x},{message.target.y})")
-        details = " ".join(parts)
-    elif kind == "CHAT":
-        txt = getattr(message, "text", None)
-        if isinstance(txt, str):
-            details = txt[:96]
-    # legacy MARK_INFO/ORACLE removed in this branch
-    return MessageBrief(kind=kind, details=details)
+# backwards compatibility name used in tests/logs
+_run_episode_async = run_episode_async
 
 
-def _summarise_received(received: ReceivedMessage) -> MessageBrief:
-    brief = _summarise_outgoing(received.envelope)
-    brief.sender = received.envelope.sender_id
-    brief.hop = received.hop_distance
-    brief.age = received.age
-    return brief
+# --------------------------------------------------------------------------- #
+# Checkpoint stub (compatibility)
+# --------------------------------------------------------------------------- #
 
 
-def _intent_token(action_label: str) -> str:
-    valid = {"MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY", "COMMUNICATE"}
-    if action_label in valid:
-        return action_label
-    if action_label.startswith("MOVE_") and len(action_label) == 6 and action_label[-1] in {"N", "E", "S", "W"}:
-        return action_label
-    return "STAY"
+class EpisodeCheckpoint:  # pragma: no cover - placeholder
+    @classmethod
+    def load(cls, path: Path) -> "EpisodeCheckpoint":
+        raise NotImplementedError("Checkpointing is not supported in this refactor.")
+
+    def write(self, path: Path) -> None:
+        raise NotImplementedError("Checkpointing is not supported in this refactor.")
 
 
-def _goal_delta(before: int, after: int) -> str:
-    if after < before:
-        return "CLOSER"
-    if after > before:
-        return "FARTHER"
-    return "SAME"
-
-
-def _peer_bits(observation: Observation) -> str:
-    flags = {"N": 0, "E": 0, "S": 0, "W": 0}
-    for cell in observation.adjacent:
-        if cell.state == AdjacentState.AGENT:
-            flags[cell.dir] = 1
-    bits = f"N{flags['N']}E{flags['E']}S{flags['S']}W{flags['W']}"
-    recent_intent = observation.history[0].intent if observation.history else "-"
-    return f"{bits}|intent:{recent_intent}"
-
-
-def _derive_note(result: "MoveResult") -> Optional[str]:
-    if result.outcome in (MoveOutcome.BLOCK_AGENT, MoveOutcome.SWAP_CONFLICT):
-        return "TRAFFIC_CONE"
-    return None
-
-
-    # oracle guidance removed in this branch
-
-
-def _make_history_entry(
-    *,
-    turn: int,
-    decision: Decision,
-    observation: Observation,
-    result: "MoveResult",
-    delta: str,
-    loop_value: int,
-    peer_bits: str,
-    note: Optional[str],
-) -> dict:
-    action_label = _decision_action_label(decision) or decision.action.kind.upper()
-    intent_token = _intent_token(action_label)
-    comment = _truncate(decision.comment)
-    sent_brief = None
-    if decision.action.kind == "COMMUNICATE":
-        sent_brief = _summarise_outgoing(decision.action.message)
-    received = [_summarise_received(msg) for msg in observation.inbox]
-    entry = TurnHistory(
-        turn_index=turn,
-        intent=intent_token,
-        outcome=result.outcome,
-        delta=delta,
-        loop=min(loop_value, 9),
-        peer_bits=peer_bits,
-        note=note,
-    )
-    payload = entry.model_dump()
-    payload.update(
-        {
-            "action": action_label,
-            "comment": comment,
-            "sent_message": sent_brief,
-            "received_messages": received,
-        }
-    )
-    return payload
-
-
-def _append_snapshot(
-    store: List[dict],
-    world: GridWorld,
-    turn: int,
-    agent_ids: List[str],
-    actions: Optional[Dict[str, Optional[str]]],
-    *,
-    delivered: int = 0,
-) -> None:
-    agents_payload = {}
-    for aid in agent_ids:
-        x, y = world.occupancy[aid]
-        orientation = world.orientation.get(aid)
-        status = "FINISHED" if world.is_finished(aid) else "ACTIVE"
-        agents_payload[aid] = {
-            "x": x,
-            "y": y,
-            "orientation": orientation.value if orientation is not None else None,
-            "action": actions.get(aid) if actions is not None else None,
-            "status": status,
-        }
-
-    frame = {"turn": turn, "agents": agents_payload}
-    if delivered:
-        frame["delivered"] = delivered
-    store.append(frame)
+# Helper to include finished agents in movement snapshots
+def worldsnapshot_positions(world: GridWorld) -> dict[str, tuple[int, int]]:
+    positions = dict(world.occupancy)
+    positions.update(world.finished_positions)
+    return positions

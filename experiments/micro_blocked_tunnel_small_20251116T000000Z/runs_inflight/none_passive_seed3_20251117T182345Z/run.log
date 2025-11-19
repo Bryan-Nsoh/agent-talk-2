@@ -1,0 +1,455 @@
+DEBUG AZURE_OPENAI_API_KEY len=84
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+Info: --comm-strategy none disables radio; overriding --radio-range to 0 for consistency.
+Using maze preset 'micro_blocked_tunnel_small' (seed=3) — 10x7 maze with a blocked central tunnel forcing a detour; goal bottom-right.
+[INFO] [ModelConfig] Loaded configuration from /Users/3bn/Documents/My_Repos/agent-talk-2/models.yaml
+[INFO] [limiter] increased utilisation for azure: 85% -> 90%
+[INFO] [limiter] increased utilisation for azure: 90% -> 95%
+{
+  "turns": 50,
+  "success": false,
+  "messages_sent": 0,
+  "marks_placed": 0,
+  "collisions": 2,
+  "reasoning_log": [
+    {
+      "turn": 0,
+      "agent_id": "a1",
+      "comment": "Moving east toward nearest frontier at (3,1) to explore, avoiding recent trail."
+    },
+    {
+      "turn": 0,
+      "agent_id": "a2",
+      "comment": "Moving east toward nearest frontier at (1,4) and following goal bearing E."
+    },
+    {
+      "turn": 1,
+      "agent_id": "a1",
+      "comment": "Advancing east toward nearest frontier at (3,1)"
+    },
+    {
+      "turn": 1,
+      "agent_id": "a2",
+      "comment": "Heading toward nearest frontier at (1,4) to reveal unknown corridor; avoiding backtrack west."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a1",
+      "comment": "Scouting toward nearest frontier (4,1); moving east to (3,0)."
+    },
+    {
+      "turn": 2,
+      "agent_id": "a2",
+      "comment": "Moving south toward nearest frontier at (1,3) to reveal (1,4) and progress."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a1",
+      "comment": "Advancing east to (4,0) toward frontier (5,1); south is wall, avoiding backtrack west."
+    },
+    {
+      "turn": 3,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier at (3,6) to explore, aligns with goal bearing; safe, avoiding recent trail at (1,5)."
+    },
+    {
+      "turn": 4,
+      "agent_id": "a1",
+      "comment": "Heading east toward nearest frontier at (6,1) to reveal unknowns"
+    },
+    {
+      "turn": 4,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier at (4,6) to reveal unknown corridor."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a1",
+      "comment": "Scouting unknown at (6,0) toward nearest frontier (7,1), following SE goal bearing."
+    },
+    {
+      "turn": 5,
+      "agent_id": "a2",
+      "comment": "Move west into recent trail at (2,6) to find passages toward nearest frontier (4,4)."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a1",
+      "comment": "Moving east toward nearest frontier at (8,1) to scout unknown ahead."
+    },
+    {
+      "turn": 6,
+      "agent_id": "a2",
+      "comment": "Moving west toward nearest frontier (1,3) to explore; avoiding recent trail at (3,6)."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a1",
+      "comment": "Moving east toward nearest frontier (9,1) to reveal unknowns; avoiding backtrack."
+    },
+    {
+      "turn": 7,
+      "agent_id": "a2",
+      "comment": "Move north toward nearest frontier (1,3) to explore, avoiding recent back-and-forth on y=6."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a1",
+      "comment": "Moving south toward nearest frontier at (8,3) and goal bearing S."
+    },
+    {
+      "turn": 8,
+      "agent_id": "a2",
+      "comment": "Moving north toward nearest frontier at (1,3), avoids recent ~ trail at y=6."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a1",
+      "comment": "Heading south toward nearest frontier at (8,3); moving into (8,2) to approach and reveal frontier."
+    },
+    {
+      "turn": 9,
+      "agent_id": "a2",
+      "comment": "Moving north to reveal path toward nearest frontier at (1,2)."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a1",
+      "comment": "Moving west toward nearest frontier at (6,3), approaching unexplored area while avoiding recent trail."
+    },
+    {
+      "turn": 10,
+      "agent_id": "a2",
+      "comment": "Moving north toward nearest frontier at (1,1); scouting unknown at (1,2)."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a1",
+      "comment": "Move east to scout (8,2); west and south blocked, keep progressing and avoid stalling."
+    },
+    {
+      "turn": 11,
+      "agent_id": "a2",
+      "comment": "Moving west toward nearest frontier (0,0) to scout left column and progress exploration."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a1",
+      "comment": "Advancing east to approach nearest frontier (9,4); avoiding recent trail at (7,2)."
+    },
+    {
+      "turn": 12,
+      "agent_id": "a2",
+      "comment": "Moving N toward nearest frontier (1,0) to reveal unknown corridor."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a1",
+      "comment": "Scouting nearest frontier at (9,4) to reveal unknowns and progress toward goal."
+    },
+    {
+      "turn": 13,
+      "agent_id": "a2",
+      "comment": "Head north toward frontier; moving to reveal (0,0) and avoid backtracking to (0,2)."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a1",
+      "comment": "Advancing north toward nearest frontier at (9,4), scouting (9,0) and avoiding recent trail."
+    },
+    {
+      "turn": 14,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier at (3,1); moving to (1,0) to reveal unknowns"
+    },
+    {
+      "turn": 15,
+      "agent_id": "a1",
+      "comment": "Move south to (9,1) toward nearest frontier (9,4); revisiting recent trail necessary to progress."
+    },
+    {
+      "turn": 15,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier (3,1) to reveal unknown corridor."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a1",
+      "comment": "Moving north toward nearest frontier at (9,4) to reveal unknown corridor; adjacent N is FREE."
+    },
+    {
+      "turn": 16,
+      "agent_id": "a2",
+      "comment": "Advancing east toward nearest frontier at (4,1) to reveal unknowns and progress."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a1",
+      "comment": "Heading south toward nearest frontier at (9,4) to explore unknown corridor."
+    },
+    {
+      "turn": 17,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier at (5,1) to reveal unknowns."
+    },
+    {
+      "turn": 18,
+      "agent_id": "a1",
+      "comment": "Heading toward nearest frontier at (9,4) to explore; moving south to (9,2)"
+    },
+    {
+      "turn": 18,
+      "agent_id": "a2",
+      "comment": "Heading east toward nearest frontier at (6,1), avoiding backtrack over recent positions."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a1",
+      "comment": "Advancing north toward nearest frontier at (9,4) to reveal unknown corridor."
+    },
+    {
+      "turn": 19,
+      "agent_id": "a2",
+      "comment": "Moving east toward nearest frontier (7,1); scouting unknown corridor, avoiding recent trail."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a1",
+      "comment": "Moving N to reach nearest frontier (9,4); revisiting ~ at (9,2) briefly; E out-of-bounds, no contention."
+    },
+    {
+      "turn": 20,
+      "agent_id": "a2",
+      "comment": "Advancing east toward nearest frontier at (8,1); tile (7,0) is free and avoids recent '~' trail; will scout row y=0 for access."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a1",
+      "comment": "Avoid backtracking; explore (8,0) to open new route toward frontier at (9,4)."
+    },
+    {
+      "turn": 21,
+      "agent_id": "a2",
+      "comment": "Moving east to scout toward nearest frontier (9,1); entering (8,0) to reveal new corridor."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a1",
+      "comment": "Moving south to (9,1) despite recent trail ~ to progress toward frontier (9,4); avoiding contended west corridor."
+    },
+    {
+      "turn": 22,
+      "agent_id": "a2",
+      "comment": "Yielding after BLOCK_AGENT; avoiding contended east (E) toward nearest frontier (9,1), staying to prevent collision."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a1",
+      "comment": "Heading south toward frontier (9,4) to reveal unknowns and follow goal bearing."
+    },
+    {
+      "turn": 23,
+      "agent_id": "a2",
+      "comment": "Retreat to (6,0) to avoid repeating blocked MOVE_E; reroute toward nearest frontier at (9,1)."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a1",
+      "comment": "Scouting nearest frontier at (9,4); moving north to reveal unknowns."
+    },
+    {
+      "turn": 24,
+      "agent_id": "a2",
+      "comment": "Proceeding south toward frontier (6,3); avoids prior east blockage and ~ at (7,0). Exploring new corridor and advancing toward goal bearing SE."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a1",
+      "comment": "Heading toward nearest frontier at (9,4); moving north into (9,2) to reveal unknowns."
+    },
+    {
+      "turn": 25,
+      "agent_id": "a2",
+      "comment": "Scouting north to reveal map at (6,2) and avoid east/west walls."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a1",
+      "comment": "Moving south toward nearest frontier (9,4); revisiting (9,1) '~' is necessary to progress downward."
+    },
+    {
+      "turn": 26,
+      "agent_id": "a2",
+      "comment": "Moving south to (6,1) (~) to reach nearest frontier at (6,3) and reveal unknown corridor."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a1",
+      "comment": "Moving south toward nearest frontier (9,4); revisiting (9,0) ~ necessary to reach frontier."
+    },
+    {
+      "turn": 27,
+      "agent_id": "a2",
+      "comment": "Scout north into recent trail at (6,0) to explore beyond blocked E/S/W and reach distant frontier (9,1)."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a1",
+      "comment": "Moving north toward nearest frontier at (9,4) to reveal unknowns, avoids recent backtrack."
+    },
+    {
+      "turn": 28,
+      "agent_id": "a2",
+      "comment": "Heading toward nearest frontier at (6,3); moving south to approach unexplored area."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a1",
+      "comment": "Moving S into (9,2) (recent ~) to follow goal bearing and approach nearest frontier at (9,4)."
+    },
+    {
+      "turn": 29,
+      "agent_id": "a2",
+      "comment": "Scouting unknown at (6,0) to access corridors toward frontier (9,1); only free direction."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a1",
+      "comment": "Moving south toward nearest frontier at (9,4) to reveal unknown and advance toward goal."
+    },
+    {
+      "turn": 30,
+      "agent_id": "a2",
+      "comment": "Moving south toward frontier at (6,3); revisiting (6,1) necessary to progress."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a1",
+      "comment": "Heading south toward nearest frontier at (9,5); S is free and aligns with goal bearing."
+    },
+    {
+      "turn": 31,
+      "agent_id": "a2",
+      "comment": "Only north is free; revisiting ~(6,0) to access open east at (7,0), routing toward frontier (9,1) and break the back-and-forth."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a1",
+      "comment": "Moving south toward nearest frontier at (9,6) and goal; (9,5) is FREE. Avoiding backtrack into ~ at (9,3)."
+    },
+    {
+      "turn": 32,
+      "agent_id": "a2",
+      "comment": "Revisiting ~ at (6,1) to approach frontier at (6,3); south is clear, avoiding backtrack loops."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a1",
+      "comment": "Revisiting ~ at (9,4) to enter adjacent GOAL south."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a2",
+      "comment": "Scouting unknown at (6,0); other directions blocked, advancing toward frontier (9,1)."
+    },
+    {
+      "turn": 33,
+      "agent_id": "a1",
+      "comment": "FINISHED"
+    },
+    {
+      "turn": 34,
+      "agent_id": "a2",
+      "comment": "Breaking N/S loop; scouting east to (7,0) to explore unknown corridor."
+    },
+    {
+      "turn": 35,
+      "agent_id": "a2",
+      "comment": "Moving east toward nearest frontier (9,1) to reveal unknowns at (8,0)."
+    },
+    {
+      "turn": 36,
+      "agent_id": "a2",
+      "comment": "Moving E to (9,0) to approach frontier (8,3) while avoiding recent trail at (7,0)."
+    },
+    {
+      "turn": 37,
+      "agent_id": "a2",
+      "comment": "Moving south toward nearest frontier (9,3) to reveal unknowns and progress."
+    },
+    {
+      "turn": 38,
+      "agent_id": "a2",
+      "comment": "Moving N toward nearest frontier at (9,3); avoid revisiting recent trail S at (9,0)."
+    },
+    {
+      "turn": 39,
+      "agent_id": "a2",
+      "comment": "Avoiding immediate backtrack to (9,1); moving west to continue corridor exploration toward nearest frontier (9,3)."
+    },
+    {
+      "turn": 40,
+      "agent_id": "a2",
+      "comment": "Heading south toward nearest frontier at (8,3); avoid backtracking to ~ at (9,0), exploring new corridor."
+    },
+    {
+      "turn": 41,
+      "agent_id": "a2",
+      "comment": "Advancing north to scout nearest frontier at (8,3); avoiding recent backtrack through (9,0)."
+    },
+    {
+      "turn": 42,
+      "agent_id": "a2",
+      "comment": "Moving south toward nearest frontier (8,3); revisiting (8,1) ~ necessary to reach frontier and follow goal bearing."
+    },
+    {
+      "turn": 43,
+      "agent_id": "a2",
+      "comment": "Heading north toward nearest frontier at (8,3) to reveal unknown corridor."
+    },
+    {
+      "turn": 44,
+      "agent_id": "a2",
+      "comment": "Advancing south toward nearest frontier at (8,3); moving into (8,1) to progress."
+    },
+    {
+      "turn": 45,
+      "agent_id": "a2",
+      "comment": "Heading south toward nearest frontier at (8,3) to reveal unknowns and avoid recent backtracking."
+    },
+    {
+      "turn": 46,
+      "agent_id": "a2",
+      "comment": "Toward nearest frontier (6,3): move W to (7,2), avoiding ~ at (8,1); south is wall."
+    },
+    {
+      "turn": 47,
+      "agent_id": "a2",
+      "comment": "Moving east into (8,2); N/S/W walls. Revisiting ~ to escape dead-end and reposition toward nearest frontier at (5,3)."
+    },
+    {
+      "turn": 48,
+      "agent_id": "a2",
+      "comment": "Advancing east to (9,2) toward nearest frontier (9,4); N is wall per patch, S blocked; avoids recent trail at (7,2)."
+    },
+    {
+      "turn": 49,
+      "agent_id": "a2",
+      "comment": "Heading south toward nearest frontier at (9,4); corridor is free and avoids revisiting ~ at (8,2)."
+    }
+  ],
+  "collision_causes": {
+    "BLOCK_AGENT": 2
+  },
+  "hazard_events": 1,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 0,
+  "contended_exposures": 2,
+  "history_limit": 5,
+  "loop_guidance": "passive"
+}
+Metrics saved to experiments/micro_blocked_tunnel_small_20251116T000000Z/runs/none_passive_seed3_20251117T182345Z/results/metrics.json
+Prompt transcript streaming to experiments/micro_blocked_tunnel_small_20251116T000000Z/runs/none_passive_seed3_20251117T182345Z/results/transcript.jsonl
+Episode log saved to experiments/micro_blocked_tunnel_small_20251116T000000Z/runs/none_passive_seed3_20251117T182345Z/results/episode.json
+Movement stream saved to experiments/micro_blocked_tunnel_small_20251116T000000Z/runs/none_passive_seed3_20251117T182345Z/results/episode_stream.jsonl

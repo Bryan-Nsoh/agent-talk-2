@@ -1,10 +1,10 @@
-"""Portable Pydantic schemas that describe the environment<>agent contract."""
+"""Portable Pydantic schemas for the map‑sharing, no‑comm environment."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union, Literal, Type
+from typing import Dict, List, Optional, Type, Any
 
 from pydantic import BaseModel, Field, create_model
 
@@ -15,385 +15,111 @@ from pydantic import BaseModel, Field, create_model
 
 
 class Direction(str, Enum):
-    """Cardinal directions used for motion and orientation."""
-
     N = "N"
     E = "E"
     S = "S"
     W = "W"
-
-
-class Octant(str, Enum):
-    """Coarse bearings returned by the goal sensor and shared via messages."""
-
-    N = "N"
-    NE = "NE"
-    E = "E"
-    SE = "SE"
-    S = "S"
-    SW = "SW"
-    W = "W"
-    NW = "NW"
-
-
-class StrengthBucket(str, Enum):
-    """Quantised indication of signal strength toward the goal."""
-
-    FAR = "FAR"
-    MID = "MID"
-    NEAR = "NEAR"
-
-
-# ---------------------------------------------------------------------------
-# Geometry helpers
-# ---------------------------------------------------------------------------
-
-
-class GridSize(BaseModel):
-    """Global grid dimensions."""
-
-    width: int = Field(ge=1, description="Number of columns along +X.")
-    height: int = Field(ge=1, description="Number of rows along +Y.")
-
-
-class Position(BaseModel):
-    """Absolute integer coordinates."""
-
-    x: int = Field(ge=0, description="Column index, 0-based from left.")
-    y: int = Field(ge=0, description="Row index, 0-based from top.")
-
-
-class RelativeOffset(BaseModel):
-    """Relative displacement in the agent's local frame."""
-
-    dx: int = Field(description="Offset along +X relative to the agent.")
-    dy: int = Field(description="Offset along +Y relative to the agent.")
-
-
-# ---------------------------------------------------------------------------
-# Goal sensor readings
-# ---------------------------------------------------------------------------
-
-
-class GoalSensorBearing(BaseModel):
-    """Noisy coarse bearing with optional strength buckets."""
-
-    mode: Literal["BEARING"] = "BEARING"
-    bearing: Optional[Octant] = Field(
-        default=None, description="Octant pointing toward the goal when available."
-    )
-    strength: Optional[StrengthBucket] = Field(
-        default=None, description="Optional monotonic indicator of proximity."
-    )
-    available: bool = Field(description="False when the sensor dropped out this turn.")
-
-
-GoalSensorReading = GoalSensorBearing
-
-
-# Artifact/NO_GO purged in this branch
-
-
-# ---------------------------------------------------------------------------
-# Messaging
-# ---------------------------------------------------------------------------
-
-
-class BaseMsg(BaseModel):
-    """Common envelope for all radio messages."""
-
-    kind: str = Field(description="Discriminator for the message type.")
-    sender_id: str = Field(description="Ephemeral agent id stable for this episode.")
-    seq: Optional[int] = Field(
-        default=None,
-        ge=0,
-        description="Monotonically increasing per-sender sequence (assigned by the environment).",
-    )
-
-
-class MsgIntent(BaseMsg):
-    """Announce the next move or stay intent."""
-
-    kind: Literal["INTENT"] = "INTENT"
-    next_action: Literal["MOVE_N", "MOVE_E", "MOVE_S", "MOVE_W", "STAY"] = Field(
-        description="Planned action for collision avoidance."
-    )
-
-
-class MsgRequest(BaseMsg):
-    """Minimal negotiation primitives."""
-
-    kind: Literal["REQUEST"] = "REQUEST"
-    req: Literal["YIELD", "GUIDE"] = Field(description="Type of request.")
-    target: Optional[Position] = Field(
-        default=None, description="Optional absolute position relevant to the request."
-    )
-
-
-class MsgChat(BaseMsg):
-    """Free-form message for natural-language coordination."""
-
-    kind: Literal["CHAT"] = "CHAT"
-    text: str = Field(
-        description="Short sentence (<=96 chars) intended for nearby teammates.",
-        max_length=96,
-        min_length=1,
-    )
-
-
-# Oracle messaging removed in this branch.
-
-
-OutgoingMessage = Union[MsgIntent, MsgRequest, MsgChat]
-
-
-class ReceivedMessage(BaseModel):
-    """Message delivered to the agent this turn."""
-
-    envelope: OutgoingMessage = Field(description="Structured message payload.")
-    hop_distance: int = Field(
-        ge=0, description="Manhattan distance between sender and receiver."
-    )
-    age: int = Field(ge=0, description="Turns elapsed since the message was sent.")
-
-
-# ---------------------------------------------------------------------------
-# Local view and agent state
-# ---------------------------------------------------------------------------
-
-
-class LocalPatch(BaseModel):
-    """Dense egocentric patch for the agent's current FOV."""
-
-    radius: int = Field(ge=1, description="Visibility radius R. Patch size is 2R+1.")
-    top_left_abs: Position = Field(
-        description="Absolute coordinates of the top-left cell in the patch."
-    )
-    rows: List[str] = Field(
-        description=(
-            "Each string has length 2R+1 using characters: '.'=EMPTY, '#'=WALL, "
-            "'G'=GOAL, 'A'=AGENT, '*'=ARTIFACT."
-        )
-    )
-
-
-class NeighborSummary(BaseModel):
-    """Structured summary for neighbors currently visible."""
-
-    agent_id: str = Field(description="Ephemeral id of the neighbor.")
-    abs_pos: Position = Field(description="Absolute position of the neighbor.")
-    rel: RelativeOffset = Field(description="Offset relative to the observing agent.")
-
-
-class CommLimits(BaseModel):
-    """Communication limits for the current episode."""
-
-    range: int = Field(ge=0, description="Inclusive Manhattan delivery radius r.")
-    max_outbound_per_turn: int = Field(
-        ge=0, description="Maximum messages this agent may send per turn."
-    )
-    max_payload_chars: int = Field(
-        ge=1, description="Upper bound on serialized message size (advisory)."
-    )
-
-
-# MarkLimits removed in this branch
-
-
-class AgentSelf(BaseModel):
-    """Ego information for the observing agent."""
-
-    agent_id: str = Field(description="Ephemeral id assigned at episode start.")
-    abs_pos: Position = Field(description="Current absolute position.")
-    orientation: Direction = Field(description="Current facing direction.")
 
 
 class AdjacentState(str, Enum):
-    """Categorisation for cells adjacent to the agent."""
-
     FREE = "FREE"
     WALL = "WALL"
-    OUT_OF_BOUNDS = "OUT_OF_BOUNDS"
-    AGENT = "AGENT"
     GOAL = "GOAL"
-    CONTENDED = "CONTENDED"
-    # NO_GO removed
-
-
-class AdjacentCell(BaseModel):
-    """Cardinal neighbor state to remove ambiguity from ASCII patches."""
-
-    dir: Literal["N", "E", "S", "W"] = Field(description="Cardinal direction from the current cell.")
-    state: AdjacentState = Field(description="Occupancy classification for the neighbor.")
+    AGENT = "AGENT"
+    OUT_OF_BOUNDS = "OUT_OF_BOUNDS"
 
 
 class MoveOutcome(str, Enum):
-    """Execution result for the agent's previous action."""
-
     OK = "OK"
+    FINISHED = "FINISHED"
     BLOCK_WALL = "BLOCK_WALL"
-    BLOCK_OOB = "BLOCK_OOB"
     BLOCK_AGENT = "BLOCK_AGENT"
     SWAP_CONFLICT = "SWAP_CONFLICT"
-    YIELD = "YIELD"
-    FINISHED = "FINISHED"
-
-
-class WorldMapMeta(BaseModel):
-    """Orientation and extent metadata for the rendered world map."""
-
-    x_right: bool = Field(description="True if x increases to the right.")
-    y_up: bool = Field(description="True if y increases upward.")
-    origin: Position = Field(description="Reference origin of the map (usually bottom-left).")
-    width: int = Field(ge=1, description="Grid width in cells.")
-    height: int = Field(ge=1, description="Grid height in cells.")
-
-
-class Observation(BaseModel):
-    """Full observation object passed to the LLM."""
-
-    protocol_version: str = Field(description="Interface version for compatibility.")
-    turn_index: int = Field(ge=0, description="Current turn, zero-based.")
-    max_turns: int = Field(ge=1, description="Turn budget for the episode.")
-    grid_size: GridSize = Field(description="Global grid dimensions.")
-    self_state: AgentSelf = Field(description="Ego state of the agent.")
-    local_patch: LocalPatch = Field(description="Dense egocentric patch.")
-    neighbors_in_view: List[NeighborSummary] = Field(
-        description="Neighbors observed within the local patch."
-    )
-    any_peer_in_range: bool = Field(
-        description="True if at least one peer is within radio delivery range."
-    )
-    radio_peers_count: int = Field(
-        ge=0, description="Number of peers within radio delivery range."
-    )
-    artifacts_in_view: List[dict] = Field(default_factory=list, description="(unused)")
-    inbox: List[ReceivedMessage] = Field(
-        description="Messages delivered during this turn."
-    )
-    recent_messages: List[MessageBrief] = Field(
-        default_factory=list,
-        description="Briefs for the last ~10 received messages (with age).",
-    )
-    adjacent: List[AdjacentCell] = Field(description="Passability summary for the N/E/S/W neighboring cells.")
-    recent_positions: List[Position] = Field(
-        description="Most recent absolute positions occupied by the agent (newest first)."
-    )
-    comm_limits: CommLimits = Field(description="Communication constraints.")
-    # mark_limits removed in this branch
-    goal_sensor: GoalSensorReading = Field(
-        description="Sensing information pointing toward the goal."
-    )
-    world_map_meta: WorldMapMeta = Field(
-        description="Metadata describing the orientation and bounds of world_map_ascii."
-    )
-    adjacent_frontiers: List[Position] = Field(
-        default_factory=list,
-        description="Unknown cells (X) adjacent to the agent's current position.",
-    )
-    nearest_frontier: Optional[Position] = Field(
-        default=None,
-        description="Closest known frontier (unknown cell bordering explored space).",
-    )
-    world_map_ascii: str = Field(
-        description="ASCII rendering of the agent's persistent world map (X=unknown)."
-    )
-    last_move_outcome: MoveOutcome = Field(
-        description="Outcome of the agent's previous action."
-    )
-    contended_neighbors: int = Field(
-        ge=0,
-        le=15,
-        description="Bitmask (NESW) of neighbors targeted by multiple agents on the previous turn.",
-    )
-    history: List["TurnHistory"] = Field(
-        default_factory=list,
-        description="Chronological record (up to 5) of this agent's recent turns.",
-    )
 
 
 # ---------------------------------------------------------------------------
-# Agent actions and decision
+# Core geometry
+# ---------------------------------------------------------------------------
+
+
+class Grid(BaseModel):
+    width: int = Field(ge=1)
+    height: int = Field(ge=1)
+    rows: List[List[str]] = Field(description="rows[y][x] -> symbol")
+
+
+class Position(BaseModel):
+    x: int = Field(ge=0)
+    y: int = Field(ge=0)
+
+
+# ---------------------------------------------------------------------------
+# Observation fields
+# ---------------------------------------------------------------------------
+
+
+class AgentSelf(BaseModel):
+    agent_id: str
+    pos: Position
+
+
+class NeighborInView(BaseModel):
+    agent_id: str
+    pos: Position
+
+
+class AdjacentCell(BaseModel):
+    dir: Direction
+    state: AdjacentState
+
+
+class LastResult(BaseModel):
+    kind: MoveOutcome
+    cell: Optional[Position] = None
+    opponents: List[str] = Field(default_factory=list)
+
+
+class Observation(BaseModel):
+    protocol_version: str
+    turn_index: int
+    max_turns: int
+    grid: Grid
+    legend: Dict[str, str]
+    self: AgentSelf
+    neighbors_in_view: List[NeighborInView]
+    adjacent: List[AdjacentCell]
+    adjacent_frontiers: List[Position]
+    goal_known: bool
+    goal_pos: Optional[Position] = None
+    last_result: LastResult
+    map_sharing: str
+
+
+# ---------------------------------------------------------------------------
+# Decision schema
 # ---------------------------------------------------------------------------
 
 
 class MoveAction(BaseModel):
-    """Move one step along a cardinal axis."""
-
-    kind: Literal["MOVE"] = "MOVE"
-    direction: Direction = Field(description="Direction of movement.")
+    kind: str = Field(default="MOVE", pattern="^MOVE$")
+    direction: Direction
 
 
 class StayAction(BaseModel):
-    """Remain stationary this turn."""
-
-    kind: Literal["STAY"] = "STAY"
+    kind: str = Field(default="STAY", pattern="^STAY$")
 
 
-class CommunicateAction(BaseModel):
-    """Broadcast exactly one structured message."""
-
-    kind: Literal["COMMUNICATE"] = "COMMUNICATE"
-    message: OutgoingMessage = Field(description="Message to broadcast.")
-
-
-AgentAction = Union[MoveAction, StayAction, CommunicateAction]
+AgentAction = MoveAction | StayAction
 
 
 class Decision(BaseModel):
-    """Structured response expected from the LLM each turn."""
-
-    action: AgentAction = Field(description="Action to execute this turn.")
-    comment: Optional[str] = Field(
-        default=None, description="Optional debugging note (ignored in scoring)."
-    )
-
-
-class MessageBrief(BaseModel):
-    """Compact summary of a message for inclusion in turn history."""
-
-    kind: str = Field(description="Message kind discriminator.")
-    details: Optional[str] = Field(default=None, description="Optional short description.")
-    sender: Optional[str] = Field(default=None, description="Sender id if relevant.")
-    hop: Optional[int] = Field(default=None, description="Hop distance for received messages.")
-    age: Optional[int] = Field(default=None, description="Age in turns for received messages.")
-
-
-class TurnHistory(BaseModel):
-    """Summary of the agent's own previous turns."""
-
-    turn_index: int = Field(ge=0, description="Turn number this event represents.")
-    intent: Literal[
-        "MOVE_N",
-        "MOVE_E",
-        "MOVE_S",
-        "MOVE_W",
-        "STAY",
-        "COMMUNICATE",
-    ] = Field(description="Intent chosen on that turn.")
-    outcome: MoveOutcome = Field(description="Result of executing the intent.")
-    delta: Literal["CLOSER", "SAME", "FARTHER"] = Field(description="Change in Manhattan distance to the goal.")
-    loop: int = Field(ge=0, le=9, description="Consecutive turns without progress (capped at 9).")
-    peer_bits: str = Field(
-        description="Compact encoding of nearby agents/intents (e.g., 'N1E0S0W0|intent:E')."
-    )
-    note: Optional[str] = Field(
-        default=None,
-        max_length=12,
-        description="Short status token (e.g., AVOID_LOOP, INTENT_SEEN, TRAFFIC_CONE).",
-    )
+    action: AgentAction
+    comment: str
 
 
 # ---------------------------------------------------------------------------
-# Scenario-specific wire schemas
+# Strategy capability helpers (kept minimal for compatibility)
 # ---------------------------------------------------------------------------
-
-
-_STRATEGY_MESSAGE_TYPES: Dict[str, List[Type[BaseModel]]] = {
-    "none": [],
-    "structured": [MsgIntent, MsgRequest],
-    "freeform": [MsgChat],
-}
 
 
 @dataclass(frozen=True)
@@ -405,23 +131,16 @@ class StrategyCapabilities:
 
 
 def resolve_strategy_capabilities(strategy: str) -> StrategyCapabilities:
-    key = (strategy or "").lower()
-    message_types = list(_STRATEGY_MESSAGE_TYPES.get(key, []))
-    allow_comm = len(message_types) > 0
-    action_kinds: List[str] = ["MOVE", "STAY"]
-    if allow_comm:
-        action_kinds.append("COMMUNICATE")
+    key = (strategy or "none").lower()
     return StrategyCapabilities(
         key=key,
-        message_types=message_types,
-        allow_comm=allow_comm,
-        action_kinds=action_kinds,
+        message_types=[],
+        allow_comm=False,
+        action_kinds=["MOVE", "STAY"],
     )
 
 
 def _union_type(type_list: List[Type[Any]]) -> Type[Any]:
-    if not type_list:
-        raise ValueError("Cannot build a union without member types")
     union: Type[Any] = type_list[0]
     for typ in type_list[1:]:
         union = union | typ  # type: ignore[operator]
@@ -429,38 +148,17 @@ def _union_type(type_list: List[Type[Any]]) -> Type[Any]:
 
 
 def build_decision_model(strategy: str) -> Type[BaseModel]:
-    """Return a Decision-like model scoped to the given strategy settings."""
-
     capabilities = resolve_strategy_capabilities(strategy)
-    message_types = capabilities.message_types
-    allow_comm = capabilities.allow_comm
-
-    action_types: List[Type[Any]] = [MoveAction, StayAction]
-
-    if allow_comm:
-        msg_union = _union_type(message_types)
-        comm_action = create_model(
-            f"CommunicateAction_{capabilities.key}_{len(message_types)}",
-            message=(msg_union, ...),
-            __base__=CommunicateAction,
-        )
-        action_types.append(comm_action)
-
-    # Oracle removed in this branch
-
-    action_union = _union_type(action_types)
-
-    model_name = f"Decision_{capabilities.key}_{'comm' if allow_comm else 'nocomm'}"
+    action_union = _union_type([MoveAction, StayAction])
+    model_name = f"Decision_{capabilities.key}_nocomm"
     return create_model(
         model_name,
         action=(action_union, ...),
-        comment=(Optional[str], None),
+        comment=(str, ...),
     )
 
 
 def coerce_decision(wire_decision: BaseModel) -> Decision:
-    """Convert a wire-level decision model into the canonical Decision."""
-
     if isinstance(wire_decision, Decision):
         return wire_decision
     payload = wire_decision.model_dump()

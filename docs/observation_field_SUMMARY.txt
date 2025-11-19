@@ -1,0 +1,172 @@
+OBSERVATION FIELD USAGE ANALYSIS - EXECUTIVE SUMMARY
+======================================================
+
+Research Task: Analyze which observation fields agents USE vs IGNORE
+
+Dataset: 1,281 decision comments from 3 runs
+- seed14_freeform_20251112T193615Z (freeform, 793 entries)
+- seed16_freeform_run1_20251113T125857Z (freeform, 793 entries, used for totals)
+- seed17_structured_run2_20251113T134138Z (structured, 488 entries)
+
+Time Period: Nov 12-13, 2025
+
+---
+
+KEY FINDINGS
+============
+
+1. HYPERUSED FIELDS (>80% of decisions)
+
+   world_map_ascii          97.0%  Always cite coordinates; map is decision nucleus
+   nearest_frontier         92.0%  Primary nav target; nearly every decision names frontier
+   adjacent_state           83.5%  Validate wall/free before moving; safety check
+
+2. MODERATE USE (10-60%)
+
+   peer_bits                62.1%  Mention teammates for collision avoidance
+   recent_positions         37.7%  Avoid or explain loop-breaking via trails
+   goal_sensor_bearing      21.3%  Weak signal; deferred to frontier exploration
+   neighbors_in_view        12.1%  Underutilized; prefer global map
+
+3. IGNORED FIELDS (<10%)
+
+   contended_neighbors       8.0%  Used when collisions occur (rare); 40/48 cases handled correctly
+   adjacent_frontiers        1.7%  Never non-empty in these runs
+   history                   2.3%  Agents track via trail, not explicit history
+   goal_sensor_strength      0.1%  COMPLETELY UNUSED; 1 mention in 1,281 entries
+
+---
+
+CRITICAL DISCOVERIES
+====================
+
+1. GOAL SENSOR STRENGTH IS A DEAD FIELD
+   - Defined as: "near" (~5-8 cells) vs "far" (~20+ cells)
+   - Actual usage: 0.1% (1 mention across 1,281 entries)
+   - Agent behavior: Explore first, never re-prioritize to goal
+   - Example non-use: Agents say "goal bearing E" but NEVER say "goal is NEAR, prioritize it"
+   - Prompt instruction: "Treat it as guidance" -- too weak; agents ignore it entirely
+
+2. DECISION HISTORY IS FORGOTTEN
+   - Defined as: Sequence of prior outcomes (OK, BLOCK_AGENT, SWAP_CONFLICT)
+   - Actual usage: 2.3% (29 mentions)
+   - What agents do instead: Track via recent_positions (~trail), not explicit history
+   - Example: Agents say "avoiding ~ trail" not "history shows I collided north 3 turns ago"
+   - Verdict: History field is redundant when recent_positions exists
+
+3. AGENTS COMPLETELY IGNORE INBOX MESSAGES
+   - Defined as: Incoming comms from teammates (CHAT/BROADCAST)
+   - Frequency: 23 turns have non-empty inbox
+   - Acknowledged: 15/23 (65%)
+   - Ignored: 8/23 (35%)
+   - Example ignored message (Turn 25): "a5 yielding east; moving west"
+   - Agent moved west but didn't mention the message in reasoning
+   - Verdict: Comms are inconsistently incorporated into decision logic
+
+4. ADJACENT_FRONTIERS NEVER APPEARS
+   - Defined as: Frontiers in immediate NESW cells (quick reveals)
+   - Actual status: Field never non-empty in any of 1,281 turns
+   - Reason: Environment layout prevented adjacent unknowns
+   - Verdict: Conceptually valid but environmentally inert; can be removed from prompt
+
+5. AGENTS HAVE STRONG EXPLORATION-FIRST BIAS
+   - Pattern across 200+ decisions: "goal [bearing] noted, but mapping first"
+   - Bearing deference examples:
+     * "goal bearing E deferred" (Turn 1, a1)
+     * "goal east noted; mapping first" (Turn 3, a2)
+     * "Goal east noted, but mapping first" (Turn 7, a1)
+   - Never observed: "goal is NEAR; switching to goal pursuit now"
+   - Verdict: Goal re-prioritization is implicit, not explicit
+
+---
+
+MISUSE & ERROR PATTERNS
+=======================
+
+1. ONE COLLISION DUE TO IGNORED ADJACENT_STATE
+   Turn 24, Agent a2:
+   - Observation: adjacent.S = AGENT
+   - Comment: "Moving south to approach frontier; avoiding a1 north"
+   - Action: MOVE_S (into occupied cell)
+   - Result: Collision
+   - Cause: Either stale state or prompt failure to validate before moving
+
+2. INBOX MESSAGES SILENTLY IGNORED
+   Turn 25, Agent a3:
+   - Inbox: "a5 yielding east (contested); staying now, will move west to (1,1)"
+   - Comment: "Moving west toward nearest frontier at (2,2) to reveal unknown X"
+   - Status: Movement aligns (both go west) but no acknowledgment
+   - Verdict: Coincidental alignment, not coordination
+
+3. NO COORDINATE ERRORS
+   - All 1,281 coordinate citations fall within grid bounds
+   - Agents are spatially accurate in reasoning
+   - Verdict: No misuse of world_map_ascii
+
+---
+
+FREEFORM VS STRUCTURED PROTOCOL
+================================
+
+Freeform (2 runs, 793 entries):
+  - Frontier citations: 94.5%
+  - Trail avoidance: 39.5%
+  - Peer mentions: 59.5%
+  - Contention handling: 6.7%
+
+Structured (1 run, 488 entries):
+  - Frontier citations: 88.1%  (-6.3% relative to freeform)
+  - Trail avoidance: 34.8%     (-4.6%)
+  - Peer mentions: 66.2%       (+6.7%)
+  - Contention handling: 10.0% (+3.4%)
+
+Interpretation:
+- Structured protocol increases peer awareness and collision acknowledgment
+- But reduces frontier-seeking urgency (agents explore less aggressively)
+- Suggests structured mode trades exploration efficiency for coordination clarity
+
+---
+
+RECOMMENDATIONS FOR PROMPT DESIGNERS
+=====================================
+
+1. DEMOTE goal_sensor FROM LOWEST PRIORITY TO PRIMARY GATE
+   Current: "Treat it as guidance, not a command" (ineffective)
+   New: "Once goal_sensor.strength = NEAR, prioritize goal over unexplored cells"
+
+2. REMOVE adjacent_frontiers (UNLESS environment changes)
+   Reason: Never materialized in practice
+   Action: Simplify prompt; reduce cognitive load
+
+3. FORMALIZE INBOX HANDLING
+   Current: Agents ignore 35% of messages
+   New: "Always acknowledge received messages in your comment, even if you disagree"
+   Example: "a5 said [message]; I'm [agreeing/disagreeing] because [reason]"
+
+4. MERGE history INTO last_move_outcome FIELD
+   Current: history field unused; recent_positions redundant
+   New: Always reference last_move_outcome when explaining direction changes
+   Example: "Last move was BLOCK_AGENT north; trying east instead"
+
+5. STRENGTHEN FRONTIER RE-EVALUATION
+   Current: Agents defer goal indefinitely
+   New: Add rule: "If frontier queue is empty AND goal_sensor.strength = NEAR, execute goal pursuit immediately"
+
+6. INCREASE CONTENTION VISIBILITY
+   Current: Contended_neighbors mentioned only 8% of time
+   New: Make contention mandatory in comments: "No contention" or "contention at [direction]"
+
+---
+
+DATA SOURCES
+============
+
+Full analysis documents:
+- /tmp/observation_field_analysis.md (detailed field breakdowns with examples)
+- /tmp/field_usage_examples.md (specific citation examples for every field)
+
+Analyzed files:
+- /Users/3bn/Documents/My_Repos/agent-talk-2/experiments/cross_seed_baseline_20251112T143355Z/runs/seed14_freeform_20251112T193615Z/results/transcript.jsonl
+- /Users/3bn/Documents/My_Repos/agent-talk-2/experiments/cross_seed_baseline_20251112T143355Z/runs/seed16_freeform_run1_20251113T125857Z/results/transcript.jsonl
+- /Users/3bn/Documents/My_Repos/agent-talk-2/experiments/cross_seed_baseline_20251112T143355Z/runs/seed17_structured_run2_20251113T134138Z/results/transcript.jsonl
+

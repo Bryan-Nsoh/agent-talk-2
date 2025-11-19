@@ -1,0 +1,19 @@
+{
+  "model": "azure:gpt-5-mini",
+  "comm_strategy": "freeform",
+  "seed": 1,
+  "agents": 2,
+  "maze_preset": "micro_blocked_tunnel_small",
+  "success": false,
+  "turns": 50,
+  "collisions": 0,
+  "messages_sent": 0,
+  "collision_causes": {},
+  "hazard_events": 0,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 0,
+  "contended_exposures": 0,
+  "history_limit": 5,
+  "loop_guidance": "active"
+}
