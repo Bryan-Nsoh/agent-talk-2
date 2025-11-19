@@ -34,6 +34,34 @@ Canonical seed 13 showed structured winning (73%), but testing across 5 differen
 
 None beyond the projects listed above.
 
+## In-flight Verification Plan (2025-11-19)
+
+Now that the single-grid renderer and streaming telemetry are restored on branch `micro-blocked-tunnel`, the remaining work is to re-run the canonical scenarios under the three map-sharing regimes so future agents have a clear reference.
+
+1. **Baseline (no sharing):** `long_corridor`, 5 agents, `map_sharing=none`, seeds 13–17. Capture one `gpt-5-mini` run per seed, document collisions + transcripts in a new experiment folder (e.g., `long_corridor_no_share_YYYYMMDDTHHMMSSZ/`).
+2. **Radio sync (default):** same maze/seeds but `map_sharing=radio_sync` to show partial knowledge merging. Keep each run under `experiments/long_corridor_radio_sync_.../runs/<run_ts>/`.
+3. **Global sharing:** `map_sharing=global` to prove the renderer + client behave when all base maps merge every turn.
+
+For each regime:
+- Command template (tmux):  
+  ```bash
+  PYTHONPATH=src uv run python -m llmgrid.cli.poc_two_agents \
+    --model gpt-5-mini \
+    --maze-preset long_corridor \
+    --agents 5 \
+    --turns 100 \
+    --comm-strategy none \
+    --map-sharing <none|radio_sync|global> \
+    --seed <13..17> \
+    --log-prompts \
+    --log-movements \
+    --emit-config experiments/<experiment>/runs/$(date -u +%Y%m%dT%H%M%SZ)/config.yaml
+  ```
+- Artifacts: transcript.jsonl (streamed), episode_stream.jsonl, episode.json, GIF (`python -m llmgrid.vis.gif`), metrics.json.
+- Documentation: update this README and the per-experiment README immediately after each run (status, outcome, links to GIF).
+
+Once these nine runs are on disk, we can mark the rebuilt pipeline as fully verified and move on to fresh science.
+
 ### Status Legend
 - running | complete | failed | abandoned
 
