@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, Any
 import math
 import random
 
@@ -12,6 +12,17 @@ import typer
 
 from llmgrid.env.simulate import run_episode
 from llmgrid.schema import Position
+import yaml
+
+
+class _TranscriptSink:
+    def append(self, _value: dict) -> None:  # pragma: no cover - simple sink
+        return
+
+
+class _TranscriptSink:
+    def append(self, _value: dict) -> None:  # pragma: no cover - simple sink
+        return
 
 PRESETS: Dict[str, dict] = {
     "long_corridor": {
@@ -108,8 +119,17 @@ def main(
     map_sharing: str = typer.Option("radio_sync", "--map-sharing", help="none|radio_sync|global"),
     seed: int = typer.Option(13, "--seed"),
     episode_json: Path = typer.Option(..., "--episode-json"),
-    transcript_jsonl: Path = typer.Option(..., "--transcript-jsonl"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Use heuristic instead of LLM"),
+    concurrency_start: Optional[int] = typer.Option(
+        None,
+        "--concurrency-start",
+        help="Initial number of concurrent LLM calls (defaults to max(6, agent_count)).",
+    ),
+    concurrency_max: Optional[int] = typer.Option(
+        None,
+        "--concurrency-max",
+        help="Maximum concurrent LLM calls (defaults to agent_count).",
+    ),
 ) -> None:
     if preset not in PRESETS:
         raise typer.BadParameter(f"Unknown preset {preset}")
@@ -141,26 +161,72 @@ def main(
             seed=seed,
         )
 
-    transcript_records = [] if transcript_jsonl else None
-    movement_records = [] if episode_json else None
+    transcript_records: Optional[list[dict]] = None
+    transcript_sink: Optional[Any] = _TranscriptSink()
+    results_dir = episode_json.parent
+    results_dir.mkdir(parents=True, exist_ok=True)
+    transcript_path = results_dir / "transcript.jsonl"
+    transcript_writer = transcript_path.open("w", encoding="utf-8")
 
-    metrics = run_episode(
-        use_llm=not dry_run,
-        model_id=model,
-        width=width,
-        height=height,
-        obstacles=walls,
-        start_positions=start_positions,
-        goal=goal,
-        turns=turns,
-        visibility=visibility,
-        radio_range=radio_range,
-        map_sharing=map_sharing,
-        seed=seed,
-        transcript=transcript_records,
-        movement=movement_records,
-        history_limit=10,
-    )
+    movement_records = [] if episode_json else None
+    movement_writer = None
+    if episode_json:
+        movement_stream_path = results_dir / "episode_stream.jsonl"
+        movement_writer = movement_stream_path.open("w", encoding="utf-8")
+
+    # Persist config for downstream tools (stream_to_episode)
+    wall_payload = [{"x": p.x, "y": p.y} for p in walls]
+    palette = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#17becf", "#bcbd22", "#e377c2"]
+    styles = [
+        {"agent_id": aid, "color_hex": palette[idx % len(palette)]}
+        for idx, aid in enumerate(start_positions.keys())
+    ]
+    config_payload = {
+        "width": width,
+        "height": height,
+        "goal": {"x": goal.x, "y": goal.y},
+        "walls": wall_payload,
+        "visibility": visibility,
+        "radio_range": radio_range,
+        "turns": turns,
+        "preset": preset,
+        "map_sharing": map_sharing,
+        "agent_styles": styles,
+    }
+    config_path = results_dir / "config.yaml"
+    with config_path.open("w", encoding="utf-8") as cfg_file:
+        yaml.safe_dump(config_payload, cfg_file, sort_keys=False)
+
+    agent_count = len(start_positions)
+    concurrency_start = concurrency_start or max(6, agent_count)
+    concurrency_max = concurrency_max or agent_count
+
+    try:
+        metrics = run_episode(
+            use_llm=not dry_run,
+            model_id=model,
+            width=width,
+            height=height,
+            obstacles=walls,
+            start_positions=start_positions,
+            goal=goal,
+            turns=turns,
+            visibility=visibility,
+            radio_range=radio_range,
+            map_sharing=map_sharing,
+            seed=seed,
+            transcript=transcript_sink,
+            transcript_writer=transcript_writer,
+            movement=movement_records,
+            movement_writer=movement_writer,
+            history_limit=10,
+            concurrency_start=concurrency_start,
+            concurrency_max=concurrency_max,
+        )
+    finally:
+        transcript_writer.close()
+        if movement_writer:
+            movement_writer.close()
 
     if episode_json:
         episode_json.parent.mkdir(parents=True, exist_ok=True)
@@ -177,13 +243,6 @@ def main(
             "frames": movement_records or [],
         }
         episode_json.write_text(json.dumps(payload, indent=2))
-
-    if transcript_jsonl and transcript_records is not None:
-        transcript_jsonl.parent.mkdir(parents=True, exist_ok=True)
-        with transcript_jsonl.open("w", encoding="utf-8") as f:
-            for rec in transcript_records:
-                f.write(json.dumps(rec))
-                f.write("\n")
 
     typer.secho(json.dumps(metrics.__dict__, indent=2), fg=typer.colors.GREEN)
 

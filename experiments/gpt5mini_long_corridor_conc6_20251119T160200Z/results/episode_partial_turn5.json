@@ -1,0 +1,886 @@
+{
+  "meta": {
+    "grid_size": {
+      "width": 30,
+      "height": 10
+    },
+    "goal": {
+      "x": 28,
+      "y": 1
+    },
+    "walls": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      },
+      {
+        "x": 8,
+        "y": 0
+      },
+      {
+        "x": 9,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 0
+      },
+      {
+        "x": 11,
+        "y": 0
+      },
+      {
+        "x": 12,
+        "y": 0
+      },
+      {
+        "x": 13,
+        "y": 0
+      },
+      {
+        "x": 14,
+        "y": 0
+      },
+      {
+        "x": 15,
+        "y": 0
+      },
+      {
+        "x": 16,
+        "y": 0
+      },
+      {
+        "x": 17,
+        "y": 0
+      },
+      {
+        "x": 18,
+        "y": 0
+      },
+      {
+        "x": 19,
+        "y": 0
+      },
+      {
+        "x": 20,
+        "y": 0
+      },
+      {
+        "x": 21,
+        "y": 0
+      },
+      {
+        "x": 22,
+        "y": 0
+      },
+      {
+        "x": 23,
+        "y": 0
+      },
+      {
+        "x": 24,
+        "y": 0
+      },
+      {
+        "x": 25,
+        "y": 0
+      },
+      {
+        "x": 26,
+        "y": 0
+      },
+      {
+        "x": 27,
+        "y": 0
+      },
+      {
+        "x": 28,
+        "y": 0
+      },
+      {
+        "x": 29,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 12,
+        "y": 1
+      },
+      {
+        "x": 22,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 7,
+        "y": 2
+      },
+      {
+        "x": 8,
+        "y": 2
+      },
+      {
+        "x": 9,
+        "y": 2
+      },
+      {
+        "x": 10,
+        "y": 2
+      },
+      {
+        "x": 12,
+        "y": 2
+      },
+      {
+        "x": 14,
+        "y": 2
+      },
+      {
+        "x": 15,
+        "y": 2
+      },
+      {
+        "x": 16,
+        "y": 2
+      },
+      {
+        "x": 18,
+        "y": 2
+      },
+      {
+        "x": 19,
+        "y": 2
+      },
+      {
+        "x": 20,
+        "y": 2
+      },
+      {
+        "x": 24,
+        "y": 2
+      },
+      {
+        "x": 25,
+        "y": 2
+      },
+      {
+        "x": 26,
+        "y": 2
+      },
+      {
+        "x": 27,
+        "y": 2
+      },
+      {
+        "x": 28,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 8,
+        "y": 3
+      },
+      {
+        "x": 16,
+        "y": 3
+      },
+      {
+        "x": 20,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 8,
+        "y": 4
+      },
+      {
+        "x": 10,
+        "y": 4
+      },
+      {
+        "x": 12,
+        "y": 4
+      },
+      {
+        "x": 14,
+        "y": 4
+      },
+      {
+        "x": 16,
+        "y": 4
+      },
+      {
+        "x": 18,
+        "y": 4
+      },
+      {
+        "x": 20,
+        "y": 4
+      },
+      {
+        "x": 22,
+        "y": 4
+      },
+      {
+        "x": 24,
+        "y": 4
+      },
+      {
+        "x": 25,
+        "y": 4
+      },
+      {
+        "x": 26,
+        "y": 4
+      },
+      {
+        "x": 28,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 10,
+        "y": 5
+      },
+      {
+        "x": 14,
+        "y": 5
+      },
+      {
+        "x": 20,
+        "y": 5
+      },
+      {
+        "x": 22,
+        "y": 5
+      },
+      {
+        "x": 24,
+        "y": 5
+      },
+      {
+        "x": 28,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 6
+      },
+      {
+        "x": 7,
+        "y": 6
+      },
+      {
+        "x": 10,
+        "y": 6
+      },
+      {
+        "x": 12,
+        "y": 6
+      },
+      {
+        "x": 13,
+        "y": 6
+      },
+      {
+        "x": 14,
+        "y": 6
+      },
+      {
+        "x": 15,
+        "y": 6
+      },
+      {
+        "x": 16,
+        "y": 6
+      },
+      {
+        "x": 17,
+        "y": 6
+      },
+      {
+        "x": 18,
+        "y": 6
+      },
+      {
+        "x": 19,
+        "y": 6
+      },
+      {
+        "x": 20,
+        "y": 6
+      },
+      {
+        "x": 22,
+        "y": 6
+      },
+      {
+        "x": 23,
+        "y": 6
+      },
+      {
+        "x": 24,
+        "y": 6
+      },
+      {
+        "x": 26,
+        "y": 6
+      },
+      {
+        "x": 27,
+        "y": 6
+      },
+      {
+        "x": 28,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 10,
+        "y": 7
+      },
+      {
+        "x": 14,
+        "y": 7
+      },
+      {
+        "x": 18,
+        "y": 7
+      },
+      {
+        "x": 26,
+        "y": 7
+      },
+      {
+        "x": 0,
+        "y": 8
+      },
+      {
+        "x": 1,
+        "y": 8
+      },
+      {
+        "x": 2,
+        "y": 8
+      },
+      {
+        "x": 4,
+        "y": 8
+      },
+      {
+        "x": 5,
+        "y": 8
+      },
+      {
+        "x": 6,
+        "y": 8
+      },
+      {
+        "x": 7,
+        "y": 8
+      },
+      {
+        "x": 12,
+        "y": 8
+      },
+      {
+        "x": 14,
+        "y": 8
+      },
+      {
+        "x": 16,
+        "y": 8
+      },
+      {
+        "x": 20,
+        "y": 8
+      },
+      {
+        "x": 21,
+        "y": 8
+      },
+      {
+        "x": 24,
+        "y": 8
+      },
+      {
+        "x": 25,
+        "y": 8
+      },
+      {
+        "x": 28,
+        "y": 8
+      },
+      {
+        "x": 0,
+        "y": 9
+      },
+      {
+        "x": 12,
+        "y": 9
+      },
+      {
+        "x": 16,
+        "y": 9
+      },
+      {
+        "x": 24,
+        "y": 9
+      }
+    ],
+    "view": {
+      "kind": "square",
+      "radius": 2
+    },
+    "gradient_mode": "bfs",
+    "title": "Partial run (turns 0-5)",
+    "agent_styles": [
+      {
+        "agent_id": "a1",
+        "color_hex": "#1f77b4"
+      },
+      {
+        "agent_id": "a2",
+        "color_hex": "#d62728"
+      },
+      {
+        "agent_id": "a3",
+        "color_hex": "#2ca02c"
+      },
+      {
+        "agent_id": "a4",
+        "color_hex": "#9467bd"
+      },
+      {
+        "agent_id": "a5",
+        "color_hex": "#ff7f0e"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "t": 0,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 1,
+            "y": 6
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 11,
+            "y": 5
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 4,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 2,
+            "y": 3
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "t": 1,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 6
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 12,
+            "y": 5
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 3,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 3,
+            "y": 3
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "t": 2,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 2,
+            "y": 7
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 13,
+            "y": 5
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 2,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 3,
+            "y": 3
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "t": 3,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 4,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 3,
+            "y": 7
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 13,
+            "y": 4
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 1,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "t": 4,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 5,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 4,
+            "y": 7
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 13,
+            "y": 3
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 1,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "t": 5,
+      "agents": [
+        {
+          "agent_id": "a1",
+          "pos": {
+            "x": 6,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a2",
+          "pos": {
+            "x": 5,
+            "y": 7
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a3",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a4",
+          "pos": {
+            "x": 2,
+            "y": 9
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        },
+        {
+          "agent_id": "a5",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "orientation": null,
+          "action": null,
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  ]
+}

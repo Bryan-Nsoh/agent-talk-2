@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from dataclasses import dataclass
+import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, TextIO, Tuple
 
@@ -12,6 +13,9 @@ from llmgrid.agent.llm_agent import DecisionTrace, LlmPolicy
 from llmgrid.agent.local_baseline import GreedyBaseline
 from llmgrid.env.grid import GridWorld
 from llmgrid.schema import Decision, Direction, MoveOutcome, Observation, Position
+from llmgrid.utils import get_logger
+
+LOGGER = get_logger()
 
 
 @dataclass
@@ -134,6 +138,13 @@ async def _gather_decisions_async(
 
     async def worker(aid: str) -> tuple[str, DecisionOutcome]:
         async with semaphore:
+            LOGGER.info(
+                "[sim] turn=%s agent=%s request_start window=%s",
+                turn,
+                aid,
+                concurrency_window,
+            )
+            start_ts = time.perf_counter()
             outcome = await _decide_with_retry_async(
                 policy,
                 observations[aid],
@@ -143,6 +154,14 @@ async def _gather_decisions_async(
                 max_attempts,
                 base_delay,
                 jitter,
+            )
+            elapsed = time.perf_counter() - start_ts
+            LOGGER.info(
+                "[sim] turn=%s agent=%s request_end attempts=%s latency=%.2fs",
+                turn,
+                aid,
+                outcome.attempts,
+                elapsed,
             )
             return aid, outcome
 
@@ -260,6 +279,12 @@ async def run_episode_async(
 
     for turn in range(0, turns):
         active_agents = [aid for aid in agent_ids if not world.is_finished(aid)]
+        LOGGER.info(
+            "[sim] turn=%s start active_agents=%s concurrency=%s",
+            turn,
+            len(active_agents),
+            concurrency_window,
+        )
         observations: Dict[str, Observation] = {}
         for aid in active_agents:
             observations[aid] = world.build_observation(
@@ -315,15 +340,17 @@ async def run_episode_async(
                 collisions += 1
                 collision_cause_counts[res.outcome.value] = collision_cause_counts.get(res.outcome.value, 0) + 1
 
-        if transcript is not None:
+        if transcript is not None or transcript_writer:
             for aid in active_agents:
                 rec = outcomes[aid].record
-                if rec is not None:
+                if rec is None:
+                    continue
+                if transcript is not None:
                     transcript.append(rec)
-                    if transcript_writer:
-                        transcript_writer.write(json.dumps(rec))
-                        transcript_writer.write("\n")
-                        transcript_writer.flush()
+                if transcript_writer:
+                    transcript_writer.write(json.dumps(rec))
+                    transcript_writer.write("\n")
+                    transcript_writer.flush()
 
         if movement is not None:
             pos_snapshot = worldsnapshot_positions(world)

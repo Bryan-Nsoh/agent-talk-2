@@ -4,12 +4,29 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 import typer
 import yaml
 
 app = typer.Typer(add_completion=False)
+
+
+def _load_walls(cfg: Dict[str, Any]) -> list[dict]:
+    if "walls" in cfg and cfg["walls"]:
+        return cfg["walls"]
+    ascii_path = Path(cfg.get("manual_ascii_path", ""))
+    if not ascii_path.is_file():
+        return []
+    width = cfg["width"]
+    height = cfg["height"]
+    walls: list[dict] = []
+    with ascii_path.open("r", encoding="utf-8") as fh:
+        for y, line in enumerate(fh.readlines()[:height]):
+            for x, ch in enumerate(line[:width]):
+                if ch == "#":
+                    walls.append({"x": x, "y": y})
+    return walls
 
 
 @app.command()
@@ -21,80 +38,55 @@ def main(
 ):
     """Convert streaming episode format to full episode.json for GIF rendering."""
 
-    # Load config
-    with config.open("r") as f:
-        cfg = yaml.safe_load(f)
-
-    # Read maze to get walls and goal
-    maze_path = Path(cfg["manual_ascii_path"])
-    with maze_path.open("r") as f:
-        maze_lines = [line.rstrip() for line in f.readlines()]
-
-    # Parse maze for walls
-    walls = []
+    cfg = yaml.safe_load(config.read_text())
     width = cfg["width"]
     height = cfg["height"]
-    for y, line in enumerate(maze_lines[:height]):
-        for x, char in enumerate(line[:width]):
-            if char == "#":
-                walls.append({"x": x, "y": y})
+    goal = cfg.get("goal") or {"x": 0, "y": 0}
+    walls = _load_walls(cfg)
+    visibility = cfg.get("visibility", 2)
+    agent_styles = cfg.get("agent_styles") or []
 
-    # Get goal from meta file
-    meta_path = Path(cfg["manual_meta_path"])
-    with meta_path.open("r") as f:
-        meta = json.load(f)
-    goal = meta["goal"]
-
-    # Read stream frames
     frames = []
-    with stream.open("r") as f:
-        for line_num, line in enumerate(f, 1):
+    last_turn = None
+    with stream.open("r", encoding="utf-8") as fh:
+        for line in fh:
             frame_data = json.loads(line)
-            turn = frame_data["turn"]
-
+            turn = frame_data.get("turn", 0)
             if max_turns is not None and turn > max_turns:
                 break
+            agents_payload = []
+            for agent_id, pos in frame_data.get("positions", {}).items():
+                agents_payload.append(
+                    {
+                        "agent_id": agent_id,
+                        "pos": {"x": pos["x"], "y": pos["y"]},
+                        "orientation": None,
+                        "action": None,
+                        "status": "FINISHED" if agent_id in frame_data.get("finished", []) else "ACTIVE",
+                    }
+                )
+            frames.append({"t": turn, "agents": agents_payload})
+            last_turn = turn
 
-            # Convert agent dict to list format
-            agents = []
-            for agent_id, agent_state in frame_data["agents"].items():
-                agents.append({
-                    "agent_id": agent_id,
-                    "pos": {"x": agent_state["x"], "y": agent_state["y"]},
-                    "orientation": agent_state.get("orientation"),
-                    "action": agent_state.get("action"),
-                    "status": agent_state.get("status", "ACTIVE"),
-                })
+    if not frames:
+        raise typer.BadParameter("No frames found in stream; is the run producing movement logs?")
 
-            frames.append({
-                "t": turn,
-                "agents": agents,
-                "hazards": [],  # Could parse from artifacts if needed
-            })
-
-    # Build episode log
     episode = {
         "meta": {
             "grid_size": {"width": width, "height": height},
             "goal": goal,
             "walls": walls,
-            "view": {"kind": "square", "radius": cfg["visibility"]},
+            "view": {"kind": "square", "radius": visibility},
             "gradient_mode": "bfs",
-            "title": f"Partial run (turns 0-{frames[-1]['t']})",
-            "agent_styles": [],  # Will use defaults
+            "title": f"Partial run (turns 0-{last_turn})",
+            "agent_styles": agent_styles,
         },
         "frames": frames,
     }
 
-    # Write output
     out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open("w") as f:
-        json.dump(episode, f, indent=2)
-
-    typer.secho(
-        f"Converted {len(frames)} frames from {stream} to {out}",
-        fg=typer.colors.GREEN,
-    )
+    out.write_text(json.dumps(episode, indent=2))
+    typer.secho(f"Converted {len(frames)} frames from {stream} to {out}", fg=typer.colors.GREEN)
 
 
 if __name__ == "__main__":

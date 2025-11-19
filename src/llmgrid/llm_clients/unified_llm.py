@@ -449,16 +449,8 @@ class UnifiedLLM:
         provider_name: str
         model_entry: Dict[str, Any]
         if ":" in model:
-            provider_name, model_key = model.split(":", 1)
-            # Try to look up full config from pool to get mode and other settings
-            try:
-                _, pool_entry = await self.pool.select(model_key, provider_name)
-                model_entry = pool_entry
-                model_name = pool_entry.get("deployment") or pool_entry.get("model") or model_key
-            except Exception:
-                # Fallback to minimal entry if pool lookup fails
-                model_entry = {"provider": provider_name, "model": model_key, "mode": "sdk"}
-                model_name = model_key
+            provider_name, model_name = model.split(":", 1)
+            model_entry = {"provider": provider_name, "model": model_name}
         else:
             provider_name, model_entry = await self.pool.select(model, provider_preference)
             model_name = model_entry.get("deployment") or model_entry.get("model")
@@ -652,87 +644,87 @@ class UnifiedLLM:
                 )
 
             base_url = f"{endpoint.rstrip('/')}/openai/deployments/{model_name}"
-            client = AsyncOpenAI(
+            async with AsyncOpenAI(
                 base_url=base_url,
                 api_key=api_key,
                 timeout=float(timeout_s),
                 default_query={"api-version": api_version},
                 max_retries=0,
-            )
-            provider_label = "azure"
-            # Reasoning models (gpt-5, o1, o3) reject temperature parameter
-            is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
+            ) as client:
+                provider_label = "azure"
+                # Reasoning models (gpt-5, o1, o3) reject temperature parameter
+                is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
 
-            if output_schema:
+                if output_schema:
+                    kwargs = {
+                        "model": model_name,
+                        "messages": message_list,
+                        "response_format": output_schema,
+                    }
+                    if not is_reasoning_model:
+                        kwargs["temperature"] = temperature
+
+                    completion = await client.beta.chat.completions.parse(**kwargs)
+                    usage = getattr(completion, "usage", None)
+                    in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+                    out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
+                    self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
+                    return completion.choices[0].message.parsed, in_tokens, out_tokens
+
                 kwargs = {
                     "model": model_name,
                     "messages": message_list,
-                    "response_format": output_schema,
                 }
                 if not is_reasoning_model:
                     kwargs["temperature"] = temperature
 
-                completion = await client.beta.chat.completions.parse(**kwargs)
+                completion = await client.chat.completions.create(**kwargs)
                 usage = getattr(completion, "usage", None)
                 in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                 out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
+                content = (completion.choices[0].message.content or "").strip()
                 self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
-                return completion.choices[0].message.parsed, in_tokens, out_tokens
-
-            kwargs = {
-                "model": model_name,
-                "messages": message_list,
-            }
-            if not is_reasoning_model:
-                kwargs["temperature"] = temperature
-
-            completion = await client.chat.completions.create(**kwargs)
-            usage = getattr(completion, "usage", None)
-            in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
-            out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
-            content = (completion.choices[0].message.content or "").strip()
-            self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
-            return content, in_tokens, out_tokens
+                return content, in_tokens, out_tokens
         else:
             provider_cfg = self._cfg.providers.raw.get(provider, {})
             base_url = provider_cfg.get("base_url")
             api_key_env = provider_cfg.get("api_key_env", "OPENAI_API_KEY")
             api_key = os.getenv(api_key_env) or provider_cfg.get("api_key")
-            client = AsyncOpenAI(base_url=base_url, api_key=api_key, timeout=float(timeout_s), max_retries=0)
-            provider_label = "openai" if (base_url or "").startswith("https://api.openai.com") else "openai-compatible"
-            # Reasoning models (gpt-5, o1, o3) reject temperature parameter
-            is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
+            async with AsyncOpenAI(base_url=base_url, api_key=api_key, timeout=float(timeout_s), max_retries=0) as client:
+                provider_label = "openai" if (base_url or "").startswith("https://api.openai.com") else "openai-compatible"
+                # Reasoning models (gpt-5, o1, o3) reject temperature parameter
+                is_reasoning_model = any(pattern in model_name.lower() for pattern in ["gpt-5", "o1", "o3"])
 
-            if output_schema:
+                if output_schema:
+                    kwargs = {
+                        "model": model_name,
+                        "messages": message_list,
+                        "response_format": output_schema,
+                    }
+                    if not is_reasoning_model:
+                        kwargs["temperature"] = temperature
+
+                    completion = await client.beta.chat.completions.parse(**kwargs)
+                    usage = getattr(completion, "usage", None)
+                    in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+                    out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
+                    self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
+                    return completion.choices[0].message.parsed, in_tokens, out_tokens
+
                 kwargs = {
                     "model": model_name,
                     "messages": message_list,
-                    "response_format": output_schema,
                 }
                 if not is_reasoning_model:
                     kwargs["temperature"] = temperature
 
-                completion = await client.beta.chat.completions.parse(**kwargs)
+                completion = await client.chat.completions.create(**kwargs)
                 usage = getattr(completion, "usage", None)
                 in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
                 out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
+                content = (completion.choices[0].message.content or "").strip()
                 self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
-                return completion.choices[0].message.parsed, in_tokens, out_tokens
-
-            kwargs = {
-                "model": model_name,
-                "messages": message_list,
-            }
-            if not is_reasoning_model:
-                kwargs["temperature"] = temperature
-
-            completion = await client.chat.completions.create(**kwargs)
-            usage = getattr(completion, "usage", None)
-            in_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
-            out_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
-            content = (completion.choices[0].message.content or "").strip()
-            self.tokens.record(provider_label, model_name, in_tokens, out_tokens)
-            return content, in_tokens, out_tokens
+                return content, in_tokens, out_tokens
 
     async def _call_azure_responses(
         self,
