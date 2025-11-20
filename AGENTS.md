@@ -40,61 +40,88 @@ These models **reject** the `temperature` parameter. The code now handles this a
 
 ## CLI Tools
 
-### 1. run_preset - Simple Episode Runner
+### run_preset - Production Episode Runner (RECOMMENDED)
 
-**Purpose:** Run episodes with predefined presets (long_corridor, etc.)
+**Purpose:** Run episodes with predefined presets (long_corridor, etc.). This is the **actively maintained** CLI that works with the current codebase.
 
 **Location:** `src/llmgrid/cli/run_preset.py`
 
 **Basic Usage:**
 ```bash
-uv run python -m llmgrid.cli.run_preset \
+PYTHONPATH=src uv run python -m llmgrid.cli.run_preset \
   --preset long_corridor \
   --turns 100 \
   --model gpt-5-mini \
-  --episode-json results/episode.json \
-  --transcript-jsonl results/transcript.jsonl
+  --map-sharing radio_sync \
+  --seed 13 \
+  --episode-json results/episode.json
 ```
 
 **Required Parameters:**
-- `--model MODEL`: Model key from models.yaml (e.g., gpt-5-mini, gpt-4.1-mini)
+- `--model MODEL`: Model pool key (e.g., `gpt-5-mini`, `gpt-4.1-mini`) - NOT provider:model syntax
 - `--episode-json PATH`: Output path for episode visualization data
-- `--transcript-jsonl PATH`: Output path for full transcript
 
 **Optional Parameters:**
-- `--preset NAME`: Preset name (default: long_corridor)
-- `--turns N`: Number of turns (default: 100)
+- `--preset NAME`: Preset name (default: `long_corridor`)
+- `--turns N`: Turn budget (default: 100)
 - `--visibility N`: Visibility radius (default: 2)
 - `--radio-range N`: Radio range for map sharing (default: 2)
-- `--map-sharing MODE`: none|radio_sync|global (default: radio_sync)
+- `--map-sharing MODE`: `none`|`radio_sync`|`global` (default: `radio_sync`)
 - `--seed N`: Random seed (default: 13)
 - `--dry-run`: Use heuristic baseline instead of LLM
-- `--concurrency-start N`: Initial concurrent LLM calls (default `max(6, agent_count)`)
-- `--concurrency-max N`: Maximum concurrent LLM calls (default `agent_count`)
+- `--concurrency-start N`: Initial concurrent LLM calls (default: max(6, agent_count))
+- `--concurrency-max N`: Maximum concurrent LLM calls (default: agent_count)
 
 **Available Presets:**
-- `long_corridor`: 30x10 corridor network (default)
+- `long_corridor`: 30x10 corridor network with 5 agents (seed 606)
+  - Width: 30, Height: 10
+  - Goal: (28, 1)
+  - Agents: a1-a5 with fixed starts
+  - Maze file: `experiments/presets/batch/long_corridor_seed606.txt`
 
-**Example - Quick 5-turn test:**
+**Agent Count:**
+Agent count is **determined by the preset**, not a CLI flag. The `long_corridor` preset uses 5 agents.
+
+**Output Files:**
+- `episode.json`: Complete episode visualization data (written at completion)
+- `episode_stream.jsonl`: Per-turn movement frames (streamed during run, same directory as episode.json)
+- `transcript.jsonl`: LLM prompts/responses (streamed during run, same directory as episode.json)
+- `metrics.json`: Episode summary (printed to stdout as JSON)
+
+**Example - Production Run:**
 ```bash
-uv run python -m llmgrid.cli.run_preset \
+RUN_DIR="experiments/my_exp_$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$RUN_DIR/results"
+
+PYTHONPATH=src uv run python -m llmgrid.cli.run_preset \
+  --preset long_corridor \
+  --turns 100 \
+  --model gpt-5-mini \
+  --map-sharing global \
+  --seed 42 \
+  --episode-json "$RUN_DIR/results/episode.json" \
+  > "$RUN_DIR/results/metrics.json" 2>&1
+```
+
+**Example - Quick Dry-Run Test:**
+```bash
+PYTHONPATH=src uv run python -m llmgrid.cli.run_preset \
   --preset long_corridor \
   --turns 5 \
   --model gpt-5-mini \
-  --episode-json /tmp/test/episode.json \
-  --transcript-jsonl /tmp/test/transcript.jsonl
+  --dry-run \
+  --episode-json /tmp/test/episode.json
 ```
-
-**Output:**
-- JSON metrics printed to stdout
-- Episode visualization data: `--episode-json`
-- Transcript JSONL written incrementally to `$(dirname episode_json)/transcript.jsonl` (each prompt/response streams to disk as it happens; there is no flag to disable it)
 
 ---
 
-### 2. poc_two_agents - Full-Featured Episode Runner
+### poc_two_agents - Legacy CLI (DEPRECATED)
 
-**Purpose:** Production episode runner with checkpointing, resumability, extensive maze presets, and comprehensive configuration options for multi-agent grid navigation experiments.
+**Status:** ⚠️ **DO NOT USE** - This CLI is broken and unmaintained.
+
+**Problem:** The CLI passes ~15 kwargs (`resume`, `checkpoint_interval`, `bearing_bias_*`, etc.) that were removed from `run_episode_async()` signature in commit a558b8c (Nov 18, 2025). It will fail with `TypeError: unexpected keyword argument`.
+
+**Migration:** Use `run_preset` instead. If you need custom mazes or advanced configuration, edit the `PRESETS` dict in `run_preset.py`.
 
 **Location:** `src/llmgrid/cli/poc_two_agents.py`
 
