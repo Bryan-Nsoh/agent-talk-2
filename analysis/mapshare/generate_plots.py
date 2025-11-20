@@ -215,9 +215,9 @@ def plot_1_success_rate(data):
                 f'{rate:.0f}%\n({successful}/{total})',
                 ha='center', va='bottom', fontweight='bold', fontsize=11)
 
-    ax.set_ylabel('Success Rate (%)', fontweight='bold')
+    ax.set_ylabel('Episode Success Rate (%)', fontweight='bold')
     ax.set_xlabel('Map-Sharing Mode', fontweight='bold')
-    ax.set_title('Task Completion by Map-Sharing Strategy', fontweight='bold', pad=15)
+    ax.set_title('Episodes Where All 5 Agents Reached Goal', fontweight='bold', pad=15)
     ax.set_ylim(0, 110)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     ax.set_axisbelow(True)
