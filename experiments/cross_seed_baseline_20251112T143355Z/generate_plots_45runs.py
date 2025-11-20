@@ -117,19 +117,26 @@ def collect_all_data():
         episode_file = run_dir / "results" / "episode.json"
         transcript_file = run_dir / "results" / "transcript.jsonl"
 
-        if not all([metrics_file.exists(), episode_file.exists(), transcript_file.exists()]):
-            print(f"⚠ Skipping {run_dir.name} (missing data files)")
+        # Must have at least metrics and transcript
+        if not metrics_file.exists() or not transcript_file.exists():
+            print(f"⚠ Skipping {run_dir.name} (missing metrics or transcript)")
             continue
 
         metrics = load_metrics(run_dir)
-        episode = load_episode(run_dir)
         messages, tokens = load_transcript_with_tokens(run_dir)
 
         strategy = metrics['comm_strategy']
         seed = metrics['seed']
 
-        finished = count_finished_agents(episode)
-        cumulative_finishes = get_cumulative_finishes(episode)
+        # Get finished count: prefer episode.json, fallback to metrics.json
+        if episode_file.exists():
+            episode = load_episode(run_dir)
+            finished = count_finished_agents(episode)
+            cumulative_finishes = get_cumulative_finishes(episode)
+        else:
+            # Fallback: if success=true, all 5 agents finished
+            finished = 5 if metrics.get('success', False) else 0
+            cumulative_finishes = []  # Can't compute without episode data
 
         data[strategy].append({
             'run_dir': run_dir.name,
