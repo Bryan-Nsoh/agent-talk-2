@@ -1,0 +1,832 @@
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+[INFO] [ModelConfig] Loaded configuration from /Users/3bn/Documents/My_Repos/agent-talk-2/models.yaml
+[INFO] [sim] turn=0 start active_agents=5 concurrency=5
+[INFO] [sim] turn=0 agent=a1 request_start window=5
+[INFO] [sim] turn=0 agent=a2 request_start window=5
+[INFO] [sim] turn=0 agent=a3 request_start window=5
+[INFO] [sim] turn=0 agent=a4 request_start window=5
+[INFO] [sim] turn=0 agent=a5 request_start window=5
+[INFO] [limiter] increased utilisation for azure: 85% -> 90%
+[INFO] [sim] turn=0 agent=a2 request_end attempts=1 latency=9.86s
+[INFO] [sim] turn=0 agent=a3 request_end attempts=1 latency=10.06s
+[INFO] [sim] turn=0 agent=a1 request_end attempts=1 latency=13.13s
+[INFO] [sim] turn=0 agent=a4 request_end attempts=1 latency=15.08s
+[INFO] [sim] turn=0 agent=a5 request_end attempts=1 latency=15.26s
+[INFO] [sim] turn=1 start active_agents=5 concurrency=5
+[INFO] [sim] turn=1 agent=a1 request_start window=5
+[INFO] [sim] turn=1 agent=a2 request_start window=5
+[INFO] [sim] turn=1 agent=a3 request_start window=5
+[INFO] [sim] turn=1 agent=a4 request_start window=5
+[INFO] [sim] turn=1 agent=a5 request_start window=5
+[INFO] [sim] turn=1 agent=a5 request_end attempts=1 latency=5.61s
+[INFO] [sim] turn=1 agent=a4 request_end attempts=1 latency=8.37s
+[INFO] [sim] turn=1 agent=a2 request_end attempts=1 latency=9.89s
+[INFO] [sim] turn=1 agent=a1 request_end attempts=1 latency=13.11s
+[INFO] [sim] turn=1 agent=a3 request_end attempts=1 latency=13.45s
+[INFO] [sim] turn=2 start active_agents=5 concurrency=5
+[INFO] [sim] turn=2 agent=a1 request_start window=5
+[INFO] [sim] turn=2 agent=a2 request_start window=5
+[INFO] [sim] turn=2 agent=a3 request_start window=5
+[INFO] [sim] turn=2 agent=a4 request_start window=5
+[INFO] [sim] turn=2 agent=a5 request_start window=5
+[INFO] [sim] turn=2 agent=a2 request_end attempts=1 latency=7.61s
+[INFO] [sim] turn=2 agent=a4 request_end attempts=1 latency=7.65s
+[INFO] [sim] turn=2 agent=a1 request_end attempts=1 latency=9.62s
+[INFO] [sim] turn=2 agent=a5 request_end attempts=1 latency=9.93s
+[INFO] [sim] turn=2 agent=a3 request_end attempts=1 latency=11.82s
+[INFO] [sim] turn=3 start active_agents=5 concurrency=5
+[INFO] [sim] turn=3 agent=a1 request_start window=5
+[INFO] [sim] turn=3 agent=a2 request_start window=5
+[INFO] [sim] turn=3 agent=a3 request_start window=5
+[INFO] [sim] turn=3 agent=a4 request_start window=5
+[INFO] [sim] turn=3 agent=a5 request_start window=5
+[INFO] [sim] turn=3 agent=a2 request_end attempts=1 latency=10.32s
+[INFO] [sim] turn=3 agent=a1 request_end attempts=1 latency=11.64s
+[INFO] [sim] turn=3 agent=a3 request_end attempts=1 latency=13.01s
+[INFO] [sim] turn=3 agent=a5 request_end attempts=1 latency=13.18s
+[INFO] [sim] turn=3 agent=a4 request_end attempts=1 latency=18.29s
+[INFO] [sim] turn=4 start active_agents=5 concurrency=5
+[INFO] [sim] turn=4 agent=a1 request_start window=5
+[INFO] [sim] turn=4 agent=a2 request_start window=5
+[INFO] [sim] turn=4 agent=a3 request_start window=5
+[INFO] [sim] turn=4 agent=a4 request_start window=5
+[INFO] [sim] turn=4 agent=a5 request_start window=5
+[INFO] [limiter] increased utilisation for azure: 90% -> 95%
+[INFO] [sim] turn=4 agent=a5 request_end attempts=1 latency=11.86s
+[INFO] [sim] turn=4 agent=a1 request_end attempts=1 latency=12.90s
+[INFO] [sim] turn=4 agent=a3 request_end attempts=1 latency=18.01s
+[INFO] [sim] turn=4 agent=a2 request_end attempts=1 latency=18.12s
+[INFO] [sim] turn=4 agent=a4 request_end attempts=1 latency=20.64s
+[INFO] [sim] turn=5 start active_agents=5 concurrency=5
+[INFO] [sim] turn=5 agent=a1 request_start window=5
+[INFO] [sim] turn=5 agent=a2 request_start window=5
+[INFO] [sim] turn=5 agent=a3 request_start window=5
+[INFO] [sim] turn=5 agent=a4 request_start window=5
+[INFO] [sim] turn=5 agent=a5 request_start window=5
+[INFO] [sim] turn=5 agent=a2 request_end attempts=1 latency=7.55s
+[INFO] [sim] turn=5 agent=a1 request_end attempts=1 latency=8.64s
+[INFO] [sim] turn=5 agent=a5 request_end attempts=1 latency=13.77s
+[INFO] [sim] turn=5 agent=a4 request_end attempts=1 latency=14.55s
+[INFO] [sim] turn=5 agent=a3 request_end attempts=1 latency=32.81s
+[INFO] [sim] turn=6 start active_agents=5 concurrency=5
+[INFO] [sim] turn=6 agent=a1 request_start window=5
+[INFO] [sim] turn=6 agent=a2 request_start window=5
+[INFO] [sim] turn=6 agent=a3 request_start window=5
+[INFO] [sim] turn=6 agent=a4 request_start window=5
+[INFO] [sim] turn=6 agent=a5 request_start window=5
+[INFO] [sim] turn=6 agent=a2 request_end attempts=1 latency=8.53s
+[INFO] [sim] turn=6 agent=a1 request_end attempts=1 latency=11.70s
+[INFO] [sim] turn=6 agent=a5 request_end attempts=1 latency=13.29s
+[INFO] [sim] turn=6 agent=a4 request_end attempts=1 latency=17.73s
+[INFO] [sim] turn=6 agent=a3 request_end attempts=1 latency=21.44s
+[INFO] [sim] turn=7 start active_agents=5 concurrency=5
+[INFO] [sim] turn=7 agent=a1 request_start window=5
+[INFO] [sim] turn=7 agent=a2 request_start window=5
+[INFO] [sim] turn=7 agent=a3 request_start window=5
+[INFO] [sim] turn=7 agent=a4 request_start window=5
+[INFO] [sim] turn=7 agent=a5 request_start window=5
+[INFO] [sim] turn=7 agent=a5 request_end attempts=1 latency=7.52s
+[INFO] [sim] turn=7 agent=a3 request_end attempts=1 latency=9.45s
+[INFO] [sim] turn=7 agent=a2 request_end attempts=1 latency=9.75s
+[INFO] [sim] turn=7 agent=a1 request_end attempts=1 latency=13.22s
+[INFO] [sim] turn=7 agent=a4 request_end attempts=1 latency=20.90s
+[INFO] [sim] turn=8 start active_agents=5 concurrency=5
+[INFO] [sim] turn=8 agent=a1 request_start window=5
+[INFO] [sim] turn=8 agent=a2 request_start window=5
+[INFO] [sim] turn=8 agent=a3 request_start window=5
+[INFO] [sim] turn=8 agent=a4 request_start window=5
+[INFO] [sim] turn=8 agent=a5 request_start window=5
+[INFO] [sim] turn=8 agent=a1 request_end attempts=1 latency=7.95s
+[INFO] [sim] turn=8 agent=a3 request_end attempts=1 latency=7.94s
+[INFO] [sim] turn=8 agent=a5 request_end attempts=1 latency=8.75s
+[INFO] [sim] turn=8 agent=a4 request_end attempts=1 latency=10.12s
+[INFO] [sim] turn=8 agent=a2 request_end attempts=1 latency=12.51s
+[INFO] [sim] turn=9 start active_agents=5 concurrency=5
+[INFO] [sim] turn=9 agent=a1 request_start window=5
+[INFO] [sim] turn=9 agent=a2 request_start window=5
+[INFO] [sim] turn=9 agent=a3 request_start window=5
+[INFO] [sim] turn=9 agent=a4 request_start window=5
+[INFO] [sim] turn=9 agent=a5 request_start window=5
+[INFO] [sim] turn=9 agent=a5 request_end attempts=1 latency=7.98s
+[INFO] [sim] turn=9 agent=a1 request_end attempts=1 latency=8.51s
+[INFO] [sim] turn=9 agent=a3 request_end attempts=1 latency=10.42s
+[INFO] [sim] turn=9 agent=a2 request_end attempts=1 latency=12.00s
+[INFO] [sim] turn=9 agent=a4 request_end attempts=1 latency=17.02s
+[INFO] [sim] turn=10 start active_agents=5 concurrency=5
+[INFO] [sim] turn=10 agent=a1 request_start window=5
+[INFO] [sim] turn=10 agent=a2 request_start window=5
+[INFO] [sim] turn=10 agent=a3 request_start window=5
+[INFO] [sim] turn=10 agent=a4 request_start window=5
+[INFO] [sim] turn=10 agent=a5 request_start window=5
+[INFO] [sim] turn=10 agent=a1 request_end attempts=1 latency=9.20s
+[INFO] [sim] turn=10 agent=a3 request_end attempts=1 latency=9.65s
+[INFO] [sim] turn=10 agent=a5 request_end attempts=1 latency=12.07s
+[INFO] [sim] turn=10 agent=a4 request_end attempts=1 latency=13.05s
+[INFO] [sim] turn=10 agent=a2 request_end attempts=1 latency=15.02s
+[INFO] [sim] turn=11 start active_agents=5 concurrency=5
+[INFO] [sim] turn=11 agent=a1 request_start window=5
+[INFO] [sim] turn=11 agent=a2 request_start window=5
+[INFO] [sim] turn=11 agent=a3 request_start window=5
+[INFO] [sim] turn=11 agent=a4 request_start window=5
+[INFO] [sim] turn=11 agent=a5 request_start window=5
+[INFO] [sim] turn=11 agent=a1 request_end attempts=1 latency=6.90s
+[INFO] [sim] turn=11 agent=a5 request_end attempts=1 latency=8.85s
+[INFO] [sim] turn=11 agent=a3 request_end attempts=1 latency=12.17s
+[INFO] [sim] turn=11 agent=a2 request_end attempts=1 latency=14.37s
+[INFO] [sim] turn=11 agent=a4 request_end attempts=1 latency=14.68s
+[INFO] [sim] turn=12 start active_agents=5 concurrency=5
+[INFO] [sim] turn=12 agent=a1 request_start window=5
+[INFO] [sim] turn=12 agent=a2 request_start window=5
+[INFO] [sim] turn=12 agent=a3 request_start window=5
+[INFO] [sim] turn=12 agent=a4 request_start window=5
+[INFO] [sim] turn=12 agent=a5 request_start window=5
+[INFO] [sim] turn=12 agent=a3 request_end attempts=1 latency=7.86s
+[INFO] [sim] turn=12 agent=a5 request_end attempts=1 latency=9.74s
+[INFO] [sim] turn=12 agent=a2 request_end attempts=1 latency=13.24s
+[INFO] [sim] turn=12 agent=a1 request_end attempts=1 latency=13.83s
+[INFO] [sim] turn=12 agent=a4 request_end attempts=1 latency=16.88s
+[INFO] [sim] turn=13 start active_agents=5 concurrency=5
+[INFO] [sim] turn=13 agent=a1 request_start window=5
+[INFO] [sim] turn=13 agent=a2 request_start window=5
+[INFO] [sim] turn=13 agent=a3 request_start window=5
+[INFO] [sim] turn=13 agent=a4 request_start window=5
+[INFO] [sim] turn=13 agent=a5 request_start window=5
+[INFO] [sim] turn=13 agent=a1 request_end attempts=1 latency=8.99s
+[INFO] [sim] turn=13 agent=a3 request_end attempts=1 latency=10.93s
+[INFO] [sim] turn=13 agent=a4 request_end attempts=1 latency=11.94s
+[INFO] [sim] turn=13 agent=a2 request_end attempts=1 latency=12.40s
+[INFO] [sim] turn=13 agent=a5 request_end attempts=1 latency=12.92s
+[INFO] [sim] turn=14 start active_agents=5 concurrency=5
+[INFO] [sim] turn=14 agent=a1 request_start window=5
+[INFO] [sim] turn=14 agent=a2 request_start window=5
+[INFO] [sim] turn=14 agent=a3 request_start window=5
+[INFO] [sim] turn=14 agent=a4 request_start window=5
+[INFO] [sim] turn=14 agent=a5 request_start window=5
+[INFO] [sim] turn=14 agent=a2 request_end attempts=1 latency=8.27s
+[INFO] [sim] turn=14 agent=a3 request_end attempts=1 latency=11.34s
+[INFO] [sim] turn=14 agent=a4 request_end attempts=1 latency=12.48s
+[INFO] [sim] turn=14 agent=a5 request_end attempts=1 latency=15.26s
+[INFO] [sim] turn=14 agent=a1 request_end attempts=1 latency=20.36s
+[INFO] [sim] turn=15 start active_agents=5 concurrency=5
+[INFO] [sim] turn=15 agent=a1 request_start window=5
+[INFO] [sim] turn=15 agent=a2 request_start window=5
+[INFO] [sim] turn=15 agent=a3 request_start window=5
+[INFO] [sim] turn=15 agent=a4 request_start window=5
+[INFO] [sim] turn=15 agent=a5 request_start window=5
+[INFO] [sim] turn=15 agent=a2 request_end attempts=1 latency=8.56s
+[INFO] [sim] turn=15 agent=a4 request_end attempts=1 latency=8.82s
+[INFO] [sim] turn=15 agent=a5 request_end attempts=1 latency=11.37s
+[INFO] [sim] turn=15 agent=a3 request_end attempts=1 latency=11.65s
+[INFO] [sim] turn=15 agent=a1 request_end attempts=1 latency=15.49s
+[INFO] [sim] turn=16 start active_agents=5 concurrency=5
+[INFO] [sim] turn=16 agent=a1 request_start window=5
+[INFO] [sim] turn=16 agent=a2 request_start window=5
+[INFO] [sim] turn=16 agent=a3 request_start window=5
+[INFO] [sim] turn=16 agent=a4 request_start window=5
+[INFO] [sim] turn=16 agent=a5 request_start window=5
+[INFO] [sim] turn=16 agent=a1 request_end attempts=1 latency=8.46s
+[INFO] [sim] turn=16 agent=a2 request_end attempts=1 latency=9.18s
+[INFO] [sim] turn=16 agent=a5 request_end attempts=1 latency=14.55s
+[INFO] [sim] turn=16 agent=a4 request_end attempts=1 latency=16.01s
+[INFO] [sim] turn=16 agent=a3 request_end attempts=1 latency=20.92s
+[INFO] [sim] turn=17 start active_agents=5 concurrency=5
+[INFO] [sim] turn=17 agent=a1 request_start window=5
+[INFO] [sim] turn=17 agent=a2 request_start window=5
+[INFO] [sim] turn=17 agent=a3 request_start window=5
+[INFO] [sim] turn=17 agent=a4 request_start window=5
+[INFO] [sim] turn=17 agent=a5 request_start window=5
+[INFO] [sim] turn=17 agent=a2 request_end attempts=1 latency=8.93s
+[INFO] [sim] turn=17 agent=a4 request_end attempts=1 latency=9.98s
+[INFO] [sim] turn=17 agent=a1 request_end attempts=1 latency=10.52s
+[INFO] [sim] turn=17 agent=a5 request_end attempts=1 latency=10.67s
+[INFO] [sim] turn=17 agent=a3 request_end attempts=1 latency=19.35s
+[INFO] [sim] turn=18 start active_agents=5 concurrency=5
+[INFO] [sim] turn=18 agent=a1 request_start window=5
+[INFO] [sim] turn=18 agent=a2 request_start window=5
+[INFO] [sim] turn=18 agent=a3 request_start window=5
+[INFO] [sim] turn=18 agent=a4 request_start window=5
+[INFO] [sim] turn=18 agent=a5 request_start window=5
+[INFO] [sim] turn=18 agent=a1 request_end attempts=1 latency=11.73s
+[INFO] [sim] turn=18 agent=a4 request_end attempts=1 latency=15.43s
+[INFO] [sim] turn=18 agent=a5 request_end attempts=1 latency=16.12s
+[INFO] [sim] turn=18 agent=a2 request_end attempts=1 latency=32.69s
+[INFO] [sim] turn=18 agent=a3 request_end attempts=1 latency=37.17s
+[INFO] [sim] turn=19 start active_agents=5 concurrency=5
+[INFO] [sim] turn=19 agent=a1 request_start window=5
+[INFO] [sim] turn=19 agent=a2 request_start window=5
+[INFO] [sim] turn=19 agent=a3 request_start window=5
+[INFO] [sim] turn=19 agent=a4 request_start window=5
+[INFO] [sim] turn=19 agent=a5 request_start window=5
+[INFO] [sim] turn=19 agent=a2 request_end attempts=1 latency=16.00s
+[INFO] [sim] turn=19 agent=a4 request_end attempts=1 latency=17.90s
+[INFO] [sim] turn=19 agent=a5 request_end attempts=1 latency=23.30s
+[INFO] [sim] turn=19 agent=a1 request_end attempts=1 latency=26.41s
+[INFO] [sim] turn=19 agent=a3 request_end attempts=1 latency=28.72s
+[INFO] [sim] turn=20 start active_agents=5 concurrency=5
+[INFO] [sim] turn=20 agent=a1 request_start window=5
+[INFO] [sim] turn=20 agent=a2 request_start window=5
+[INFO] [sim] turn=20 agent=a3 request_start window=5
+[INFO] [sim] turn=20 agent=a4 request_start window=5
+[INFO] [sim] turn=20 agent=a5 request_start window=5
+[INFO] [sim] turn=20 agent=a1 request_end attempts=1 latency=5.86s
+[INFO] [sim] turn=20 agent=a4 request_end attempts=1 latency=11.23s
+[INFO] [sim] turn=20 agent=a3 request_end attempts=1 latency=15.56s
+[INFO] [sim] turn=20 agent=a2 request_end attempts=1 latency=15.71s
+[INFO] [sim] turn=20 agent=a5 request_end attempts=1 latency=15.68s
+[INFO] [sim] turn=21 start active_agents=5 concurrency=5
+[INFO] [sim] turn=21 agent=a1 request_start window=5
+[INFO] [sim] turn=21 agent=a2 request_start window=5
+[INFO] [sim] turn=21 agent=a3 request_start window=5
+[INFO] [sim] turn=21 agent=a4 request_start window=5
+[INFO] [sim] turn=21 agent=a5 request_start window=5
+[INFO] [sim] turn=21 agent=a5 request_end attempts=1 latency=8.98s
+[INFO] [sim] turn=21 agent=a3 request_end attempts=1 latency=9.34s
+[INFO] [sim] turn=21 agent=a1 request_end attempts=1 latency=13.12s
+[INFO] [sim] turn=21 agent=a2 request_end attempts=1 latency=13.56s
+[INFO] [sim] turn=21 agent=a4 request_end attempts=1 latency=15.69s
+[INFO] [sim] turn=22 start active_agents=5 concurrency=5
+[INFO] [sim] turn=22 agent=a1 request_start window=5
+[INFO] [sim] turn=22 agent=a2 request_start window=5
+[INFO] [sim] turn=22 agent=a3 request_start window=5
+[INFO] [sim] turn=22 agent=a4 request_start window=5
+[INFO] [sim] turn=22 agent=a5 request_start window=5
+[INFO] [sim] turn=22 agent=a3 request_end attempts=1 latency=10.67s
+[INFO] [sim] turn=22 agent=a4 request_end attempts=1 latency=13.35s
+[INFO] [sim] turn=22 agent=a1 request_end attempts=1 latency=13.73s
+[INFO] [sim] turn=22 agent=a5 request_end attempts=1 latency=19.08s
+[INFO] [sim] turn=22 agent=a2 request_end attempts=1 latency=25.13s
+[INFO] [sim] turn=23 start active_agents=5 concurrency=5
+[INFO] [sim] turn=23 agent=a1 request_start window=5
+[INFO] [sim] turn=23 agent=a2 request_start window=5
+[INFO] [sim] turn=23 agent=a3 request_start window=5
+[INFO] [sim] turn=23 agent=a4 request_start window=5
+[INFO] [sim] turn=23 agent=a5 request_start window=5
+[INFO] [sim] turn=23 agent=a5 request_end attempts=1 latency=8.41s
+[INFO] [sim] turn=23 agent=a2 request_end attempts=1 latency=8.85s
+[INFO] [sim] turn=23 agent=a3 request_end attempts=1 latency=14.24s
+[INFO] [sim] turn=23 agent=a1 request_end attempts=1 latency=18.65s
+[INFO] [sim] turn=23 agent=a4 request_end attempts=1 latency=22.71s
+[INFO] [sim] turn=24 start active_agents=5 concurrency=5
+[INFO] [sim] turn=24 agent=a1 request_start window=5
+[INFO] [sim] turn=24 agent=a2 request_start window=5
+[INFO] [sim] turn=24 agent=a3 request_start window=5
+[INFO] [sim] turn=24 agent=a4 request_start window=5
+[INFO] [sim] turn=24 agent=a5 request_start window=5
+[INFO] [sim] turn=24 agent=a2 request_end attempts=1 latency=14.13s
+[INFO] [sim] turn=24 agent=a3 request_end attempts=1 latency=14.19s
+[INFO] [sim] turn=24 agent=a1 request_end attempts=1 latency=17.71s
+[INFO] [sim] turn=24 agent=a5 request_end attempts=1 latency=18.93s
+[INFO] [sim] turn=24 agent=a4 request_end attempts=1 latency=27.06s
+[INFO] [sim] turn=25 start active_agents=5 concurrency=5
+[INFO] [sim] turn=25 agent=a1 request_start window=5
+[INFO] [sim] turn=25 agent=a2 request_start window=5
+[INFO] [sim] turn=25 agent=a3 request_start window=5
+[INFO] [sim] turn=25 agent=a4 request_start window=5
+[INFO] [sim] turn=25 agent=a5 request_start window=5
+[INFO] [sim] turn=25 agent=a1 request_end attempts=1 latency=12.74s
+[INFO] [sim] turn=25 agent=a5 request_end attempts=1 latency=16.22s
+[INFO] [sim] turn=25 agent=a2 request_end attempts=1 latency=18.59s
+[INFO] [sim] turn=25 agent=a3 request_end attempts=1 latency=20.71s
+[INFO] [sim] turn=25 agent=a4 request_end attempts=1 latency=26.39s
+[INFO] [sim] turn=26 start active_agents=5 concurrency=5
+[INFO] [sim] turn=26 agent=a1 request_start window=5
+[INFO] [sim] turn=26 agent=a2 request_start window=5
+[INFO] [sim] turn=26 agent=a3 request_start window=5
+[INFO] [sim] turn=26 agent=a4 request_start window=5
+[INFO] [sim] turn=26 agent=a5 request_start window=5
+[INFO] [sim] turn=26 agent=a1 request_end attempts=1 latency=6.21s
+[INFO] [sim] turn=26 agent=a3 request_end attempts=1 latency=8.25s
+[INFO] [sim] turn=26 agent=a2 request_end attempts=1 latency=11.78s
+[INFO] [sim] turn=26 agent=a5 request_end attempts=1 latency=12.45s
+[INFO] [sim] turn=26 agent=a4 request_end attempts=1 latency=14.51s
+[INFO] [sim] turn=27 start active_agents=5 concurrency=5
+[INFO] [sim] turn=27 agent=a1 request_start window=5
+[INFO] [sim] turn=27 agent=a2 request_start window=5
+[INFO] [sim] turn=27 agent=a3 request_start window=5
+[INFO] [sim] turn=27 agent=a4 request_start window=5
+[INFO] [sim] turn=27 agent=a5 request_start window=5
+[INFO] [sim] turn=27 agent=a3 request_end attempts=1 latency=12.56s
+[INFO] [sim] turn=27 agent=a4 request_end attempts=1 latency=13.82s
+[INFO] [sim] turn=27 agent=a5 request_end attempts=1 latency=13.86s
+[INFO] [sim] turn=27 agent=a2 request_end attempts=1 latency=15.29s
+[INFO] [sim] turn=27 agent=a1 request_end attempts=1 latency=18.08s
+[INFO] [sim] turn=28 start active_agents=5 concurrency=5
+[INFO] [sim] turn=28 agent=a1 request_start window=5
+[INFO] [sim] turn=28 agent=a2 request_start window=5
+[INFO] [sim] turn=28 agent=a3 request_start window=5
+[INFO] [sim] turn=28 agent=a4 request_start window=5
+[INFO] [sim] turn=28 agent=a5 request_start window=5
+[INFO] [sim] turn=28 agent=a3 request_end attempts=1 latency=10.81s
+[INFO] [sim] turn=28 agent=a1 request_end attempts=1 latency=11.71s
+[INFO] [sim] turn=28 agent=a2 request_end attempts=1 latency=13.96s
+[INFO] [sim] turn=28 agent=a5 request_end attempts=1 latency=20.92s
+[INFO] [sim] turn=28 agent=a4 request_end attempts=1 latency=24.81s
+[INFO] [sim] turn=29 start active_agents=5 concurrency=5
+[INFO] [sim] turn=29 agent=a1 request_start window=5
+[INFO] [sim] turn=29 agent=a2 request_start window=5
+[INFO] [sim] turn=29 agent=a3 request_start window=5
+[INFO] [sim] turn=29 agent=a4 request_start window=5
+[INFO] [sim] turn=29 agent=a5 request_start window=5
+[INFO] [sim] turn=29 agent=a1 request_end attempts=1 latency=10.52s
+[INFO] [sim] turn=29 agent=a2 request_end attempts=1 latency=13.00s
+[INFO] [sim] turn=29 agent=a5 request_end attempts=1 latency=13.01s
+[INFO] [sim] turn=29 agent=a3 request_end attempts=1 latency=18.12s
+[INFO] [sim] turn=29 agent=a4 request_end attempts=1 latency=19.83s
+[INFO] [sim] turn=30 start active_agents=5 concurrency=5
+[INFO] [sim] turn=30 agent=a1 request_start window=5
+[INFO] [sim] turn=30 agent=a2 request_start window=5
+[INFO] [sim] turn=30 agent=a3 request_start window=5
+[INFO] [sim] turn=30 agent=a4 request_start window=5
+[INFO] [sim] turn=30 agent=a5 request_start window=5
+[INFO] [sim] turn=30 agent=a1 request_end attempts=1 latency=8.87s
+[INFO] [sim] turn=30 agent=a2 request_end attempts=1 latency=9.45s
+[INFO] [sim] turn=30 agent=a3 request_end attempts=1 latency=10.97s
+[INFO] [sim] turn=30 agent=a4 request_end attempts=1 latency=17.97s
+[INFO] [sim] turn=30 agent=a5 request_end attempts=1 latency=23.79s
+[INFO] [sim] turn=31 start active_agents=5 concurrency=5
+[INFO] [sim] turn=31 agent=a1 request_start window=5
+[INFO] [sim] turn=31 agent=a2 request_start window=5
+[INFO] [sim] turn=31 agent=a3 request_start window=5
+[INFO] [sim] turn=31 agent=a4 request_start window=5
+[INFO] [sim] turn=31 agent=a5 request_start window=5
+[INFO] [sim] turn=31 agent=a2 request_end attempts=1 latency=7.71s
+[INFO] [sim] turn=31 agent=a1 request_end attempts=1 latency=10.38s
+[INFO] [sim] turn=31 agent=a3 request_end attempts=1 latency=11.39s
+[INFO] [sim] turn=31 agent=a5 request_end attempts=1 latency=17.35s
+[INFO] [sim] turn=31 agent=a4 request_end attempts=1 latency=19.64s
+[INFO] [sim] turn=32 start active_agents=5 concurrency=5
+[INFO] [sim] turn=32 agent=a1 request_start window=5
+[INFO] [sim] turn=32 agent=a2 request_start window=5
+[INFO] [sim] turn=32 agent=a3 request_start window=5
+[INFO] [sim] turn=32 agent=a4 request_start window=5
+[INFO] [sim] turn=32 agent=a5 request_start window=5
+[INFO] [sim] turn=32 agent=a2 request_end attempts=1 latency=8.48s
+[INFO] [sim] turn=32 agent=a3 request_end attempts=1 latency=11.58s
+[INFO] [sim] turn=32 agent=a5 request_end attempts=1 latency=17.17s
+[INFO] [sim] turn=32 agent=a1 request_end attempts=1 latency=19.26s
+[INFO] [sim] turn=32 agent=a4 request_end attempts=1 latency=20.16s
+[INFO] [sim] turn=33 start active_agents=5 concurrency=5
+[INFO] [sim] turn=33 agent=a1 request_start window=5
+[INFO] [sim] turn=33 agent=a2 request_start window=5
+[INFO] [sim] turn=33 agent=a3 request_start window=5
+[INFO] [sim] turn=33 agent=a4 request_start window=5
+[INFO] [sim] turn=33 agent=a5 request_start window=5
+[INFO] [sim] turn=33 agent=a2 request_end attempts=1 latency=12.39s
+[INFO] [sim] turn=33 agent=a3 request_end attempts=1 latency=15.07s
+[INFO] [sim] turn=33 agent=a1 request_end attempts=1 latency=15.84s
+[INFO] [sim] turn=33 agent=a5 request_end attempts=1 latency=20.28s
+[INFO] [sim] turn=33 agent=a4 request_end attempts=1 latency=23.41s
+[INFO] [sim] turn=34 start active_agents=5 concurrency=5
+[INFO] [sim] turn=34 agent=a1 request_start window=5
+[INFO] [sim] turn=34 agent=a2 request_start window=5
+[INFO] [sim] turn=34 agent=a3 request_start window=5
+[INFO] [sim] turn=34 agent=a4 request_start window=5
+[INFO] [sim] turn=34 agent=a5 request_start window=5
+[INFO] [sim] turn=34 agent=a2 request_end attempts=1 latency=21.69s
+[INFO] [sim] turn=34 agent=a5 request_end attempts=1 latency=22.93s
+[INFO] [sim] turn=34 agent=a1 request_end attempts=1 latency=23.29s
+[INFO] [sim] turn=34 agent=a4 request_end attempts=1 latency=23.31s
+[INFO] [sim] turn=34 agent=a3 request_end attempts=1 latency=26.30s
+[INFO] [sim] turn=35 start active_agents=5 concurrency=5
+[INFO] [sim] turn=35 agent=a1 request_start window=5
+[INFO] [sim] turn=35 agent=a2 request_start window=5
+[INFO] [sim] turn=35 agent=a3 request_start window=5
+[INFO] [sim] turn=35 agent=a4 request_start window=5
+[INFO] [sim] turn=35 agent=a5 request_start window=5
+[INFO] [sim] turn=35 agent=a1 request_end attempts=1 latency=7.39s
+[INFO] [sim] turn=35 agent=a5 request_end attempts=1 latency=9.28s
+[INFO] [sim] turn=35 agent=a4 request_end attempts=1 latency=10.42s
+[INFO] [sim] turn=35 agent=a3 request_end attempts=1 latency=10.92s
+[INFO] [sim] turn=35 agent=a2 request_end attempts=1 latency=14.73s
+[INFO] [sim] turn=36 start active_agents=5 concurrency=5
+[INFO] [sim] turn=36 agent=a1 request_start window=5
+[INFO] [sim] turn=36 agent=a2 request_start window=5
+[INFO] [sim] turn=36 agent=a3 request_start window=5
+[INFO] [sim] turn=36 agent=a4 request_start window=5
+[INFO] [sim] turn=36 agent=a5 request_start window=5
+[INFO] [sim] turn=36 agent=a3 request_end attempts=1 latency=10.33s
+[INFO] [sim] turn=36 agent=a1 request_end attempts=1 latency=11.98s
+[INFO] [sim] turn=36 agent=a5 request_end attempts=1 latency=13.69s
+[INFO] [sim] turn=36 agent=a4 request_end attempts=1 latency=14.84s
+[INFO] [sim] turn=36 agent=a2 request_end attempts=1 latency=19.73s
+[INFO] [sim] turn=37 start active_agents=5 concurrency=5
+[INFO] [sim] turn=37 agent=a1 request_start window=5
+[INFO] [sim] turn=37 agent=a2 request_start window=5
+[INFO] [sim] turn=37 agent=a3 request_start window=5
+[INFO] [sim] turn=37 agent=a4 request_start window=5
+[INFO] [sim] turn=37 agent=a5 request_start window=5
+[INFO] [sim] turn=37 agent=a1 request_end attempts=1 latency=7.35s
+[INFO] [sim] turn=37 agent=a5 request_end attempts=1 latency=13.18s
+[INFO] [sim] turn=37 agent=a3 request_end attempts=1 latency=14.85s
+[INFO] [sim] turn=37 agent=a4 request_end attempts=1 latency=16.07s
+[INFO] [sim] turn=37 agent=a2 request_end attempts=1 latency=16.55s
+[INFO] [sim] turn=38 start active_agents=5 concurrency=5
+[INFO] [sim] turn=38 agent=a1 request_start window=5
+[INFO] [sim] turn=38 agent=a2 request_start window=5
+[INFO] [sim] turn=38 agent=a3 request_start window=5
+[INFO] [sim] turn=38 agent=a4 request_start window=5
+[INFO] [sim] turn=38 agent=a5 request_start window=5
+[INFO] [sim] turn=38 agent=a5 request_end attempts=1 latency=12.45s
+[INFO] [sim] turn=38 agent=a1 request_end attempts=1 latency=13.65s
+[INFO] [sim] turn=38 agent=a4 request_end attempts=1 latency=13.80s
+[INFO] [sim] turn=38 agent=a2 request_end attempts=1 latency=15.51s
+[INFO] [sim] turn=38 agent=a3 request_end attempts=1 latency=16.52s
+[INFO] [sim] turn=39 start active_agents=5 concurrency=5
+[INFO] [sim] turn=39 agent=a1 request_start window=5
+[INFO] [sim] turn=39 agent=a2 request_start window=5
+[INFO] [sim] turn=39 agent=a3 request_start window=5
+[INFO] [sim] turn=39 agent=a4 request_start window=5
+[INFO] [sim] turn=39 agent=a5 request_start window=5
+[INFO] [sim] turn=39 agent=a4 request_end attempts=1 latency=10.15s
+[INFO] [sim] turn=39 agent=a1 request_end attempts=1 latency=10.90s
+[INFO] [sim] turn=39 agent=a5 request_end attempts=1 latency=12.49s
+[INFO] [sim] turn=39 agent=a2 request_end attempts=1 latency=16.85s
+[INFO] [sim] turn=39 agent=a3 request_end attempts=1 latency=18.04s
+[INFO] [sim] turn=40 start active_agents=5 concurrency=5
+[INFO] [sim] turn=40 agent=a1 request_start window=5
+[INFO] [sim] turn=40 agent=a2 request_start window=5
+[INFO] [sim] turn=40 agent=a3 request_start window=5
+[INFO] [sim] turn=40 agent=a4 request_start window=5
+[INFO] [sim] turn=40 agent=a5 request_start window=5
+[INFO] [sim] turn=40 agent=a1 request_end attempts=1 latency=13.60s
+[INFO] [sim] turn=40 agent=a2 request_end attempts=1 latency=17.80s
+[INFO] [sim] turn=40 agent=a4 request_end attempts=1 latency=19.86s
+[INFO] [sim] turn=40 agent=a5 request_end attempts=1 latency=21.27s
+[INFO] [sim] turn=40 agent=a3 request_end attempts=1 latency=24.51s
+[INFO] [sim] turn=41 start active_agents=5 concurrency=5
+[INFO] [sim] turn=41 agent=a1 request_start window=5
+[INFO] [sim] turn=41 agent=a2 request_start window=5
+[INFO] [sim] turn=41 agent=a3 request_start window=5
+[INFO] [sim] turn=41 agent=a4 request_start window=5
+[INFO] [sim] turn=41 agent=a5 request_start window=5
+[INFO] [sim] turn=41 agent=a1 request_end attempts=1 latency=5.50s
+[INFO] [sim] turn=41 agent=a3 request_end attempts=1 latency=6.98s
+[INFO] [sim] turn=41 agent=a4 request_end attempts=1 latency=14.73s
+[INFO] [sim] turn=41 agent=a2 request_end attempts=1 latency=15.37s
+[INFO] [sim] turn=41 agent=a5 request_end attempts=1 latency=18.72s
+[INFO] [sim] turn=42 start active_agents=5 concurrency=5
+[INFO] [sim] turn=42 agent=a1 request_start window=5
+[INFO] [sim] turn=42 agent=a2 request_start window=5
+[INFO] [sim] turn=42 agent=a3 request_start window=5
+[INFO] [sim] turn=42 agent=a4 request_start window=5
+[INFO] [sim] turn=42 agent=a5 request_start window=5
+[INFO] [sim] turn=42 agent=a4 request_end attempts=1 latency=4.26s
+[INFO] [sim] turn=42 agent=a5 request_end attempts=1 latency=9.77s
+[INFO] [sim] turn=42 agent=a2 request_end attempts=1 latency=10.12s
+[INFO] [sim] turn=42 agent=a1 request_end attempts=1 latency=12.53s
+[INFO] [sim] turn=42 agent=a3 request_end attempts=1 latency=12.82s
+[INFO] [sim] turn=43 start active_agents=4 concurrency=5
+[INFO] [sim] turn=43 agent=a1 request_start window=5
+[INFO] [sim] turn=43 agent=a2 request_start window=5
+[INFO] [sim] turn=43 agent=a3 request_start window=5
+[INFO] [sim] turn=43 agent=a5 request_start window=5
+[INFO] [sim] turn=43 agent=a1 request_end attempts=1 latency=11.10s
+[INFO] [sim] turn=43 agent=a3 request_end attempts=1 latency=15.77s
+[INFO] [sim] turn=43 agent=a5 request_end attempts=1 latency=16.83s
+[INFO] [sim] turn=43 agent=a2 request_end attempts=1 latency=21.12s
+[INFO] [sim] turn=44 start active_agents=4 concurrency=5
+[INFO] [sim] turn=44 agent=a1 request_start window=5
+[INFO] [sim] turn=44 agent=a2 request_start window=5
+[INFO] [sim] turn=44 agent=a3 request_start window=5
+[INFO] [sim] turn=44 agent=a5 request_start window=5
+[INFO] [sim] turn=44 agent=a1 request_end attempts=1 latency=7.49s
+[INFO] [sim] turn=44 agent=a2 request_end attempts=1 latency=7.82s
+[INFO] [sim] turn=44 agent=a3 request_end attempts=1 latency=16.61s
+[INFO] [sim] turn=44 agent=a5 request_end attempts=1 latency=37.94s
+[INFO] [sim] turn=45 start active_agents=4 concurrency=5
+[INFO] [sim] turn=45 agent=a1 request_start window=5
+[INFO] [sim] turn=45 agent=a2 request_start window=5
+[INFO] [sim] turn=45 agent=a3 request_start window=5
+[INFO] [sim] turn=45 agent=a5 request_start window=5
+[INFO] [sim] turn=45 agent=a1 request_end attempts=1 latency=7.47s
+[INFO] [sim] turn=45 agent=a3 request_end attempts=1 latency=17.45s
+[INFO] [sim] turn=45 agent=a2 request_end attempts=1 latency=18.82s
+[INFO] [sim] turn=45 agent=a5 request_end attempts=1 latency=21.53s
+[INFO] [sim] turn=46 start active_agents=4 concurrency=5
+[INFO] [sim] turn=46 agent=a1 request_start window=5
+[INFO] [sim] turn=46 agent=a2 request_start window=5
+[INFO] [sim] turn=46 agent=a3 request_start window=5
+[INFO] [sim] turn=46 agent=a5 request_start window=5
+[INFO] [sim] turn=46 agent=a1 request_end attempts=1 latency=10.86s
+[INFO] [sim] turn=46 agent=a2 request_end attempts=1 latency=17.45s
+[INFO] [sim] turn=46 agent=a5 request_end attempts=1 latency=19.97s
+[INFO] [sim] turn=46 agent=a3 request_end attempts=1 latency=30.40s
+[INFO] [sim] turn=47 start active_agents=4 concurrency=5
+[INFO] [sim] turn=47 agent=a1 request_start window=5
+[INFO] [sim] turn=47 agent=a2 request_start window=5
+[INFO] [sim] turn=47 agent=a3 request_start window=5
+[INFO] [sim] turn=47 agent=a5 request_start window=5
+[INFO] [sim] turn=47 agent=a1 request_end attempts=1 latency=10.59s
+[INFO] [sim] turn=47 agent=a5 request_end attempts=1 latency=12.79s
+[INFO] [sim] turn=47 agent=a2 request_end attempts=1 latency=17.01s
+[INFO] [sim] turn=47 agent=a3 request_end attempts=1 latency=21.40s
+[INFO] [sim] turn=48 start active_agents=4 concurrency=5
+[INFO] [sim] turn=48 agent=a1 request_start window=5
+[INFO] [sim] turn=48 agent=a2 request_start window=5
+[INFO] [sim] turn=48 agent=a3 request_start window=5
+[INFO] [sim] turn=48 agent=a5 request_start window=5
+[INFO] [sim] turn=48 agent=a2 request_end attempts=1 latency=9.65s
+[INFO] [sim] turn=48 agent=a5 request_end attempts=1 latency=11.51s
+[INFO] [sim] turn=48 agent=a1 request_end attempts=1 latency=15.30s
+[INFO] [sim] turn=48 agent=a3 request_end attempts=1 latency=21.02s
+[INFO] [sim] turn=49 start active_agents=4 concurrency=5
+[INFO] [sim] turn=49 agent=a1 request_start window=5
+[INFO] [sim] turn=49 agent=a2 request_start window=5
+[INFO] [sim] turn=49 agent=a3 request_start window=5
+[INFO] [sim] turn=49 agent=a5 request_start window=5
+[INFO] [sim] turn=49 agent=a2 request_end attempts=1 latency=13.63s
+[INFO] [sim] turn=49 agent=a1 request_end attempts=1 latency=15.68s
+[INFO] [sim] turn=49 agent=a3 request_end attempts=1 latency=15.67s
+[INFO] [sim] turn=49 agent=a5 request_end attempts=1 latency=15.94s
+[INFO] [sim] turn=50 start active_agents=4 concurrency=5
+[INFO] [sim] turn=50 agent=a1 request_start window=5
+[INFO] [sim] turn=50 agent=a2 request_start window=5
+[INFO] [sim] turn=50 agent=a3 request_start window=5
+[INFO] [sim] turn=50 agent=a5 request_start window=5
+[INFO] [sim] turn=50 agent=a5 request_end attempts=1 latency=3.65s
+[INFO] [sim] turn=50 agent=a2 request_end attempts=1 latency=11.67s
+[INFO] [sim] turn=50 agent=a1 request_end attempts=1 latency=12.88s
+[INFO] [sim] turn=50 agent=a3 request_end attempts=1 latency=25.25s
+[INFO] [sim] turn=51 start active_agents=3 concurrency=5
+[INFO] [sim] turn=51 agent=a1 request_start window=5
+[INFO] [sim] turn=51 agent=a2 request_start window=5
+[INFO] [sim] turn=51 agent=a3 request_start window=5
+[INFO] [sim] turn=51 agent=a1 request_end attempts=1 latency=10.60s
+[INFO] [sim] turn=51 agent=a3 request_end attempts=1 latency=15.32s
+[INFO] [sim] turn=51 agent=a2 request_end attempts=1 latency=19.61s
+[INFO] [sim] turn=52 start active_agents=3 concurrency=5
+[INFO] [sim] turn=52 agent=a1 request_start window=5
+[INFO] [sim] turn=52 agent=a2 request_start window=5
+[INFO] [sim] turn=52 agent=a3 request_start window=5
+[INFO] [sim] turn=52 agent=a2 request_end attempts=1 latency=15.36s
+[INFO] [sim] turn=52 agent=a1 request_end attempts=1 latency=15.89s
+[INFO] [sim] turn=52 agent=a3 request_end attempts=1 latency=29.87s
+[INFO] [sim] turn=53 start active_agents=3 concurrency=5
+[INFO] [sim] turn=53 agent=a1 request_start window=5
+[INFO] [sim] turn=53 agent=a2 request_start window=5
+[INFO] [sim] turn=53 agent=a3 request_start window=5
+[INFO] [sim] turn=53 agent=a1 request_end attempts=1 latency=12.84s
+[INFO] [sim] turn=53 agent=a2 request_end attempts=1 latency=13.63s
+[INFO] [sim] turn=53 agent=a3 request_end attempts=1 latency=18.21s
+[INFO] [sim] turn=54 start active_agents=3 concurrency=5
+[INFO] [sim] turn=54 agent=a1 request_start window=5
+[INFO] [sim] turn=54 agent=a2 request_start window=5
+[INFO] [sim] turn=54 agent=a3 request_start window=5
+[INFO] [sim] turn=54 agent=a1 request_end attempts=1 latency=10.10s
+[INFO] [sim] turn=54 agent=a2 request_end attempts=1 latency=11.89s
+[INFO] [sim] turn=54 agent=a3 request_end attempts=1 latency=16.28s
+[INFO] [sim] turn=55 start active_agents=3 concurrency=5
+[INFO] [sim] turn=55 agent=a1 request_start window=5
+[INFO] [sim] turn=55 agent=a2 request_start window=5
+[INFO] [sim] turn=55 agent=a3 request_start window=5
+[INFO] [sim] turn=55 agent=a1 request_end attempts=1 latency=9.39s
+[INFO] [sim] turn=55 agent=a2 request_end attempts=1 latency=17.55s
+[INFO] [sim] turn=55 agent=a3 request_end attempts=1 latency=20.82s
+[INFO] [sim] turn=56 start active_agents=3 concurrency=5
+[INFO] [sim] turn=56 agent=a1 request_start window=5
+[INFO] [sim] turn=56 agent=a2 request_start window=5
+[INFO] [sim] turn=56 agent=a3 request_start window=5
+[INFO] [sim] turn=56 agent=a3 request_end attempts=1 latency=10.76s
+[INFO] [sim] turn=56 agent=a1 request_end attempts=1 latency=11.76s
+[INFO] [sim] turn=56 agent=a2 request_end attempts=1 latency=16.39s
+[INFO] [sim] turn=57 start active_agents=3 concurrency=5
+[INFO] [sim] turn=57 agent=a1 request_start window=5
+[INFO] [sim] turn=57 agent=a2 request_start window=5
+[INFO] [sim] turn=57 agent=a3 request_start window=5
+[INFO] [sim] turn=57 agent=a1 request_end attempts=1 latency=8.22s
+[INFO] [sim] turn=57 agent=a2 request_end attempts=1 latency=10.01s
+[INFO] [sim] turn=57 agent=a3 request_end attempts=1 latency=10.91s
+[INFO] [sim] turn=58 start active_agents=3 concurrency=5
+[INFO] [sim] turn=58 agent=a1 request_start window=5
+[INFO] [sim] turn=58 agent=a2 request_start window=5
+[INFO] [sim] turn=58 agent=a3 request_start window=5
+[INFO] [sim] turn=58 agent=a1 request_end attempts=1 latency=9.38s
+[INFO] [sim] turn=58 agent=a2 request_end attempts=1 latency=11.63s
+[INFO] [sim] turn=58 agent=a3 request_end attempts=1 latency=15.77s
+[INFO] [sim] turn=59 start active_agents=3 concurrency=5
+[INFO] [sim] turn=59 agent=a1 request_start window=5
+[INFO] [sim] turn=59 agent=a2 request_start window=5
+[INFO] [sim] turn=59 agent=a3 request_start window=5
+[INFO] [sim] turn=59 agent=a1 request_end attempts=1 latency=7.64s
+[INFO] [sim] turn=59 agent=a3 request_end attempts=1 latency=9.74s
+[INFO] [sim] turn=59 agent=a2 request_end attempts=1 latency=14.45s
+[INFO] [sim] turn=60 start active_agents=3 concurrency=5
+[INFO] [sim] turn=60 agent=a1 request_start window=5
+[INFO] [sim] turn=60 agent=a2 request_start window=5
+[INFO] [sim] turn=60 agent=a3 request_start window=5
+[INFO] [sim] turn=60 agent=a3 request_end attempts=1 latency=4.53s
+[INFO] [sim] turn=60 agent=a1 request_end attempts=1 latency=10.84s
+[INFO] [sim] turn=60 agent=a2 request_end attempts=1 latency=19.55s
+[INFO] [sim] turn=61 start active_agents=2 concurrency=5
+[INFO] [sim] turn=61 agent=a1 request_start window=5
+[INFO] [sim] turn=61 agent=a2 request_start window=5
+[INFO] [sim] turn=61 agent=a2 request_end attempts=1 latency=12.10s
+[INFO] [sim] turn=61 agent=a1 request_end attempts=1 latency=15.10s
+[INFO] [sim] turn=62 start active_agents=2 concurrency=5
+[INFO] [sim] turn=62 agent=a1 request_start window=5
+[INFO] [sim] turn=62 agent=a2 request_start window=5
+[INFO] [sim] turn=62 agent=a1 request_end attempts=1 latency=6.83s
+[INFO] [sim] turn=62 agent=a2 request_end attempts=1 latency=7.28s
+[INFO] [sim] turn=63 start active_agents=2 concurrency=5
+[INFO] [sim] turn=63 agent=a1 request_start window=5
+[INFO] [sim] turn=63 agent=a2 request_start window=5
+[INFO] [sim] turn=63 agent=a2 request_end attempts=1 latency=7.71s
+[INFO] [sim] turn=63 agent=a1 request_end attempts=1 latency=11.50s
+[INFO] [sim] turn=64 start active_agents=2 concurrency=5
+[INFO] [sim] turn=64 agent=a1 request_start window=5
+[INFO] [sim] turn=64 agent=a2 request_start window=5
+[INFO] [sim] turn=64 agent=a2 request_end attempts=1 latency=8.72s
+[INFO] [sim] turn=64 agent=a1 request_end attempts=1 latency=15.56s
+[INFO] [sim] turn=65 start active_agents=2 concurrency=5
+[INFO] [sim] turn=65 agent=a1 request_start window=5
+[INFO] [sim] turn=65 agent=a2 request_start window=5
+[INFO] [sim] turn=65 agent=a1 request_end attempts=1 latency=8.10s
+[INFO] [sim] turn=65 agent=a2 request_end attempts=1 latency=9.09s
+[INFO] [sim] turn=66 start active_agents=2 concurrency=5
+[INFO] [sim] turn=66 agent=a1 request_start window=5
+[INFO] [sim] turn=66 agent=a2 request_start window=5
+[INFO] [sim] turn=66 agent=a1 request_end attempts=1 latency=8.86s
+[INFO] [sim] turn=66 agent=a2 request_end attempts=1 latency=22.86s
+[INFO] [sim] turn=67 start active_agents=2 concurrency=5
+[INFO] [sim] turn=67 agent=a1 request_start window=5
+[INFO] [sim] turn=67 agent=a2 request_start window=5
+[INFO] [sim] turn=67 agent=a1 request_end attempts=1 latency=9.29s
+[INFO] [sim] turn=67 agent=a2 request_end attempts=1 latency=10.74s
+[INFO] [sim] turn=68 start active_agents=2 concurrency=5
+[INFO] [sim] turn=68 agent=a1 request_start window=5
+[INFO] [sim] turn=68 agent=a2 request_start window=5
+[INFO] [sim] turn=68 agent=a2 request_end attempts=1 latency=9.03s
+[INFO] [sim] turn=68 agent=a1 request_end attempts=1 latency=15.63s
+[INFO] [sim] turn=69 start active_agents=2 concurrency=5
+[INFO] [sim] turn=69 agent=a1 request_start window=5
+[INFO] [sim] turn=69 agent=a2 request_start window=5
+[INFO] [sim] turn=69 agent=a2 request_end attempts=1 latency=7.14s
+[INFO] [sim] turn=69 agent=a1 request_end attempts=1 latency=16.79s
+[INFO] [sim] turn=70 start active_agents=2 concurrency=5
+[INFO] [sim] turn=70 agent=a1 request_start window=5
+[INFO] [sim] turn=70 agent=a2 request_start window=5
+[INFO] [sim] turn=70 agent=a2 request_end attempts=1 latency=6.34s
+[INFO] [sim] turn=70 agent=a1 request_end attempts=1 latency=16.84s
+[INFO] [sim] turn=71 start active_agents=2 concurrency=5
+[INFO] [sim] turn=71 agent=a1 request_start window=5
+[INFO] [sim] turn=71 agent=a2 request_start window=5
+[INFO] [sim] turn=71 agent=a2 request_end attempts=1 latency=5.22s
+[INFO] [sim] turn=71 agent=a1 request_end attempts=1 latency=15.39s
+[INFO] [sim] turn=72 start active_agents=2 concurrency=5
+[INFO] [sim] turn=72 agent=a1 request_start window=5
+[INFO] [sim] turn=72 agent=a2 request_start window=5
+[INFO] [sim] turn=72 agent=a2 request_end attempts=1 latency=11.49s
+[INFO] [sim] turn=72 agent=a1 request_end attempts=1 latency=13.10s
+[INFO] [sim] turn=73 start active_agents=2 concurrency=5
+[INFO] [sim] turn=73 agent=a1 request_start window=5
+[INFO] [sim] turn=73 agent=a2 request_start window=5
+[INFO] [sim] turn=73 agent=a2 request_end attempts=1 latency=6.96s
+[INFO] [sim] turn=73 agent=a1 request_end attempts=1 latency=15.52s
+[INFO] [sim] turn=74 start active_agents=2 concurrency=5
+[INFO] [sim] turn=74 agent=a1 request_start window=5
+[INFO] [sim] turn=74 agent=a2 request_start window=5
+[INFO] [sim] turn=74 agent=a2 request_end attempts=1 latency=10.36s
+[INFO] [sim] turn=74 agent=a1 request_end attempts=1 latency=15.32s
+[INFO] [sim] turn=75 start active_agents=2 concurrency=5
+[INFO] [sim] turn=75 agent=a1 request_start window=5
+[INFO] [sim] turn=75 agent=a2 request_start window=5
+[INFO] [sim] turn=75 agent=a2 request_end attempts=1 latency=10.33s
+[INFO] [sim] turn=75 agent=a1 request_end attempts=1 latency=18.37s
+[INFO] [sim] turn=76 start active_agents=2 concurrency=5
+[INFO] [sim] turn=76 agent=a1 request_start window=5
+[INFO] [sim] turn=76 agent=a2 request_start window=5
+[INFO] [sim] turn=76 agent=a2 request_end attempts=1 latency=8.89s
+[INFO] [sim] turn=76 agent=a1 request_end attempts=1 latency=9.47s
+[INFO] [sim] turn=77 start active_agents=2 concurrency=5
+[INFO] [sim] turn=77 agent=a1 request_start window=5
+[INFO] [sim] turn=77 agent=a2 request_start window=5
+[INFO] [sim] turn=77 agent=a2 request_end attempts=1 latency=4.37s
+[INFO] [sim] turn=77 agent=a1 request_end attempts=1 latency=7.37s
+[INFO] [sim] turn=78 start active_agents=2 concurrency=5
+[INFO] [sim] turn=78 agent=a1 request_start window=5
+[INFO] [sim] turn=78 agent=a2 request_start window=5
+[INFO] [sim] turn=78 agent=a2 request_end attempts=1 latency=11.22s
+[INFO] [sim] turn=78 agent=a1 request_end attempts=1 latency=22.79s
+[INFO] [sim] turn=79 start active_agents=2 concurrency=5
+[INFO] [sim] turn=79 agent=a1 request_start window=5
+[INFO] [sim] turn=79 agent=a2 request_start window=5
+[INFO] [sim] turn=79 agent=a1 request_end attempts=1 latency=17.90s
+[INFO] [sim] turn=79 agent=a2 request_end attempts=1 latency=24.05s
+[INFO] [sim] turn=80 start active_agents=2 concurrency=5
+[INFO] [sim] turn=80 agent=a1 request_start window=5
+[INFO] [sim] turn=80 agent=a2 request_start window=5
+[INFO] [sim] turn=80 agent=a1 request_end attempts=1 latency=10.13s
+[INFO] [sim] turn=80 agent=a2 request_end attempts=1 latency=13.31s
+[INFO] [sim] turn=81 start active_agents=2 concurrency=5
+[INFO] [sim] turn=81 agent=a1 request_start window=5
+[INFO] [sim] turn=81 agent=a2 request_start window=5
+[INFO] [sim] turn=81 agent=a1 request_end attempts=1 latency=12.55s
+[INFO] [sim] turn=81 agent=a2 request_end attempts=1 latency=19.44s
+[INFO] [sim] turn=82 start active_agents=2 concurrency=5
+[INFO] [sim] turn=82 agent=a1 request_start window=5
+[INFO] [sim] turn=82 agent=a2 request_start window=5
+[INFO] [sim] turn=82 agent=a1 request_end attempts=1 latency=15.91s
+[INFO] [sim] turn=82 agent=a2 request_end attempts=1 latency=18.25s
+[INFO] [sim] turn=83 start active_agents=2 concurrency=5
+[INFO] [sim] turn=83 agent=a1 request_start window=5
+[INFO] [sim] turn=83 agent=a2 request_start window=5
+[INFO] [sim] turn=83 agent=a2 request_end attempts=1 latency=14.31s
+[INFO] [sim] turn=83 agent=a1 request_end attempts=1 latency=19.13s
+[INFO] [sim] turn=84 start active_agents=2 concurrency=5
+[INFO] [sim] turn=84 agent=a1 request_start window=5
+[INFO] [sim] turn=84 agent=a2 request_start window=5
+[INFO] [sim] turn=84 agent=a2 request_end attempts=1 latency=10.19s
+[INFO] [sim] turn=84 agent=a1 request_end attempts=1 latency=12.69s
+[INFO] [sim] turn=85 start active_agents=2 concurrency=5
+[INFO] [sim] turn=85 agent=a1 request_start window=5
+[INFO] [sim] turn=85 agent=a2 request_start window=5
+[INFO] [sim] turn=85 agent=a2 request_end attempts=1 latency=6.21s
+[INFO] [sim] turn=85 agent=a1 request_end attempts=1 latency=12.47s
+[INFO] [sim] turn=86 start active_agents=2 concurrency=5
+[INFO] [sim] turn=86 agent=a1 request_start window=5
+[INFO] [sim] turn=86 agent=a2 request_start window=5
+[INFO] [sim] turn=86 agent=a1 request_end attempts=1 latency=21.60s
+[INFO] [sim] turn=86 agent=a2 request_end attempts=1 latency=23.35s
+[INFO] [sim] turn=87 start active_agents=2 concurrency=5
+[INFO] [sim] turn=87 agent=a1 request_start window=5
+[INFO] [sim] turn=87 agent=a2 request_start window=5
+[INFO] [sim] turn=87 agent=a1 request_end attempts=1 latency=8.82s
+[INFO] [sim] turn=87 agent=a2 request_end attempts=1 latency=9.41s
+[INFO] [sim] turn=88 start active_agents=2 concurrency=5
+[INFO] [sim] turn=88 agent=a1 request_start window=5
+[INFO] [sim] turn=88 agent=a2 request_start window=5
+[INFO] [sim] turn=88 agent=a1 request_end attempts=1 latency=9.90s
+[INFO] [sim] turn=88 agent=a2 request_end attempts=1 latency=13.10s
+[INFO] [sim] turn=89 start active_agents=2 concurrency=5
+[INFO] [sim] turn=89 agent=a1 request_start window=5
+[INFO] [sim] turn=89 agent=a2 request_start window=5
+[INFO] [sim] turn=89 agent=a2 request_end attempts=1 latency=16.99s
+[INFO] [sim] turn=89 agent=a1 request_end attempts=1 latency=17.26s
+[INFO] [sim] turn=90 start active_agents=2 concurrency=5
+[INFO] [sim] turn=90 agent=a1 request_start window=5
+[INFO] [sim] turn=90 agent=a2 request_start window=5
+[INFO] [sim] turn=90 agent=a2 request_end attempts=1 latency=14.04s
+[INFO] [sim] turn=90 agent=a1 request_end attempts=1 latency=15.37s
+[INFO] [sim] turn=91 start active_agents=2 concurrency=5
+[INFO] [sim] turn=91 agent=a1 request_start window=5
+[INFO] [sim] turn=91 agent=a2 request_start window=5
+[INFO] [sim] turn=91 agent=a1 request_end attempts=1 latency=12.59s
+[INFO] [sim] turn=91 agent=a2 request_end attempts=1 latency=22.13s
+[INFO] [sim] turn=92 start active_agents=2 concurrency=5
+[INFO] [sim] turn=92 agent=a1 request_start window=5
+[INFO] [sim] turn=92 agent=a2 request_start window=5
+[INFO] [sim] turn=92 agent=a1 request_end attempts=1 latency=8.91s
+[INFO] [sim] turn=92 agent=a2 request_end attempts=1 latency=12.92s
+[INFO] [sim] turn=93 start active_agents=2 concurrency=5
+[INFO] [sim] turn=93 agent=a1 request_start window=5
+[INFO] [sim] turn=93 agent=a2 request_start window=5
+[INFO] [sim] turn=93 agent=a2 request_end attempts=1 latency=9.17s
+[INFO] [sim] turn=93 agent=a1 request_end attempts=1 latency=9.43s
+[INFO] [sim] turn=94 start active_agents=2 concurrency=5
+[INFO] [sim] turn=94 agent=a1 request_start window=5
+[INFO] [sim] turn=94 agent=a2 request_start window=5
+[INFO] [sim] turn=94 agent=a1 request_end attempts=1 latency=12.26s
+[INFO] [sim] turn=94 agent=a2 request_end attempts=1 latency=14.05s
+[INFO] [sim] turn=95 start active_agents=2 concurrency=5
+[INFO] [sim] turn=95 agent=a1 request_start window=5
+[INFO] [sim] turn=95 agent=a2 request_start window=5
+[INFO] [sim] turn=95 agent=a1 request_end attempts=1 latency=8.19s
+[INFO] [sim] turn=95 agent=a2 request_end attempts=1 latency=13.97s
+[INFO] [sim] turn=96 start active_agents=2 concurrency=5
+[INFO] [sim] turn=96 agent=a1 request_start window=5
+[INFO] [sim] turn=96 agent=a2 request_start window=5
+[INFO] [sim] turn=96 agent=a1 request_end attempts=1 latency=7.80s
+[INFO] [sim] turn=96 agent=a2 request_end attempts=1 latency=32.61s
+[INFO] [sim] turn=97 start active_agents=2 concurrency=5
+[INFO] [sim] turn=97 agent=a1 request_start window=5
+[INFO] [sim] turn=97 agent=a2 request_start window=5
+[INFO] [sim] turn=97 agent=a1 request_end attempts=1 latency=8.93s
+[INFO] [sim] turn=97 agent=a2 request_end attempts=1 latency=13.17s
+[INFO] [sim] turn=98 start active_agents=2 concurrency=5
+[INFO] [sim] turn=98 agent=a1 request_start window=5
+[INFO] [sim] turn=98 agent=a2 request_start window=5
+[INFO] [sim] turn=98 agent=a1 request_end attempts=1 latency=7.57s
+[INFO] [sim] turn=98 agent=a2 request_end attempts=1 latency=11.75s
+[INFO] [sim] turn=99 start active_agents=2 concurrency=5
+[INFO] [sim] turn=99 agent=a1 request_start window=5
+[INFO] [sim] turn=99 agent=a2 request_start window=5
+[INFO] [sim] turn=99 agent=a1 request_end attempts=1 latency=9.19s
+[INFO] [sim] turn=99 agent=a2 request_end attempts=1 latency=14.42s
+{
+  "turns": 100,
+  "success": false,
+  "collisions": 2,
+  "reasoning_log": [],
+  "collision_causes": {
+    "BLOCK_AGENT": 2
+  },
+  "messages_sent": 0,
+  "marks_placed": 0,
+  "hazard_events": 0,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 0,
+  "contended_exposures": 0,
+  "history_limit": 10,
+  "loop_guidance": "passive"
+}

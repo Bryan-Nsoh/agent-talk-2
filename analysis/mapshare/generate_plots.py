@@ -27,16 +27,40 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 # Experiment directories
 EXPERIMENT_DIRS = {
-    'none': EXPERIMENTS_ROOT / "long_corridor_no_share_20251119T202017Z" / "runs",
-    'radio_sync': EXPERIMENTS_ROOT / "long_corridor_radio_sync_20251119T202017Z" / "runs",
-    'global': EXPERIMENTS_ROOT / "long_corridor_global_share_20251119T202017Z" / "runs",
+    'none': EXPERIMENTS_ROOT / "mapshare_long_corridor_20251119T202017Z" / "none" / "runs",
+    'radio_sync': EXPERIMENTS_ROOT / "mapshare_long_corridor_20251119T202017Z" / "radio_sync" / "runs",
+    'global': EXPERIMENTS_ROOT / "mapshare_long_corridor_20251119T202017Z" / "global" / "runs",
 }
 
 
 def load_metrics(run_path):
-    """Load metrics.json from a run directory."""
-    with open(run_path / "results" / "metrics.json") as f:
-        return json.load(f)
+    """Load metrics from run directory (metrics.json or fallback to episode.json)."""
+    metrics_file = run_path / "results" / "metrics.json"
+
+    if metrics_file.exists():
+        with open(metrics_file) as f:
+            return json.load(f)
+
+    # Fallback: extract from episode.json
+    episode_file = run_path / "results" / "episode.json"
+    if not episode_file.exists():
+        return None
+
+    with open(episode_file) as f:
+        episode = json.load(f)
+
+    final_frame = episode["frames"][-1]
+    agents = final_frame.get("agents", [])
+    finished_count = len(final_frame.get("finished", []))
+
+    return {
+        "turns": len(episode["frames"]) - 1,
+        "success": finished_count == len(agents),
+        "finished_agents": finished_count,
+        "total_agents": len(agents),
+        "collisions": 0,  # Will be updated from logs if needed
+        "messages_sent": 0,
+    }
 
 
 def load_episode(run_path):
@@ -119,9 +143,7 @@ def collect_all_data():
             if (run_path / "IGNORED.txt").exists():
                 continue
 
-            # Check for required files
-            if not (run_path / "results" / "metrics.json").exists():
-                continue
+            # Check for required files (episode.json and transcript.jsonl)
             if not (run_path / "results" / "episode.json").exists():
                 continue
             if not (run_path / "results" / "transcript.jsonl").exists():
