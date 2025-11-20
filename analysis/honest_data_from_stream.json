@@ -1,0 +1,240 @@
+{
+  "mapshare": {
+    "none": [],
+    "radio_sync": [],
+    "global": []
+  },
+  "communication": {
+    "none": [
+      {
+        "run": "seed13_none_run1_20251114T173110Z",
+        "finished": 3,
+        "collisions": 10
+      },
+      {
+        "run": "seed13_none_run2_20251114T173112Z",
+        "finished": 1,
+        "collisions": 37
+      },
+      {
+        "run": "seed13_none_run3_20251114T173114Z",
+        "finished": 4,
+        "collisions": 13
+      },
+      {
+        "run": "seed14_none_20251112T175325Z",
+        "finished": 3,
+        "collisions": 28
+      },
+      {
+        "run": "seed14_none_20251112T193609Z",
+        "finished": 2,
+        "collisions": 8
+      },
+      {
+        "run": "seed14_none_20251112T193617Z",
+        "finished": 4,
+        "collisions": 17
+      },
+      {
+        "run": "seed15_none_run1_20251113T022547Z",
+        "finished": 4,
+        "collisions": 8
+      },
+      {
+        "run": "seed15_none_run2_20251113T031507Z",
+        "finished": 3,
+        "collisions": 18
+      },
+      {
+        "run": "seed15_none_run3_20251114T160809Z",
+        "finished": 2,
+        "collisions": 17
+      },
+      {
+        "run": "seed16_none_run1_20251113T133526Z",
+        "finished": 3,
+        "collisions": 10
+      },
+      {
+        "run": "seed16_none_run2_20251113T133659Z",
+        "finished": 5,
+        "collisions": 0
+      },
+      {
+        "run": "seed16_none_run3_20251113T133802Z",
+        "finished": 4,
+        "collisions": 4
+      },
+      {
+        "run": "seed17_none_run1_20251113T142742Z",
+        "finished": 1,
+        "collisions": 49
+      },
+      {
+        "run": "seed17_none_run2_20251113T144152Z",
+        "finished": 2,
+        "collisions": 23
+      },
+      {
+        "run": "seed17_none_run3_20251113T144225Z",
+        "finished": 2,
+        "collisions": 34
+      }
+    ],
+    "freeform": [
+      {
+        "run": "seed13_freeform_run1_20251114T173104Z",
+        "finished": 1,
+        "collisions": 48
+      },
+      {
+        "run": "seed13_freeform_run2_20251114T173106Z",
+        "finished": 2,
+        "collisions": 39
+      },
+      {
+        "run": "seed13_freeform_run3_20251114T173108Z",
+        "finished": 3,
+        "collisions": 12
+      },
+      {
+        "run": "seed14_freeform_20251112T175323Z",
+        "finished": 4,
+        "collisions": 17
+      },
+      {
+        "run": "seed14_freeform_20251112T193607Z",
+        "finished": 3,
+        "collisions": 21
+      },
+      {
+        "run": "seed14_freeform_20251112T193615Z",
+        "finished": 2,
+        "collisions": 20
+      },
+      {
+        "run": "seed15_freeform_20251113T014441Z",
+        "finished": 4,
+        "collisions": 7
+      },
+      {
+        "run": "seed15_freeform_run2_20251113T022537Z",
+        "finished": 3,
+        "collisions": 2
+      },
+      {
+        "run": "seed15_freeform_run3_20251113T022542Z",
+        "finished": 3,
+        "collisions": 9
+      },
+      {
+        "run": "seed16_freeform_run1_20251113T125857Z",
+        "finished": 5,
+        "collisions": 0
+      },
+      {
+        "run": "seed16_freeform_run2_20251113T125900Z",
+        "finished": 5,
+        "collisions": 0
+      },
+      {
+        "run": "seed16_freeform_run3_20251113T125902Z",
+        "finished": 4,
+        "collisions": 10
+      },
+      {
+        "run": "seed17_freeform_run1_20251113T135821Z",
+        "finished": 2,
+        "collisions": 21
+      },
+      {
+        "run": "seed17_freeform_run2_20251113T141431Z",
+        "finished": 3,
+        "collisions": 26
+      },
+      {
+        "run": "seed17_freeform_run3_20251113T142508Z",
+        "finished": 3,
+        "collisions": 40
+      }
+    ],
+    "structured": [
+      {
+        "run": "seed13_structured_run1_20251114T173058Z",
+        "finished": 2,
+        "collisions": 20
+      },
+      {
+        "run": "seed13_structured_run2_20251114T173100Z",
+        "finished": 1,
+        "collisions": 23
+      },
+      {
+        "run": "seed13_structured_run3_20251114T173102Z",
+        "finished": 2,
+        "collisions": 20
+      },
+      {
+        "run": "seed14_structured_20251112T175321Z",
+        "finished": 4,
+        "collisions": 19
+      },
+      {
+        "run": "seed14_structured_20251112T193605Z",
+        "finished": 4,
+        "collisions": 18
+      },
+      {
+        "run": "seed14_structured_20251112T193613Z",
+        "finished": 3,
+        "collisions": 20
+      },
+      {
+        "run": "seed15_structured_run1_20251113T022522Z",
+        "finished": 2,
+        "collisions": 16
+      },
+      {
+        "run": "seed15_structured_run2_20251113T022527Z",
+        "finished": 3,
+        "collisions": 3
+      },
+      {
+        "run": "seed15_structured_run3_20251113T022532Z",
+        "finished": 3,
+        "collisions": 0
+      },
+      {
+        "run": "seed16_structured_run1_20251113T125851Z",
+        "finished": 4,
+        "collisions": 12
+      },
+      {
+        "run": "seed16_structured_run2_20251113T125853Z",
+        "finished": 3,
+        "collisions": 14
+      },
+      {
+        "run": "seed16_structured_run3_20251113T125855Z",
+        "finished": 3,
+        "collisions": 20
+      },
+      {
+        "run": "seed17_structured_run1_20251113T133935Z",
+        "finished": 4,
+        "collisions": 14
+      },
+      {
+        "run": "seed17_structured_run2_20251113T134138Z",
+        "finished": 1,
+        "collisions": 21
+      },
+      {
+        "run": "seed17_structured_run3_20251113T135146Z",
+        "finished": 3,
+        "collisions": 25
+      }
+    ]
+  }
+}
