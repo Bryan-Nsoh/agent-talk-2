@@ -1,7 +1,7 @@
 # Map-Sharing Modes: Long Corridor Validation
 
-**Last updated:** 2025-11-20T02:00:00Z
-**Status:** complete
+**Last updated:** 2025-11-20T16:41:00Z
+**Status:** running (replication phase - 15/45 complete)
 **Outcome:** useful
 **Started:** 2025-11-19
 
@@ -18,9 +18,17 @@ Tests whether shared knowledge alone (without explicit messages) improves multi-
 
 This informs future communication studies by isolating the effect of map knowledge from message-passing. This is a fresh post-engine-fix baseline verifying the rebuilt renderer and telemetry pipeline across all three map-sharing regimes.
 
+## Replication Rationale
+
+Original dataset (1×3×5 = 15 runs) provided single-shot results with no variance measures. Expanding to 3×3×5 = 45 runs enables:
+- Standard deviation and confidence interval calculation
+- Detection of reproducibility issues
+- Statistical significance testing between modes
+- Protection against flukes (we have been shocked before)
+
 ## Setup
 
-- Model: gpt-5-mini (Azure pool)
+- Model: gpt-5-mini (model pool key, NOT azure:gpt-5-mini)
 - Maze: long_corridor (30×10, seed 606)
 - Agents: 5
 - Turns: 100
@@ -28,38 +36,42 @@ This informs future communication studies by isolating the effect of map knowled
 - Radio range: 2 (for radio_sync mode)
 - Comm strategy: none (no messages)
 - Map sharing: **none | radio_sync | global** (3 conditions)
-- Seeds: 13-17 (5 runs per condition, 15 total runs)
-- Logging: --log-prompts --log-movements --emit-config
+- Seeds: 13-17 (5 seeds)
+- Replicas: 3 (rep1 complete, rep2+rep3 in progress)
+- **Total runs:** 3 replicas × 5 seeds × 3 modes = **45 runs**
+- CLI: `run_preset` (poc_two_agents is deprecated/broken)
 - Outputs per run: config.yaml, transcript.jsonl, episode_stream.jsonl, episode.json, metrics.json
 
 ## Runs
 
+**Status Legend:** ✓complete | ⏳running | -pending
+
 ### None Mode (Baseline)
-| Run | Started | Status | Finished | Collisions | Notes |
-|-----|---------|--------|----------|------------|-------|
-| [seed13](./none/runs/seed13_20251119T203622Z/) | 2025-11-19 20:36 | complete | 5/5 | 0 | Clean |
-| [seed14](./none/runs/seed14_20251119T203622Z/) | 2025-11-19 20:36 | complete | 3/5 | 0 | 2 timeouts |
-| [seed15](./none/runs/seed15_20251119T203622Z/) | 2025-11-19 20:36 | complete | 4/5 | 0 | 1 timeout |
-| [seed16](./none/runs/seed16_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 0 | Clean |
-| [seed17](./none/runs/seed17_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 0 | Clean |
+| Seed | Rep1 | Rep2 | Rep3 |
+|------|------|------|------|
+| 13 | ✓ [seed13](./none/runs/seed13_20251119T203622Z/) | ⏳ [none_seed13_rep2](./none/runs/none_seed13_rep2_20251120T164100Z/) | ⏳ [none_seed13_rep3](./none/runs/none_seed13_rep3_20251120T164100Z/) |
+| 14 | ✓ [seed14](./none/runs/seed14_20251119T203622Z/) | ⏳ [none_seed14_rep2](./none/runs/none_seed14_rep2_20251120T164100Z/) | ⏳ [none_seed14_rep3](./none/runs/none_seed14_rep3_20251120T164100Z/) |
+| 15 | ✓ [seed15](./none/runs/seed15_20251119T203622Z/) | ⏳ [none_seed15_rep2](./none/runs/none_seed15_rep2_20251120T164100Z/) | ⏳ [none_seed15_rep3](./none/runs/none_seed15_rep3_20251120T164100Z/) |
+| 16 | ✓ [seed16](./none/runs/seed16_20251119T203623Z/) | ⏳ [none_seed16_rep2](./none/runs/none_seed16_rep2_20251120T164100Z/) | ⏳ [none_seed16_rep3](./none/runs/none_seed16_rep3_20251120T164100Z/) |
+| 17 | ✓ [seed17](./none/runs/seed17_20251119T203623Z/) | ⏳ [none_seed17_rep2](./none/runs/none_seed17_rep2_20251120T164100Z/) | ⏳ [none_seed17_rep3](./none/runs/none_seed17_rep3_20251120T164100Z/) |
 
 ### Radio_sync Mode
-| Run | Started | Status | Finished | Collisions | Notes |
-|-----|---------|--------|----------|------------|-------|
-| [seed13](./radio_sync/runs/seed13_20251119T203623Z/) | 2025-11-19 20:36 | complete | 4/5 | 8 | 1 agent timeout |
-| [seed14](./radio_sync/runs/seed14_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 12 | All finished |
-| [seed15](./radio_sync/runs/seed15_20251119T203623Z/) | 2025-11-19 20:36 | complete | 4/5 | 8 | 1 agent timeout |
-| [seed16](./radio_sync/runs/seed16_20251119T203623Z/) | 2025-11-19 20:36 | complete | 4/5 | 58 | Pathological case |
-| [seed17](./radio_sync/runs/seed17_20251119T203623Z/) | 2025-11-19 20:36 | complete | 4/5 | 12 | 1 agent timeout |
+| Seed | Rep1 | Rep2 | Rep3 |
+|------|------|------|------|
+| 13 | ✓ [seed13](./radio_sync/runs/seed13_20251119T203623Z/) | -pending | -pending |
+| 14 | ✓ [seed14](./radio_sync/runs/seed14_20251119T203623Z/) | -pending | -pending |
+| 15 | ✓ [seed15](./radio_sync/runs/seed15_20251119T203623Z/) | -pending | -pending |
+| 16 | ✓ [seed16](./radio_sync/runs/seed16_20251119T203623Z/) | -pending | -pending |
+| 17 | ✓ [seed17](./radio_sync/runs/seed17_20251119T203623Z/) | -pending | -pending |
 
 ### Global Mode
-| Run | Started | Status | Finished | Collisions | Notes |
-|-----|---------|--------|----------|------------|-------|
-| [seed13](./global/runs/seed13_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 0 | Clean sweep |
-| [seed14](./global/runs/seed14_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 2 | Minor conflicts |
-| [seed15_rerun](./global/runs/seed15_rerun_20251119T222148Z/) | 2025-11-19 22:21 | complete | 5/5 | 8 | Moderate collisions |
-| [seed16](./global/runs/seed16_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 0 | Clean sweep |
-| [seed17](./global/runs/seed17_20251119T203623Z/) | 2025-11-19 20:36 | complete | 5/5 | 16 | High collision outlier |
+| Seed | Rep1 | Rep2 | Rep3 |
+|------|------|------|------|
+| 13 | ✓ [seed13](./global/runs/seed13_20251119T203623Z/) | -pending | -pending |
+| 14 | ✓ [seed14](./global/runs/seed14_20251119T203623Z/) | -pending | -pending |
+| 15 | ✓ [seed15](./global/runs/seed15_20251119T222148Z/) | -pending | -pending |
+| 16 | ✓ [seed16](./global/runs/seed16_20251119T203623Z/) | -pending | -pending |
+| 17 | ✓ [seed17](./global/runs/seed17_20251119T203623Z/) | -pending | -pending |
 
 ## Results Summary
 
