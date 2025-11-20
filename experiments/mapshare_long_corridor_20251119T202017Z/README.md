@@ -1,6 +1,6 @@
 # Map-Sharing Modes: Long Corridor Validation
 
-**Last updated:** 2025-11-20T20:30:00Z
+**Last updated:** 2025-11-20T21:00:00Z
 **Status:** complete (replication phase - 45/45 complete)
 **Outcome:** useful
 **Started:** 2025-11-19
@@ -56,27 +56,16 @@ How does map sharing mode (none vs radio_sync vs global) affect 5-agent navigati
 | 16 | ✓ [seed16](./global/runs/seed16_20251119T203623Z/) | ✓ [global_seed16_rep2](./global/runs/global_seed16_rep2_20251120T174650Z/) | ✓ [global_seed16_rep3](./global/runs/global_seed16_rep3_20251120T174650Z/) |
 | 17 | ✓ [seed17](./global/runs/seed17_20251119T203623Z/) | ✓ [global_seed17_rep2](./global/runs/global_seed17_rep2_20251120T174650Z/) | ✓ [global_seed17_rep3](./global/runs/global_seed17_rep3_20251120T174650Z/) |
 
-## Results Summary (3 replicas × 5 seeds = 15 runs per mode)
+## Results Summary (3 replicas × 5 seeds = 15 runs per mode, 75 agents per mode)
 
-| Mode | Success Rate | Avg Finished Agents (±std) |
-|------|--------------|---------------------------|
-| **None** | 40.0% (6/15) | 4.20 ± 0.75 |
-| **Radio_sync** | 60.0% (9/15) | 4.40 ± 0.88 |
-| **Global** | 100.0% (15/15) | 5.00 ± 0.00 |
+| Mode | Agent Success Rate | Total Finished |
+|------|-------------------|----------------|
+| **None** | 84.0% | 63/75 agents |
+| **Radio_sync** | 88.0% | 66/75 agents |
+| **Global** | 100.0% | 75/75 agents |
 
-## Detailed Results
-
-### Success Rate
-
-- **None:** 40.0% (6 of 15 runs with all 5 agents finished)
-- **Radio_sync:** 60.0% (9 of 15 runs with all 5 agents finished)
-- **Global:** 100.0% (15 of 15 runs with all 5 agents finished)
-
-### Finished Agents
-
-- **None:** 4.20 ± 0.75 agents finished per run
-- **Radio_sync:** 4.40 ± 0.88 agents finished per run
-- **Global:** 5.00 ± 0.00 agents finished per run
+**Data source:** Parsed directly from `episode_stream.jsonl` (source of truth)
+**Statistical tests:** Global vs None p<0.001 (***), Radio_sync vs None p=0.18 (n.s.)
 
 ## Plots
 
@@ -90,8 +79,8 @@ cd analysis/mapshare && python3 generate_plots.py
 ### Essential Plot
 
 **1_success_rate.png** - Bar chart proving map-sharing solves search problem
-- Y-axis: Success rate (% of runs where all 5 agents finished)
+- Y-axis: Agent success rate (% of individual agents that finished, pooled across all runs)
 - X-axis: Map-sharing modes (None, Radio Sync, Global)
-- Shows: None 40%, Radio Sync 60%, Global 100%
+- Shows: None 84.0% (63/75), Radio Sync 88.0% (66/75), Global 100.0% (75/75)
 - Statistical tests: Global vs None p<0.001 (***), Radio_sync vs None p=0.18 (n.s.)
-- This single plot directly demonstrates that global map-sharing achieves perfect coordination
+- This single plot directly demonstrates that global map-sharing achieves perfect agent coordination
