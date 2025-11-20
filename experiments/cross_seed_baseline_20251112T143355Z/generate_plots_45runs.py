@@ -170,9 +170,9 @@ def plot_1_success_rate(data):
                 f'{rate:.1f}%\n({total_finished}/{total_agents})',
                 ha='center', va='bottom', fontweight='bold', fontsize=11)
 
-    ax.set_ylabel('Success Rate (%)', fontweight='bold')
+    ax.set_ylabel('Agent Success Rate (%)', fontweight='bold')
     ax.set_xlabel('Communication Strategy', fontweight='bold')
-    ax.set_title('Agent Goal Achievement by Strategy (45 runs, 5 seeds)', fontweight='bold', pad=15)
+    ax.set_title('Individual Agent Goal Achievement (pooled across all runs)', fontweight='bold', pad=15)
     ax.set_ylim(0, 100)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     ax.set_axisbelow(True)
