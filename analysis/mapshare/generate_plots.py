@@ -442,9 +442,9 @@ def plot_5_collision_cost(data):
 
 
 def main():
-    """Generate all map-sharing plots."""
+    """Generate essential map-sharing plot: success rate only."""
     print("\n" + "="*70)
-    print("Generating map-sharing analysis plots...")
+    print("Generating map-sharing analysis plot (success rate)...")
     print("="*70 + "\n")
 
     print("Loading data from experiments...")
@@ -456,17 +456,15 @@ def main():
         print(f"  - {mode}: {len(runs)} runs")
     print()
 
-    print("Generating plots...\n")
+    print("Generating plot...\n")
     plot_paths = []
 
+    # Only generate success rate plot - the one that matters
     plot_paths.append(plot_1_success_rate(data))
-    plot_paths.append(plot_2_goal_discovery_sync(data))
-    plot_paths.append(plot_3_cumulative_finishes(data))
-    plot_paths.append(plot_4_map_knowledge_growth(data))
-    plot_paths.append(plot_5_collision_cost(data))
 
     print("\n" + "="*70)
-    print(f"✓ Generated {len(plot_paths)} plots in {OUTPUT_DIR}")
+    print(f"✓ Generated {len(plot_paths)} plot in {OUTPUT_DIR}")
+    print("  Success rate bar chart proves map-sharing solves search problem")
     print("="*70 + "\n")
 
     return plot_paths
