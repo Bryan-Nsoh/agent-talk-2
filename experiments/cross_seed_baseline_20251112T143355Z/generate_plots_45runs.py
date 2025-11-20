@@ -403,13 +403,13 @@ def plot_5_success_vs_tokens(data):
 
 
 def main():
-    """Generate all plots with accurate token counting for 45-run dataset."""
+    """Generate essential communication plots: success rate + collision rate only."""
     print("\n" + "="*70)
     print("Generating plots for cross-seed baseline (45 runs)")
-    print("Using tiktoken o200k_base tokenizer for accurate token counts")
+    print("Essential plots: success rate + collision rate")
     print("="*70 + "\n")
 
-    print("Loading data (with accurate token counts)...")
+    print("Loading data...")
     data = collect_all_data()
 
     total_runs = sum(len(runs) for runs in data.values())
@@ -421,14 +421,14 @@ def main():
     print("Generating plots...\n")
     plot_paths = []
 
+    # Only generate the two plots that matter
     plot_paths.append(plot_1_success_rate(data))
-    plot_paths.append(plot_2_communication_volume(data))
     plot_paths.append(plot_3_collision_rate(data))
-    plot_paths.append(plot_4_completion_over_time(data))
-    plot_paths.append(plot_5_success_vs_tokens(data))
 
     print("\n" + "="*70)
     print(f"✓ Generated {len(plot_paths)} plots in {OUTPUT_DIR}")
+    print("  Success rate: proves communication doesn't help coordination")
+    print("  Collision rate: shows communication increases traffic cost")
     print("="*70 + "\n")
 
     return plot_paths

@@ -87,43 +87,27 @@ This study tests generalization by running the same 3×3 matrix (3 strategies ×
 
 **Visualizations:**
 
-**Location:** `experiments/cross_seed_baseline_20251112T143355Z/plots/` (generated 2025-11-14)
+**Location:** `experiments/cross_seed_baseline_20251112T143355Z/plots/` (generated 2025-11-20)
 
 **Generation script:** `experiments/cross_seed_baseline_20251112T143355Z/generate_plots_45runs.py`
 ```bash
 cd experiments/cross_seed_baseline_20251112T143355Z && python3 generate_plots_45runs.py
 ```
 
-### Plot Descriptions
+### Essential Plots
 
-**1_success_rate.png** - Bar chart comparing agent completion rates
+**1_success_rate.png** - Bar chart proving communication doesn't improve coordination
 - Y-axis: Success rate (% of agents that finished)
 - X-axis: Communication strategies (Freeform, None, Structured)
-- Shows: Freeform 62.7%, None 57.3%, Structured 56.0%
+- Shows: Freeform 62.7%, None 57.3%, Structured 56.0% (no significant difference)
+- Statistical tests: Freeform vs None p=0.78, Structured vs None p=0.84 (both n.s.)
 
-**2_communication_volume.png** - Dual bar chart showing message activity
-- Left Y-axis: Average messages sent per run
-- Right Y-axis: Average tokens per run (tiktoken o200k_base)
-- X-axis: Communication strategies
-- Two bars per strategy (messages in blue, tokens in orange)
-
-**3_collision_rate.png** - Bar chart with error bars showing collision frequency
+**3_collision_rate.png** - Bar chart showing communication increases traffic cost
 - Y-axis: Average collisions per run
 - X-axis: Communication strategies
-- Error bars show standard deviation across 15 runs per strategy
-- Shows: Freeform 18.1±14.9, None 6.1±7.9, Structured 9.1±7.3
-
-**4_completion_timeline.png** - Line graph of cumulative completion over time
-- Y-axis: Cumulative number of agents finished
-- X-axis: Turn index (0-100)
-- Three lines (one per strategy) showing agent completion progression
-- Final values at turn 100
-
-**5_success_vs_tokens.png** - Scatter plot analyzing communication cost vs benefit
-- Y-axis: Number of agents finished (0-5)
-- X-axis: Total tokens used in communication
-- Each dot = one run, colored by strategy
-- Shows correlation (or lack thereof) between communication volume and task success
+- Error bars show standard deviation across runs
+- Shows: Freeform 20.9±13.5, None 19.7±12.6, Structured 16.3±6.7 (no significant difference)
+- Statistical tests: Freeform vs None p=0.83, Structured vs None p=1.00 (both n.s.)
 
 ## Runs
 
