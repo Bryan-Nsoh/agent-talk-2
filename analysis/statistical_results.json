@@ -1,0 +1,70 @@
+{
+  "mapshare": {
+    "global": {
+      "test": "Global vs None",
+      "u_stat": 180.0,
+      "p_value": 0.000279919747604993,
+      "condition_mean": 5.0,
+      "condition_std": 0.0,
+      "baseline_mean": 4.2,
+      "baseline_std": 0.7483314773547882,
+      "significant": true
+    },
+    "radio_sync": {
+      "test": "Radio_sync vs None",
+      "u_stat": 133.5,
+      "p_value": 0.1762629551946937,
+      "condition_mean": 4.4,
+      "condition_std": 0.8793937305515279,
+      "baseline_mean": 4.2,
+      "baseline_std": 0.7483314773547882,
+      "significant": false
+    }
+  },
+  "communication": {
+    "freeform": {
+      "success": {
+        "test": "Freeform vs None - Success",
+        "u_stat": 97.0,
+        "p_value": 0.7801422889012227,
+        "condition_mean": 2.8461538461538463,
+        "condition_std": 0.8634593969478326,
+        "baseline_mean": 2.7142857142857144,
+        "baseline_std": 1.0301575072754254,
+        "significant": false
+      },
+      "collisions": {
+        "test": "Freeform vs None - Collisions",
+        "u_stat": 96.0,
+        "p_value": 0.8268823757564197,
+        "condition_mean": 20.923076923076923,
+        "condition_std": 13.470546436643732,
+        "baseline_mean": 19.714285714285715,
+        "baseline_std": 12.57224023353817,
+        "significant": false
+      }
+    },
+    "structured": {
+      "success": {
+        "test": "Structured vs None - Success",
+        "u_stat": 110.0,
+        "p_value": 0.8379713809681345,
+        "condition_mean": 2.8,
+        "condition_std": 0.9797958971132714,
+        "baseline_mean": 2.7142857142857144,
+        "baseline_std": 1.0301575072754254,
+        "significant": false
+      },
+      "collisions": {
+        "test": "Structured vs None - Collisions",
+        "u_stat": 105.0,
+        "p_value": 1.0,
+        "condition_mean": 16.333333333333332,
+        "condition_std": 6.729701991090607,
+        "baseline_mean": 19.714285714285715,
+        "baseline_std": 12.57224023353817,
+        "significant": false
+      }
+    }
+  }
+}
