@@ -142,9 +142,9 @@ def plot_1_success_rate(data):
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    output_path = OUTPUT_DIR / "1_success_rate.png"
+    output_path = OUTPUT_DIR / "mapshare_agent_success_vs_baseline.png"
     plt.savefig(output_path, bbox_inches='tight', dpi=150)
-    print(f"✓ Plot 1: {output_path}")
+    print(f"✓ Plot: {output_path}")
     plt.close()
 
     return output_path
