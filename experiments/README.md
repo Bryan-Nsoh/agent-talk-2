@@ -34,9 +34,7 @@ Canonical seed 13 showed structured winning (73%), but testing across 5 differen
 
 | Date | Experiment | Status | Outcome | Result |
 |------|------------|--------|---------|--------|
-| 2025-11-19 | [long_corridor_no_share_20251119T202017Z](./long_corridor_no_share_20251119T202017Z/) | complete | useful | Seeds 13–17; comm=none; map_sharing=none. 3/5 runs reached all 5 finished; collisions mean=0. |
-| 2025-11-19 | [long_corridor_radio_sync_20251119T202017Z](./long_corridor_radio_sync_20251119T202017Z/) | complete | useful | Seeds 13–17; comm=none; map_sharing=radio_sync. 3/5 runs reached all 5 finished; collisions mean=0. |
-| 2025-11-19 | [long_corridor_global_share_20251119T202017Z](./long_corridor_global_share_20251119T202017Z/) | complete | useful | Seeds 13–17 (seed15 rerun). 5/5 runs reached all 5 finished; median goal-known turn 33; median all-finish turn 84; collisions mean 5.2 (median 2). Summary plot: analysis/mapshare/plots/mapshare_summary.png. |
+| 2025-11-19 | [mapshare_long_corridor_20251119T202017Z](./mapshare_long_corridor_20251119T202017Z/) | complete | useful | Seeds 13–17, 3 modes (none/radio_sync/global), 15 total runs. Global: 100% success, 0.0 std dev goal discovery. Radio_sync: 60% success, plateaus at turn 40. None: 60% success, 0 collisions. Radio_sync provides no advantage over baseline. Plots: analysis/mapshare/plots/ |
 
 ### Other Experiments
 
