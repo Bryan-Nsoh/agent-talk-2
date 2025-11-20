@@ -1,6 +1,6 @@
 # Experiments: LLM Grid Agents
 
-**Last updated:** 2025-11-14T20:54:00Z
+**Last updated:** 2025-11-19T22:30:00Z
 
 This document is the complete reference for running experiments, managing long-running jobs, and tracking results.
 
@@ -29,6 +29,14 @@ Canonical seed 13 showed structured winning (73%), but testing across 5 differen
 | **2025-11-12** | [**cross_seed_baseline_20251112T143355Z**](./cross_seed_baseline_20251112T143355Z/) | **✅ complete (45/45)** | **✓ useful** | **Cross-seed test: freeform 62.7%, none 57.3%, structured 56.0% (45 runs, 5 seeds, with token counting)** |
 | 2025-11-10 | [long_corridor_final_20251110T155342Z](./long_corridor_final_20251110T155342Z/) | complete | useful | Canonical seed 13: structured 73%, freeform 33%, none 20% (9 runs, seed-specific) |
 | 2025-11-10 | [long_corridor_comms_test_20251110T020144Z](./long_corridor_comms_test_20251110T020144Z/) | complete | useful | Exploratory: structured 3/5, freeform 2/5, none 0/5 - discovered priority deadlock (commit 419c6aa) |
+
+### Map-Sharing Verification (2025-11-19; complete)
+
+| Date | Experiment | Status | Outcome | Result |
+|------|------------|--------|---------|--------|
+| 2025-11-19 | [long_corridor_no_share_20251119T202017Z](./long_corridor_no_share_20251119T202017Z/) | complete | useful | Seeds 13–17; comm=none; map_sharing=none. 3/5 runs reached all 5 finished; collisions mean=0. |
+| 2025-11-19 | [long_corridor_radio_sync_20251119T202017Z](./long_corridor_radio_sync_20251119T202017Z/) | complete | useful | Seeds 13–17; comm=none; map_sharing=radio_sync. 3/5 runs reached all 5 finished; collisions mean=0. |
+| 2025-11-19 | [long_corridor_global_share_20251119T202017Z](./long_corridor_global_share_20251119T202017Z/) | complete | useful | Seeds 13–17 (seed15 rerun). 5/5 runs reached all 5 finished; median goal-known turn 33; median all-finish turn 84; collisions mean 5.2 (median 2). Summary plot: analysis/mapshare/plots/mapshare_summary.png. |
 
 ### Other Experiments
 

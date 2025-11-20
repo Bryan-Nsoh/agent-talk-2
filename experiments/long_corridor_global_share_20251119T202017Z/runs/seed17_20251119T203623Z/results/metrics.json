@@ -1,0 +1,18 @@
+{
+  "turns": 100,
+  "success": false,
+  "collisions": 16,
+  "reasoning_log": [],
+  "collision_causes": {
+    "BLOCK_AGENT": 16
+  },
+  "messages_sent": 0,
+  "marks_placed": 0,
+  "hazard_events": 0,
+  "comments_clamped": 0,
+  "comments_autofilled": 0,
+  "no_go_exposures": 0,
+  "contended_exposures": 0,
+  "history_limit": 10,
+  "loop_guidance": "passive"
+}
