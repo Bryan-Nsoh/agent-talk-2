@@ -36,10 +36,27 @@ def load_metrics(run_path):
         return json.load(f)
 
 
-def load_episode(run_path):
-    """Load episode.json from a run directory."""
-    with open(run_path / "results" / "episode.json") as f:
-        return json.load(f)
+def count_finished_from_stream(stream_path):
+    """
+    Count finished agents from final frame of episode_stream.jsonl.
+    This is the source of truth.
+    """
+    if not stream_path.exists():
+        return None
+
+    # Read last line (final frame)
+    with open(stream_path) as f:
+        for line in f:
+            pass  # iterate to last line
+        final_frame = json.loads(line)
+
+    # Communication format: agents dict with status field
+    if 'agents' in final_frame and isinstance(final_frame['agents'], dict):
+        return sum(1 for agent_data in final_frame['agents'].values()
+                   if agent_data.get('status') == 'FINISHED')
+
+    print(f"  ⚠ Unknown format in {stream_path}")
+    return None
 
 
 def load_transcript_with_tokens(run_path):
@@ -83,60 +100,46 @@ def load_transcript_with_tokens(run_path):
     return messages, total_tokens
 
 
-def count_finished_agents(episode_data):
-    """Count how many agents reached FINISHED status."""
-    final_frame = episode_data['frames'][-1]
-    return sum(1 for agent in final_frame['agents'] if agent['status'] == 'FINISHED')
-
-
-def get_cumulative_finishes(episode_data):
-    """Get cumulative count of finished agents over time."""
-    finished_set = set()
-    cumulative = []
-
-    for frame in episode_data['frames']:
-        for agent in frame['agents']:
-            if agent['status'] == 'FINISHED':
-                finished_set.add(agent['agent_id'])
-        cumulative.append((frame['t'], len(finished_set)))
-
-    return cumulative
 
 
 def collect_all_data():
-    """Aggregate data from all 45 runs with accurate token counts."""
+    """Aggregate data from all 45 runs - parse episode_stream.jsonl as source of truth."""
     data = defaultdict(list)
 
     # Dynamically discover all runs
     for run_dir in sorted(EXPERIMENT_ROOT.glob("seed*")):
         # Skip experimental variants
-        if any(x in run_dir.name for x in ["collision_rule", "frontier_share", "heartbeat", "seeded_inbox"]):
+        if any(x in run_dir.name for x in ["collision_rule", "frontier_share", "heartbeat", "seeded_inbox", "map_radio"]):
+            continue
+
+        # Skip rerun/partial runs
+        if "rerun" in run_dir.name or "partial" in run_dir.name:
             continue
 
         metrics_file = run_dir / "results" / "metrics.json"
-        episode_file = run_dir / "results" / "episode.json"
+        stream_file = run_dir / "results" / "episode_stream.jsonl"
         transcript_file = run_dir / "results" / "transcript.jsonl"
 
-        # Must have at least metrics and transcript
-        if not metrics_file.exists() or not transcript_file.exists():
-            print(f"⚠ Skipping {run_dir.name} (missing metrics or transcript)")
+        # Must have metrics and episode_stream
+        if not metrics_file.exists() or not stream_file.exists():
+            print(f"⚠ Skipping {run_dir.name} (missing metrics or episode_stream)")
             continue
 
         metrics = load_metrics(run_dir)
-        messages, tokens = load_transcript_with_tokens(run_dir)
-
         strategy = metrics['comm_strategy']
         seed = metrics['seed']
 
-        # Get finished count: prefer episode.json, fallback to metrics.json
-        if episode_file.exists():
-            episode = load_episode(run_dir)
-            finished = count_finished_agents(episode)
-            cumulative_finishes = get_cumulative_finishes(episode)
+        # Parse episode_stream.jsonl for finished count (SOURCE OF TRUTH)
+        finished = count_finished_from_stream(stream_file)
+        if finished is None:
+            print(f"⚠ Could not parse {stream_file}")
+            continue
+
+        # Get tokens if transcript exists
+        if transcript_file.exists():
+            messages, tokens = load_transcript_with_tokens(run_dir)
         else:
-            # Fallback: if success=true, all 5 agents finished
-            finished = 5 if metrics.get('success', False) else 0
-            cumulative_finishes = []  # Can't compute without episode data
+            messages, tokens = [], 0
 
         data[strategy].append({
             'run_dir': run_dir.name,
@@ -146,7 +149,6 @@ def collect_all_data():
             'tokens': tokens,
             'collisions': metrics['collisions'],
             'turns': metrics['turns'],
-            'cumulative_finishes': cumulative_finishes,
             'message_details': messages,
         })
 
