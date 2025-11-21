@@ -19,7 +19,7 @@
 \maketitle
 
 \begin{abstract}
-We investigate two paradigms of multi-agent coordination using Large Language Models (LLMs): explicit communication via message passing and implicit coordination via shared representation. We populate a bandwidth-constrained, partially observable grid world ($R_{vis}=1$) with GPT-5-Mini agents tasked with navigating a linear bottleneck. We find that shared representation effectively solves the search problem, with global map sharing achieving a 100\% success rate compared to 40\% in the silent baseline ($p < 0.001$). However, this perfect environmental knowledge introduces a ``Coordination Paradox,'' where synchronized pathfinding leads to high collision rates (5.2 per run) compared to the baseline (0.0). Conversely, explicit communication strategies, whether structured or freeform, fail to provide a statistically significant improvement over their baseline ($p > 0.05$). Qualitative analysis of agent decision traces suggests that the 1-turn latency of message passing hampers coordination, though it remains an open question whether zero-latency protocols would resolve these friction points. We conclude that while shared state solves search, distinct conflict-resolution protocols are required to manage the traffic bottlenecks it creates.
+We investigate two paradigms of multi-agent coordination using Large Language Models (LLMs): explicit communication via message passing and implicit coordination via shared representation. We populate a bandwidth-constrained, partially observable grid world ($R_{vis}=1$) with GPT-5-Mini agents tasked with navigating a linear bottleneck. We find that shared representation effectively solves the search problem, with global map sharing achieving a 100\% success rate compared to 40\% in the silent baseline ($p < 0.001$). However, this perfect environmental knowledge introduces a ``Coordination Paradox,'' where synchronized pathfinding leads to high collision rates (5.2 per run) compared to the baseline (0.0). Conversely, explicit communication strategies, whether structured or freeform, fail to provide a statistically significant improvement over their baseline ($p > 0.05$). Qualitative analysis of agent decision traces reveals that explicit messaging carries inherent coordination costs: agents must pause to broadcast and await confirmation, consuming turns that might otherwise be used for movement. The 1-turn message latency exacerbates this friction by forcing conservative stop-and-wait behaviors that neutralize the efficiency gains of coordination. We conclude that while shared state solves search, distinct conflict-resolution protocols are required to manage the traffic bottlenecks it creates.
 \end{abstract}
 
 \section{Introduction}
@@ -38,7 +38,7 @@ Within this environment, we instantiate two paradigms. In the first, communicati
 
 \section{The LLMGrid Environment}
 
-We utilize \texttt{LLMGrid}, a deterministic, discrete-time simulation engine. The environment topology is a $30 \times 10$ grid world generated via a recursive backtracking algorithm (Generation Seed 606). This specific layout, the ``Long Corridor,'' was selected for its high connectivity index combined with narrow chokepoints (1-2 cells wide) that mandate agent interaction to prevent blocking.
+We utilize \texttt{LLMGrid}, a deterministic, discrete-time simulation engine. The environment topology is a $30 \times 10$ grid world generated via a recursive backtracking algorithm. This specific layout, the ``Long Corridor,'' was selected for its high connectivity index combined with narrow chokepoints (1-2 cells wide) that mandate agent interaction to prevent blocking.
 
 \subsection{Simulation Dynamics}
 Five agents operate within the grid with a fixed turn budget ($T=100$). The simulation proceeds in synchronized turns where the engine solicits actions from all agents, resolves conflicts, and advances the state.
@@ -50,12 +50,19 @@ Five agents operate within the grid with a fixed turn budget ($T=100$). The simu
 \end{itemize}
 
 \subsection{The Agent Interface}
-To support the specific affordances of the two experimental branches, the agent context window is structured differently for each paradigm. In the Communication branch (Branch 1), agents receive a sensor-based representation suited for relative navigation. The prompt includes a $3 \times 3$ local view of the grid, a \texttt{goal\_sensor} providing a compass bearing (e.g., ``NE'') and signal strength, and a text log of recent messages. They possess no global coordinate map. In contrast, the Shared Representation branch (Branch 2) provides agents with a visual ASCII grid representing their internal memory. Unvisited cells are marked \texttt{X}, walls \texttt{\#}, and free space \texttt{.}. In the Global condition, this ASCII block is the data structure synchronized across agents; when Agent A discovers a wall at $(x,y)$, the \texttt{X} at that coordinate in Agent B's prompt is strictly replaced by \texttt{\#} in the next turn.
+Agents interact with the environment via a structured JSON prompt-response loop. They do not receive visual input; instead, they receive a local sensor patch and a persistent memory object (an ASCII map). Figure \ref{fig:schema} illustrates the input-output contract. The input prompt aggregates the agent's immediate surroundings (\texttt{local\_patch}) and any messages received from the previous turn (\texttt{inbox}). In the Communication conditions, the agent's output includes an explicit \texttt{message} payload that is broadcast to teammates. In the Shared Representation conditions, this message channel is disabled; instead, the private \texttt{world\_map\_ascii} shown in the prompt is automatically synchronized with other agents by the environment.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/schema_structured_freeform.png}
+    \caption{The Coordination Interface. Left: The agent receives a sparse observation containing a $3 \times 3$ local patch ($R=1$), an inbox containing messages sent by peers in the previous turn ($T-1$), and a world map showing discovered tiles. Right: The output schema varies by condition. Structured agents must select from a rigid set of intents or requests, while Freeform agents generate natural language strings. Only the message payload (red box) enters the message bus at turn $T+1$.}
+    \label{fig:schema}
+\end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/long_corridor_seed606.png}
-    \caption{The ``Long Corridor'' Environment (Map Seed 606). The geometry remains constant across all experiments, while agent spawn locations vary by run seed.}
+    \caption{The ``Long Corridor'' Environment. The geometry remains constant across all experiments, while agent spawn locations vary by run.}
     \label{fig:grid}
 \end{figure}
 
@@ -68,13 +75,7 @@ To support the specific affordances of the two experimental branches, the agent 
 
 \section{Experimental Design}
 
-We executed 90 total episodes. The variability in the experiment is controlled by two distinct random seeds and the sampling noise of the model.
-
-\begin{itemize}
-    \item \textbf{Map Seed (606):} Fixes the wall topology.
-    \item \textbf{Run Seeds (13--17):} Five distinct integers used to initialize the pseudo-random number generator that places the 5 agents at start positions. These positions are randomized but guaranteed to be valid (non-wall) and equidistant from the goal relative to the grid difficulty.
-    \item \textbf{Replicas ($N=3$):} For each Run Seed and Condition, we execute 3 independent runs. Since the engine is deterministic, variance between replicas is driven entirely by the non-deterministic sampling of the LLM.
-\end{itemize}
+We executed 90 total episodes ($N=15$ per condition). The variability in the experiment is controlled by the initial agent placement and the stochastic sampling of the model. The wall topology remains fixed across all runs. Five distinct random seeds (13 through 17) determine the starting positions of the 5 agents, which are randomized but guaranteed to be valid (non-wall) and roughly equidistant from the goal. For each starting configuration and condition, we execute 3 independent replicas. Since the environment is deterministic, variance between replicas is driven entirely by the non-deterministic sampling of the LLM.
 
 We group the six conditions into two investigation branches. Each branch utilizes a specific control baseline matching its interface (Sensor vs. ASCII Map) to ensure fair comparison.
 
@@ -142,14 +143,6 @@ Furthermore, explicit communication failed to reduce collision rates. As shown i
     \label{fig:comm_collisions}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    % TODO: Add communication structure comparison image showing structured vs unstructured message examples
-    % \includegraphics[width=0.8\textwidth]{figures/communication_structure_comparison.png}
-    \caption{[PLACEHOLDER] Communication Structure Comparison. Examples of structured (INTENT/REQUEST schema) versus freeform natural language messages exchanged between agents.}
-    \label{fig:comm_structure}
-\end{figure}
-
 \section{Discussion}
 
 \subsection{The Coordination Paradox}
@@ -166,9 +159,11 @@ A detailed review of the turn-by-turn logs reveals why explicit communication fa
 
 \section{Conclusion}
 
-Our results indicate that in bandwidth-constrained environments, shared representations are a potent mechanism for multi-agent search, offering immediate performance gains over independent exploration. However, they do not inherently solve coordination; by aligning agent priors, they exacerbate contention in bottlenecks. Explicit communication, while theoretically capable of resolving this contention, appeared hampered by the realistic latency constraints ($T+1$) in our setup.
+Our results indicate that in bandwidth-constrained environments, shared representations are a potent mechanism for multi-agent search, offering immediate performance gains over independent exploration. However, they do not inherently solve coordination; by aligning agent priors, they can exacerbate contention in bottlenecks.
 
-Future work should investigate whether eliminating the latency constraint (allowing synchronous, zero-shot communication blocks) would restore the efficacy of explicit protocols, or if better protocols can be designed that reduce collisions without imposing the high wait-costs observed here. Under the current constraints, we conclude that shared state effectively aligns context, but a distinct conflict-resolution mechanism is required to break the symmetry of optimal paths.
+Explicit communication, while theoretically capable of resolving this contention, did not yield statistically significant performance improvements in our setup. Our qualitative analysis suggests that explicit messaging imposes inherent synchronization costs: agents often pause to broadcast and await confirmation, consuming turns that might otherwise be used for movement. The realistic 1-turn latency ($T+1$) exacerbates this friction by forcing conservative stop-and-wait behaviors that neutralize the efficiency gains of coordination.
+
+Future work should investigate whether eliminating this latency constraint (allowing synchronous, zero-shot communication blocks) would restore the efficacy of explicit protocols, or if better protocols can be designed that reduce collisions without imposing the high wait-costs observed here. Under the current constraints, we conclude that shared state effectively aligns context, but a distinct conflict-resolution mechanism is required to break the symmetry of optimal paths.
 
 \bibliographystyle{plain}
 \bibliography{refs}
