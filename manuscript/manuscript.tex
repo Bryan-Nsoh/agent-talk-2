@@ -50,7 +50,11 @@ Five agents operate within the grid with a fixed turn budget ($T=100$). The simu
 \end{itemize}
 
 \subsection{The Agent Interface}
-Agents interact with the environment via a structured JSON prompt-response loop. They do not receive visual input; instead, they receive a local sensor patch and a persistent memory object (an ASCII map). Figure \ref{fig:schema} illustrates the input-output contract. The input prompt aggregates the agent's immediate surroundings (\texttt{local\_patch}) and any messages received from the previous turn (\texttt{inbox}). In the Communication conditions, the agent's output includes an explicit \texttt{message} payload that is broadcast to teammates. In the Shared Representation conditions, this message channel is disabled; instead, the private \texttt{world\_map\_ascii} shown in the prompt is automatically synchronized with other agents by the environment.
+Agents interact with the environment via a structured JSON prompt-response loop. They do not receive visual input; instead, they receive a local sensor patch and a persistent memory object (an ASCII map). Figure \ref{fig:schema} illustrates the input-output contract for the Communication conditions.
+
+The two experimental branches differ in navigation affordances, not merely communication channels. In the Communication branch, agents receive a \texttt{goal\_sensor} that provides noisy bearing information (octants: N, NE, E, etc.) and distance buckets (FAR, MID, NEAR). This allows agents to navigate toward the goal even before discovering it visually. The agent's output includes an explicit \texttt{message} payload that is broadcast to teammates within radio range.
+
+In the Shared Representation branch, the \texttt{goal\_sensor} is removed entirely. Agents must explore the grid blindly until they visually discover the goal symbol. The message channel is also disabled; instead, the internal map state is automatically synchronized with other agents (either upon contact in the Radio condition, or globally in the Global condition). This design tests whether shared environmental knowledge can substitute for both goal guidance and explicit messaging.
 
 \begin{figure}[H]
     \centering
@@ -110,9 +114,9 @@ where $n_1$ and $n_2$ are the sample sizes and $R_1$ is the sum of ranks for gro
 \section{Results}
 
 \subsection{Shared Representation Solves Search}
-In the Map Sharing branch, the primary challenge is locating the goal. \textbf{Global Map Sharing} achieved a 100\% success rate (15/15 runs), compared to 40\% for the silent Baseline B and 60\% for Radio Sync.
+In the Map Sharing branch, agents lack a goal sensor and must locate the goal through blind exploration. This creates a severe search problem. The silent Baseline B achieved only 40\% success (6/15 runs), with agents frequently exhausting their turn budget before discovering the goal location. \textbf{Global Map Sharing} achieved a 100\% success rate (15/15 runs), and Radio Sync reached 60\% (9/15 runs).
 
-Statistical analysis using the Mann-Whitney U test confirms this advantage is robust ($U=15.5$, $p < 0.001$). The shared representation effectively removes the search problem; agents immediately know the goal location and optimal path. Radio Sync provided a marginal improvement over the baseline, but the difference did not reach statistical significance ($p = 0.18$). This is largely explained by the ``Knowledge Plateau'': once agents dispersed beyond radio range ($r=2$), information propagation ceased, causing the discovery rate to flatline at approximately Turn 40.
+Statistical analysis using the Mann-Whitney U test confirms the Global advantage is robust ($U=15.5$, $p < 0.001$). The shared representation effectively removes the blind search problem: when any agent discovers the goal, all agents immediately know its location and can compute optimal paths. Radio Sync provided a marginal improvement over the baseline, but the difference did not reach statistical significance ($p = 0.18$). This is largely explained by the ``Knowledge Plateau'': once agents dispersed beyond radio range ($r=2$), information propagation ceased, causing the discovery rate to flatline at approximately Turn 40.
 
 \begin{figure}[H]
     \centering
@@ -122,9 +126,9 @@ Statistical analysis using the Mann-Whitney U test confirms this advantage is ro
 \end{figure}
 
 \subsection{Explicit Communication Fails to Coordinate}
-In the Communication branch, agents must coordinate to move efficiently through the corridor. Neither \textbf{Structured} (56.0\% success) nor \textbf{Freeform} (62.7\% success) showed a statistically significant improvement over the silent Baseline A (57.3\%).
+In the Communication branch, agents receive a goal sensor that guides navigation toward the target. The baseline success rate is 57.3\% (86/150 agents reached the goal), substantially higher than the Map Sharing baseline (40\%) because agents can navigate even before visually discovering the goal. The remaining coordination challenge is collision avoidance and efficient pathfinding through bottlenecks.
 
-Comparison via Mann-Whitney U yielded $p=0.78$ for Freeform vs. Baseline and $p=0.84$ for Structured vs. Baseline. The hypothesis that explicit communication enables better coordination is not supported by the data in this bandwidth-constrained environment.
+Neither \textbf{Structured} (56.0\% success) nor \textbf{Freeform} (62.7\% success) communication showed a statistically significant improvement over the silent Baseline A (57.3\%). Comparison via Mann-Whitney U yielded $p=0.78$ for Freeform vs. Baseline and $p=0.84$ for Structured vs. Baseline. The hypothesis that explicit communication enables better coordination is not supported by the data in this bandwidth-constrained environment.
 
 Furthermore, explicit communication failed to reduce collision rates. As shown in Figure \ref{fig:comm_collisions}, Freeform communication resulted in the highest average collision rate (20.9), compared to 19.7 for the Baseline and 16.3 for Structured. None of these differences were statistically significant ($p > 0.8$), indicating that the attempt to coordinate often introduced as much friction as it resolved.
 
@@ -159,11 +163,13 @@ A detailed review of the turn-by-turn logs reveals why explicit communication fa
 
 \section{Conclusion}
 
-Our results indicate that in bandwidth-constrained environments, shared representations are a potent mechanism for multi-agent search, offering immediate performance gains over independent exploration. However, they do not inherently solve coordination; by aligning agent priors, they can exacerbate contention in bottlenecks.
+We compared two fundamentally different coordination paradigms in a bandwidth-constrained navigation task. The Communication branch provided agents with noisy goal guidance but limited messaging bandwidth. The Map Sharing branch removed goal guidance entirely, forcing blind exploration, but allowed agents to share discovered map state.
 
-Explicit communication, while theoretically capable of resolving this contention, did not yield statistically significant performance improvements in our setup. Our qualitative analysis suggests that explicit messaging imposes inherent synchronization costs: agents often pause to broadcast and await confirmation, consuming turns that might otherwise be used for movement. The realistic 1-turn latency ($T+1$) exacerbates this friction by forcing conservative stop-and-wait behaviors that neutralize the efficiency gains of coordination.
+Our results show that shared representations are a potent mechanism for pooling discoveries in multi-agent search. When agents lack goal guidance (Map Sharing baseline: 40\% success), global map sharing achieves 100\% success by allowing any agent's goal discovery to benefit all teammates. However, this shared knowledge does not inherently solve coordination; by aligning agent priors, it can exacerbate contention in bottlenecks, as evidenced by elevated collision rates in the Global condition.
 
-Future work should investigate whether eliminating this latency constraint (allowing synchronous, zero-shot communication blocks) would restore the efficacy of explicit protocols, or if better protocols can be designed that reduce collisions without imposing the high wait-costs observed here. Under the current constraints, we conclude that shared state effectively aligns context, but a distinct conflict-resolution mechanism is required to break the symmetry of optimal paths.
+Explicit communication, while theoretically capable of resolving coordination conflicts, did not yield statistically significant performance improvements in our setup. Agents with goal guidance (Communication baseline: 57\% success) saw no benefit from structured or freeform messaging. Our qualitative analysis suggests that explicit messaging imposes inherent synchronization costs: agents often pause to broadcast and await confirmation, consuming turns that might otherwise be used for movement. The realistic 1-turn latency ($T+1$) exacerbates this friction by forcing conservative stop-and-wait behaviors that neutralize the efficiency gains of coordination.
+
+Future work should investigate whether eliminating this latency constraint (allowing synchronous, zero-shot communication blocks) would restore the efficacy of explicit protocols, or if better protocols can be designed that reduce collisions without imposing the high wait-costs observed here. The two baselines (57\% with goal guidance vs. 40\% blind search) demonstrate that the presence or absence of navigational affordances fundamentally shapes the coordination problem, making direct cross-branch comparisons difficult to interpret.
 
 \bibliographystyle{plain}
 \bibliography{refs}
