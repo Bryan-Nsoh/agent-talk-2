@@ -3,187 +3,232 @@
     "none": [
       {
         "run": "none_seed13_rep2_20251120T164100Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 2
       },
       {
         "run": "none_seed13_rep3_20251120T164100Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 2
       },
       {
         "run": "none_seed14_rep2_20251120T164100Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 6
       },
       {
         "run": "none_seed14_rep3_20251120T164100Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 4
       },
       {
         "run": "none_seed15_rep2_20251120T164100Z",
-        "finished": 3
+        "finished": 3,
+        "collisions": 0
       },
       {
         "run": "none_seed15_rep3_20251120T164100Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "none_seed16_rep2_20251120T164100Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 6
       },
       {
         "run": "none_seed16_rep3_20251120T164100Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 2
       },
       {
         "run": "none_seed17_rep2_20251120T164100Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 28
       },
       {
         "run": "none_seed17_rep3_20251120T164100Z",
-        "finished": 3
+        "finished": 3,
+        "collisions": 22
       },
       {
         "run": "seed13_20251119T203622Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "seed14_20251119T203622Z",
-        "finished": 3
+        "finished": 3,
+        "collisions": 14
       },
       {
         "run": "seed15_20251119T203622Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 1
       },
       {
         "run": "seed16_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "seed17_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 12
       }
     ],
     "radio_sync": [
       {
         "run": "radio_sync_seed13_rep2_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 16
       },
       {
         "run": "radio_sync_seed13_rep3_20251120T171411Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 2
       },
       {
         "run": "radio_sync_seed14_rep2_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "radio_sync_seed14_rep3_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 4
       },
       {
         "run": "radio_sync_seed15_rep2_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "radio_sync_seed15_rep3_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "radio_sync_seed16_rep2_20251120T171411Z",
-        "finished": 3
+        "finished": 3,
+        "collisions": 2
       },
       {
         "run": "radio_sync_seed16_rep3_20251120T171411Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 2
       },
       {
         "run": "radio_sync_seed17_rep2_20251120T171411Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 2
       },
       {
         "run": "radio_sync_seed17_rep3_20251120T171411Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 30
       },
       {
         "run": "seed13_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 8
       },
       {
         "run": "seed14_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 12
       },
       {
         "run": "seed15_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 8
       },
       {
         "run": "seed16_20251119T203623Z",
-        "finished": 2
+        "finished": 2,
+        "collisions": 58
       },
       {
         "run": "seed17_20251119T203623Z",
-        "finished": 4
+        "finished": 4,
+        "collisions": 12
       }
     ],
     "global": [
       {
         "run": "global_seed13_rep2_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "global_seed13_rep3_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "global_seed14_rep2_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 30
       },
       {
         "run": "global_seed14_rep3_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 4
       },
       {
         "run": "global_seed15_rep2_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 4
       },
       {
         "run": "global_seed15_rep3_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 30
       },
       {
         "run": "global_seed16_rep2_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "global_seed16_rep3_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "global_seed17_rep2_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 10
       },
       {
         "run": "global_seed17_rep3_20251120T174650Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 2
       },
       {
         "run": "seed13_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "seed14_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 2
       },
       {
         "run": "seed15_rerun_20251119T222148Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 8
       },
       {
         "run": "seed16_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 0
       },
       {
         "run": "seed17_20251119T203623Z",
-        "finished": 5
+        "finished": 5,
+        "collisions": 16
       }
     ]
   },
@@ -202,7 +247,7 @@
       {
         "run": "seed13_none_run3_20251114T173114Z",
         "finished": 4,
-        "collisions": 13
+        "collisions": 12
       },
       {
         "run": "seed14_none_20251112T175325Z",
@@ -240,6 +285,11 @@
         "collisions": 10
       },
       {
+        "run": "seed16_none_run2_20251113T133659Z",
+        "finished": 5,
+        "collisions": 8
+      },
+      {
         "run": "seed16_none_run3_20251113T133802Z",
         "finished": 4,
         "collisions": 4
@@ -247,7 +297,7 @@
       {
         "run": "seed17_none_run1_20251113T142742Z",
         "finished": 1,
-        "collisions": 49
+        "collisions": 47
       },
       {
         "run": "seed17_none_run2_20251113T144152Z",
@@ -307,6 +357,16 @@
         "collisions": 9
       },
       {
+        "run": "seed16_freeform_run1_20251113T125857Z",
+        "finished": 5,
+        "collisions": 6
+      },
+      {
+        "run": "seed16_freeform_run2_20251113T125900Z",
+        "finished": 5,
+        "collisions": 6
+      },
+      {
         "run": "seed16_freeform_run3_20251113T125902Z",
         "finished": 4,
         "collisions": 10
@@ -336,7 +396,7 @@
       {
         "run": "seed13_structured_run2_20251114T173100Z",
         "finished": 1,
-        "collisions": 23
+        "collisions": 24
       },
       {
         "run": "seed13_structured_run3_20251114T173102Z",
@@ -361,7 +421,7 @@
       {
         "run": "seed15_structured_run1_20251113T022522Z",
         "finished": 2,
-        "collisions": 16
+        "collisions": 18
       },
       {
         "run": "seed15_structured_run2_20251113T022527Z",

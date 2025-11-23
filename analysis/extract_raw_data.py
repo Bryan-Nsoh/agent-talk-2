@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Extract raw finished agent counts directly from episode.json files.
-Makes ZERO assumptions about metrics.json structure or existence.
+Extract raw data directly from transcript.jsonl and episode_stream.jsonl.
+Parses raw logs - does NOT rely on pre-computed metrics.json or episode.json.
 """
 
 import json
@@ -9,36 +9,93 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
 
-def count_finished_from_episode(episode_path):
+def extract_from_stream(stream_path):
     """
-    Count finished agents from episode.json final frame.
-    Handles TWO data structures:
-    1. Communication exp: final_frame['agents'] with status='FINISHED'
-    2. Map-sharing exp: final_frame['finished'] as a list
+    Extract finished count from episode_stream.jsonl.
+    Handles BOTH branch structures:
+    - Main (Communication): agents dict with status field
+    - Map-share: finished list
     """
-    if not episode_path.exists():
+    if not stream_path.exists():
         return None
 
-    with open(episode_path) as f:
-        episode = json.load(f)
+    frames = []
+    with open(stream_path) as f:
+        for line in f:
+            frames.append(json.loads(line))
 
-    final_frame = episode['frames'][-1]
+    if not frames:
+        return None
 
-    # Map-sharing structure: finished is a list of agent IDs
-    if 'finished' in final_frame and isinstance(final_frame['finished'], list):
+    final_frame = frames[-1]
+
+    # Map-share structure: finished is a list
+    if 'finished' in final_frame:
         return len(final_frame['finished'])
 
-    # Communication structure: agents array with status field
-    if 'agents' in final_frame and isinstance(final_frame['agents'], list):
-        return sum(1 for agent in final_frame['agents'] if agent.get('status') == 'FINISHED')
+    # Communication structure: agents dict with status field
+    if 'agents' in final_frame:
+        agents = final_frame['agents']
+        if isinstance(agents, dict):
+            return sum(1 for data in agents.values() if data.get('status') == 'FINISHED')
 
-    # Unknown structure
-    print(f"  ⚠ Unknown episode structure in {episode_path}")
     return None
+
+def count_collisions_from_stream(stream_path):
+    """
+    Count collisions from episode_stream.jsonl (Communication branch only).
+    Map-share branch must use transcript.
+    """
+    if not stream_path.exists():
+        return None
+
+    collision_count = 0
+    with open(stream_path) as f:
+        for line in f:
+            frame = json.loads(line)
+            agents = frame.get('agents', {})
+            if isinstance(agents, dict):
+                for agent_data in agents.values():
+                    if agent_data.get('action') == 'BLOCK_AGENT':
+                        collision_count += 1
+
+    return collision_count
+
+def count_collisions_from_transcript(transcript_path):
+    """
+    Count collisions from transcript.jsonl.
+    Works for BOTH branches:
+    - Main (Communication): checks last_move_outcome
+    - Map-share: checks last_result.kind
+    """
+    if not transcript_path.exists():
+        return None
+
+    collision_count = 0
+    with open(transcript_path) as f:
+        for line in f:
+            record = json.loads(line)
+            obs = record.get('observation', {})
+
+            # Communication branch: last_move_outcome field
+            last_move_outcome = obs.get('last_move_outcome')
+            if last_move_outcome in ['BLOCK_AGENT', 'BLOCK_WALL', 'SWAP_CONFLICT']:
+                collision_count += 1
+                continue
+
+            # Map-share branch: last_result.kind field
+            last_result = obs.get('last_result', {})
+            if last_result.get('kind') in ['BLOCK_AGENT', 'BLOCK_WALL', 'SWAP_CONFLICT']:
+                collision_count += 1
+
+    return collision_count
 
 
 def extract_mapshare_data():
-    """Extract finished counts from map-sharing experiment."""
+    """
+    Extract data from map-sharing experiment.
+    Parses episode_stream.jsonl and transcript.jsonl directly.
+    """
     base = REPO_ROOT / "experiments/mapshare_long_corridor_20251119T202017Z"
 
     data = {'none': [], 'radio_sync': [], 'global': []}
@@ -55,21 +112,38 @@ def extract_mapshare_data():
             if (run_dir / "IGNORED.txt").exists():
                 continue
 
-            episode_file = run_dir / "results" / "episode.json"
-            finished = count_finished_from_episode(episode_file)
+            results_dir = run_dir / "results"
+            stream_file = results_dir / "episode_stream.jsonl"
+            transcript_file = results_dir / "transcript.jsonl"
 
-            if finished is not None:
-                data[mode].append({
-                    'run': run_dir.name,
-                    'finished': finished
-                })
-                print(f"  {mode:12s} {run_dir.name:50s} finished={finished}")
+            # Extract finished count from stream
+            finished = extract_from_stream(stream_file)
+            if finished is None:
+                print(f"  ⚠ {mode:12s} {run_dir.name:50s} NO STREAM DATA")
+                continue
+
+            # Extract collision count from transcript (map-share uses this)
+            collisions = count_collisions_from_transcript(transcript_file)
+            if collisions is None:
+                print(f"  ⚠ {mode:12s} {run_dir.name:50s} NO TRANSCRIPT DATA")
+                collisions = 0
+
+            data[mode].append({
+                'run': run_dir.name,
+                'finished': finished,
+                'collisions': collisions
+            })
+            print(f"  {mode:12s} {run_dir.name:50s} finished={finished} collisions={collisions}")
 
     return data
 
 
 def extract_comm_data():
-    """Extract finished counts and collisions from communication experiment."""
+    """
+    Extract data from communication experiment.
+    Parses episode_stream.jsonl and transcript.jsonl directly.
+    Infers strategy from run name (not from metrics.json).
+    """
     runs_dir = REPO_ROOT / "experiments/cross_seed_baseline_20251112T143355Z/runs"
 
     data = {'none': [], 'freeform': [], 'structured': []}
@@ -90,40 +164,49 @@ def extract_comm_data():
         if "rerun" in run_dir.name or "partial" in run_dir.name:
             continue
 
-        episode_file = run_dir / "results" / "episode.json"
-        metrics_file = run_dir / "results" / "metrics.json"
-
-        finished = count_finished_from_episode(episode_file)
-
-        # Get strategy and collisions from metrics.json
-        if not metrics_file.exists():
-            print(f"  ⚠ No metrics.json for {run_dir.name}")
+        # Infer strategy from run name
+        if "none" in run_dir.name:
+            strategy = "none"
+        elif "freeform" in run_dir.name:
+            strategy = "freeform"
+        elif "structured" in run_dir.name:
+            strategy = "structured"
+        else:
+            print(f"  ⚠ Cannot infer strategy from {run_dir.name}")
             continue
 
-        with open(metrics_file) as f:
-            metrics = json.load(f)
+        results_dir = run_dir / "results"
+        stream_file = results_dir / "episode_stream.jsonl"
+        transcript_file = results_dir / "transcript.jsonl"
 
-        strategy = metrics.get('comm_strategy')
-        collisions = metrics.get('collisions', 0)
-
-        if strategy not in data:
-            print(f"  ⚠ Unknown strategy '{strategy}' in {run_dir.name}")
+        # Extract finished count from stream
+        finished = extract_from_stream(stream_file)
+        if finished is None:
+            print(f"  ⚠ {strategy:12s} {run_dir.name:50s} NO STREAM DATA")
             continue
 
-        if finished is not None:
-            data[strategy].append({
-                'run': run_dir.name,
-                'finished': finished,
-                'collisions': collisions
-            })
-            print(f"  {strategy:12s} {run_dir.name:50s} finished={finished} collisions={collisions}")
+        # Extract collision count - ALWAYS use transcript for reliability
+        # (stream action field is not populated correctly on Communication branch)
+        collisions = count_collisions_from_transcript(transcript_file)
+        if collisions is None:
+            print(f"  ⚠ {strategy:12s} {run_dir.name:50s} NO COLLISION DATA")
+            collisions = 0
+
+        data[strategy].append({
+            'run': run_dir.name,
+            'finished': finished,
+            'collisions': collisions
+        })
+        print(f"  {strategy:12s} {run_dir.name:50s} finished={finished} collisions={collisions}")
 
     return data
 
 
 def main():
     print("\n" + "="*80)
-    print("RAW DATA EXTRACTION (direct from episode.json)")
+    print("ROBUST RAW DATA EXTRACTION")
+    print("Parses episode_stream.jsonl and transcript.jsonl directly")
+    print("Does NOT rely on metrics.json or episode.json")
     print("="*80)
 
     print("\n--- MAP-SHARING EXPERIMENT ---\n")
@@ -139,15 +222,21 @@ def main():
 
     print("\nMap-Sharing:")
     for mode in ['none', 'radio_sync', 'global']:
-        counts = [r['finished'] for r in mapshare_data[mode]]
-        print(f"  {mode:12s}: N={len(counts):2d}  finished={counts}")
+        runs = mapshare_data[mode]
+        finished_counts = [r['finished'] for r in runs]
+        collision_counts = [r['collisions'] for r in runs]
+        print(f"  {mode:12s}: N={len(runs):2d}")
+        print(f"    finished:   {finished_counts}")
+        print(f"    collisions: {collision_counts}")
 
     print("\nCommunication:")
     for strategy in ['none', 'freeform', 'structured']:
-        finished_counts = [r['finished'] for r in comm_data[strategy]]
-        collision_counts = [r['collisions'] for r in comm_data[strategy]]
-        print(f"  {strategy:12s}: N={len(finished_counts):2d}  finished={finished_counts}")
-        print(f"  {'':12s}            collisions={collision_counts}")
+        runs = comm_data[strategy]
+        finished_counts = [r['finished'] for r in runs]
+        collision_counts = [r['collisions'] for r in runs]
+        print(f"  {strategy:12s}: N={len(runs):2d}")
+        print(f"    finished:   {finished_counts}")
+        print(f"    collisions: {collision_counts}")
 
     # Save raw data
     output_file = Path(__file__).parent / "raw_data.json"

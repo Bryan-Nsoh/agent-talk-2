@@ -25,22 +25,22 @@
     "freeform": {
       "success": {
         "test": "Freeform vs None - Success",
-        "u_stat": 97.0,
-        "p_value": 0.7801422889012227,
-        "condition_mean": 2.8461538461538463,
-        "condition_std": 0.8634593969478326,
-        "baseline_mean": 2.7142857142857144,
-        "baseline_std": 1.0301575072754254,
+        "u_stat": 126.0,
+        "p_value": 0.5774130857635037,
+        "condition_mean": 3.1333333333333333,
+        "condition_std": 1.0873004286866725,
+        "baseline_mean": 2.8666666666666667,
+        "baseline_std": 1.14697670227235,
         "significant": false
       },
       "collisions": {
         "test": "Freeform vs None - Collisions",
-        "u_stat": 96.0,
-        "p_value": 0.8268823757564197,
-        "condition_mean": 20.923076923076923,
-        "condition_std": 13.470546436643732,
-        "baseline_mean": 19.714285714285715,
-        "baseline_std": 12.57224023353817,
+        "u_stat": 110.5,
+        "p_value": 0.9503070678412674,
+        "condition_mean": 18.933333333333334,
+        "condition_std": 13.527584986077729,
+        "baseline_mean": 18.733333333333334,
+        "baseline_std": 12.211833969100992,
         "significant": false
       }
     },
@@ -48,21 +48,21 @@
       "success": {
         "test": "Structured vs None - Success",
         "u_stat": 110.0,
-        "p_value": 0.8379713809681345,
+        "p_value": 0.9314464589590448,
         "condition_mean": 2.8,
         "condition_std": 0.9797958971132714,
-        "baseline_mean": 2.7142857142857144,
-        "baseline_std": 1.0301575072754254,
+        "baseline_mean": 2.8666666666666667,
+        "baseline_std": 1.14697670227235,
         "significant": false
       },
       "collisions": {
         "test": "Structured vs None - Collisions",
-        "u_stat": 105.0,
-        "p_value": 1.0,
-        "condition_mean": 16.333333333333332,
-        "condition_std": 6.729701991090607,
-        "baseline_mean": 19.714285714285715,
-        "baseline_std": 12.57224023353817,
+        "u_stat": 121.5,
+        "p_value": 0.7237664455178199,
+        "condition_mean": 16.533333333333335,
+        "condition_std": 6.810449487531805,
+        "baseline_mean": 18.733333333333334,
+        "baseline_std": 12.211833969100992,
         "significant": false
       }
     }
