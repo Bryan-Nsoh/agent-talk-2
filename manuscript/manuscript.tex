@@ -1,0 +1,310 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+
+\doublespacing
+
+\title{Telepathy vs. Talk: Comparing Shared Representations and Explicit Communication in LLM Agents}
+\author{\small Bryan Nsoh, Gagandeep Kaur, Joseph Gyasi Bronyah, Sobhan Bahrami}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We investigate two paradigms of multi-agent coordination using Large Language Models (LLMs): explicit communication via message passing and implicit coordination via shared representation. We populate a bandwidth-constrained, partially observable grid world ($R_{vis}=1$) with GPT-5-Mini agents tasked with navigating a linear bottleneck. We find that shared representation achieves perfect search performance, with global map sharing reaching 100\% agent completion compared to 84\% in the silent baseline ($p < 0.001$). However, this perfect environmental knowledge does not resolve traffic conflicts; agents with global maps collide just as frequently (7.1 per run) as blind baseline agents (6.6 per run). Conversely, explicit communication strategies, whether structured or freeform, fail to provide a statistically significant improvement over their baseline in success rate or collision avoidance ($p > 0.5$). Qualitative analysis of agent decision traces indicates that the 1-turn latency of message passing induces conservative stop-and-wait behaviors that neutralize the efficiency gains of coordination. We conclude that while shared state solves search, distinct conflict-resolution protocols are required to manage the traffic bottlenecks it creates.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models are increasingly deployed as collections of interacting agents rather than as isolated systems. Frameworks such as AutoGen and MetaGPT make it easy to instantiate role-specialized LLM agents that solve tasks by exchanging messages, while more recent systems like MegaAgent focus on scaling these patterns to hundreds of agents with hierarchical task decomposition and shared message pools \citep{wu2023autogen,hong2023metagpt,wang2024megaagent}. In these settings, ``communication'' is usually understood in the intuitive sense: agents send natural language or lightly structured messages to one another, and coordination emerges from the conversational protocol plus the underlying model's priors about teamwork.
+
+In parallel, there is growing interest in using LLM agents as inhabitants of synthetic worlds. Social simulation work populates toy towns or social networks with dozens or thousands of LLM-driven characters and studies their interactions over time \citep{park2023generative}, while other projects treat LLMs as embodied controllers in games or virtual environments. The Abstraction and Reasoning Corpus (ARC-AGI) offers grid-based visual puzzles that probe pattern discovery and generalization, becoming a touchstone for evaluating reasoning in models that operate on JSON or textual encodings of small grids \citep{chollet2019measure,arcprize2025arcagi}. Similarly, embodied agents like Voyager in Minecraft showcase how a single LLM can drive long-horizon behavior in an environment surfaced entirely as text or abstract state \citep{wang2023voyager,robison2025claudepokemon}.
+
+A third strand of research studies communication and coordination under stronger experimental control, mostly in the multi-agent reinforcement learning community. Classic work on differentiable communication architectures used small partially observable grid worlds to show how agents can learn when and what to broadcast. More recent approaches add language grounding and human interpretability, for example by training policies to imitate messages produced by LLM teammates \citep{li2024language}. These studies give careful control over reward and topology but typically operate with learned, opaque symbol channels rather than the natural language priors of off-the-shelf models.
+
+At the systems level, there is growing interest in ``communication'' as sharing internal representations rather than messages. KV cache reuse and prefix caching can dramatically reduce prefill latency, and recent work extends this to multiple fine-tuned models by selectively recomputing only specific layers \citep{liu2025droidspeak}. In these systems, no natural language flows between agents; they coordinate indirectly by reusing a shared latent state. This notion of communication via shared representations is conceptually quite different from conversational protocols, yet it is arguably closer to how large model deployments scale in practice.
+
+However, a standardized benchmark for measuring inter-agent communication efficiency remains elusive. Complex environments like Minecraft or multi-agent games introduce confounding variables—physics engines, crafting mechanics, open-ended objectives—that obscure whether failures stem from poor communication protocols or poor strategic planning. Conversely, purely conversational benchmarks lack the spatial constraints (collisions, bottlenecks, resource contention) that make coordination necessary in embodied settings. There is a gap for an environment that is abstract enough to isolate communication variables, yet scalable enough to test protocols ranging from simple pairs to large swarms.
+
+We address this gap by constructing \texttt{LLMGrid}, a modular grid world designed specifically to stress-test agent coordination under controlled conditions. The environment is rendered as an ASCII map and accompanying JSON, populated by identical LLM agents. Each agent perceives only its immediate surroundings ($R_{vis}=1$). The action space is minimal: move cardinal directions, stay, or use a communication channel. The environment's modularity—tunable grid size, obstacle density, agent count, visibility radius, and communication bandwidth—allows researchers to isolate individual variables (e.g., message latency, radio range) while holding others constant.
+
+Within this environment, we instantiate two coordination paradigms to demonstrate its diagnostic utility. In the first, communication is explicit message passing: agents send structured JSON packets or freeform natural language messages to teammates, delivered through the textual interface. In the second, communication is implicit via shared representations: agents maintain internal maps that are either merged when within radio range or synchronized globally. This setup allows us to ask: when given explicit channels, do agents discover useful protocols? When given only a shared representation, do they exploit it? And how do these modes compare to having no communication at all?
+
+\section{The LLMGrid Environment}
+
+We utilize \texttt{LLMGrid}, a deterministic, discrete-time simulation engine. The environment topology is a $30 \times 10$ grid world generated via a recursive backtracking algorithm. This specific layout, the ``Long Corridor,'' was selected for its high connectivity index combined with narrow chokepoints (1-2 cells wide) that mandate agent interaction to prevent blocking.
+
+\subsection{Simulation Dynamics}
+Five agents operate within the grid with a fixed turn budget ($T=100$). The simulation proceeds in synchronized turns where the engine solicits actions from all agents, resolves conflicts, and advances the state.
+
+\begin{itemize}
+    \item \textbf{Visibility ($R_{vis}=1$):} Agents operate under severe partial observability, perceiving only their own coordinate and the four immediate cardinal neighbors.
+    \item \textbf{Movement \& Conflict:} Agents plan moves ($N, E, S, W$) or $STAY$. If multiple agents attempt to enter the same cell, or if two agents attempt to swap positions, the engine resolves this as a \texttt{BLOCK\_AGENT} outcome. No displacement occurs, and the turn is consumed.
+    \item \textbf{Latency:} To model realistic processing and network constraints, explicit messages sent at turn $t$ are delivered to recipients at turn $t+1$.
+\end{itemize}
+
+\subsection{The Agent Interface}
+Agents interact with the environment via a structured JSON prompt-response loop. They do not receive visual input; instead, they receive a local sensor patch and a persistent memory object (an ASCII map). Figure \ref{fig:schema} illustrates the input-output contract for the Communication conditions.
+
+The two experimental branches differ in navigation affordances, not merely communication channels. In the Communication branch, agents receive a \texttt{goal\_sensor} that provides noisy bearing information (octants: N, NE, E, etc.) and distance buckets (FAR, MID, NEAR). This allows agents to navigate toward the goal even before discovering it visually. The agent's output includes an explicit \texttt{message} payload that is broadcast to teammates within radio range.
+
+In the Shared Representation branch, the \texttt{goal\_sensor} is removed entirely. Agents must explore the grid blindly until they visually discover the goal symbol. The message channel is also disabled; instead, the internal map state is automatically synchronized with other agents (either upon contact in the Radio condition, or globally in the Global condition). This design tests whether shared environmental knowledge can substitute for both goal guidance and explicit messaging.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/schema_structured_freeform.png}
+    \caption{The Coordination Interface. Left: The agent receives a sparse observation containing a $3 \times 3$ local patch ($R=1$), an inbox containing messages sent by peers in the previous turn ($T-1$), and a world map showing discovered tiles. Right: The output schema varies by condition. Structured agents must select from a rigid set of intents or requests, while Freeform agents generate natural language strings. Only the message payload (red box) enters the message bus at turn $T+1$.}
+    \label{fig:schema}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/grid_snapshot_freeform.png}
+    \caption{The ``Long Corridor'' Environment in Action. Snapshot from a Communication baseline run (Freeform condition) showing 5 agents navigating the maze. The Among Us sprites with directional indicators show agent positions and orientations. Visibility auras (colored overlays) indicate each agent's limited $R_{vis}=1$ perception range. The goal gradient (green intensity) shows distance to the target. Note: This visualization is from the Communication branch; the Map-Sharing branch uses identical maze topology but different agent interfaces.}
+    \label{fig:grid}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/fog_of_war_example.png}
+    \caption{Partial Observability (Fog of War). Agents perceive only their immediate neighborhood (visibility radius = 1). Gray cells represent unknown territory, demonstrating the exploration challenge agents face without shared representations.}
+    \label{fig:interface}
+\end{figure}
+
+\section{Experimental Design}
+
+We executed 90 total episodes ($N=15$ per condition). The variability in the experiment is controlled by the random placement of agents and the sampling noise of the model.
+
+\begin{itemize}
+    \item \textbf{Map Topology:} The wall layout is fixed for all runs to ensure consistent pathing difficulty.
+    \item \textbf{Agent Spawns (Seeds 13--17):} Five distinct integers used to initialize the pseudo-random number generator that places the 5 agents at start positions. These positions are randomized but guaranteed to be valid (non-wall) and equidistant from the goal relative to the grid difficulty.
+    \item \textbf{Replicas ($N=3$):} For each Run Seed and Condition, we execute 3 independent runs. Since the engine is deterministic, variance between replicas is driven entirely by the probabilistic sampling of the LLM (Temperature $1.0$).
+\end{itemize}
+
+We group the six conditions into two investigation branches. Each branch utilizes a specific control baseline matching its interface (Sensor vs. ASCII Map) to ensure fair comparison.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Unified Experimental Design Matrix ($N=15$ runs per condition)}
+\label{tab:design}
+\begin{tabular}{p{1.2cm}p{1.8cm}p{1.2cm}p{1cm}p{4cm}p{3.5cm}}
+\toprule
+\textbf{Paradigm} & \textbf{Condition} & \textbf{Map} & \textbf{Comm.} & \textbf{Protocol / Constraints} & \textbf{Hypothesis} \\
+\midrule
+\textit{Branch 1} (Explicit) & Baseline A & Local & None & Silent control (Sensor). & Control for Comms. \\
+& Structured & Local & $r=2$ & Schema: \texttt{INTENT} / \texttt{REQUEST}. & Strict schemas reduce ambiguity. \\
+& Freeform & Local & $r=2$ & Natural Language ($<96$ chars). & Language handles edge cases best. \\
+\midrule
+\textit{Branch 2} (Implicit) & Baseline B & Local & None & Silent control (ASCII Map). & Control for Search. \\
+& Radio Sync & Radio & None & Maps merge on contact. & Local sharing aids discovery. \\
+& Global & Infinite & None & Oracle map shared instantly. & Perfect info maximizes efficiency. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results}
+
+We present statistical outcomes for both branches using the Mann-Whitney U test, comparing each experimental condition against its respective baseline. The choice between one-tailed and two-tailed tests was driven by the hypothesis directionality. For Map Sharing (search problem), we used one-tailed tests (alternative='greater') because the hypothesis was specifically directional: does shared knowledge improve search? We were testing if Global/Radio was better than Baseline. For Communication (coordination problem), we used two-tailed tests (alternative='two-sided') because the effect was uncertain. Explicit communication could plausibly help (by coordinating) or hurt (by wasting turns on message latency). We needed to detect significant deviation in either direction. Table \ref{tab:stats} provides a consolidated view of all statistical tests performed.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Statistical Summary of Key Comparisons (Mann-Whitney U)}
+\label{tab:stats}
+\begin{tabular}{p{3.2cm}p{4.2cm}p{2.5cm}p{1.5cm}p{1.8cm}}
+\toprule
+\textbf{Test Hypothesis} & \textbf{Conditions Compared} & \textbf{Metric} & \textbf{p-value} & \textbf{Significance} \\
+\midrule
+\textbf{Search Efficacy} & Global vs. Baseline B & Agents Finished & $<0.001$ & *** \\
+& Radio Sync vs. Baseline B & Agents Finished & $0.18$ & n.s. \\
+\midrule
+\textbf{Coordination Efficacy} & Freeform vs. Baseline A & Success Rate & $0.58$ & n.s. \\
+& Structured vs. Baseline A & Success Rate & $0.93$ & n.s. \\
+\midrule
+\textbf{Collision Reduction} & Freeform vs. Baseline A & Collision Count & $0.95$ & n.s. \\
+& Global vs. Baseline B & Collision Count & $0.83$ & n.s. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Shared Representation Achieves Perfect Search}
+In the Map Sharing branch, agents must explore blindly without a goal sensor. The silent Baseline B achieved an agent completion rate of 84.0\% (63/75 agents). This relatively high baseline suggests that random walk is a viable strategy in this topology given 100 turns. However, \textbf{Global Map Sharing} eliminates the remaining 16\% of failures, achieving 100\% completion (75/75 agents). This improvement is statistically significant ($U=180.0, p < 0.001$).
+
+Radio Sync provided a marginal improvement (88.0\% completion), but the benefit did not reach statistical significance ($p = 0.18$). As illustrated in Figure \ref{fig:map_success}, this is due to a ``Knowledge Plateau'': knowledge sharing creates an initial burst of discovery, but as agents disperse beyond the radio range ($r=2$), the collective intelligence fractures into isolated exploration.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/mapshare_agent_success_vs_baseline.png}
+    \caption{Impact of Map Sharing on Task Completion. Global sharing guarantees success, while Radio synchronization fails to maintain connectivity sufficient to outperform the baseline significantly.}
+    \label{fig:map_success}
+\end{figure}
+
+\subsection{Explicit Communication Fails to Coordinate}
+In the Communication branch, agents possess a goal sensor, resulting in a baseline completion rate of 57.3\%. The lower baseline compared to Branch 2 is attributed to the goal sensor encouraging agents to crowd into optimal paths, creating contention that blind agents avoid by wandering.
+
+Explicit communication failed to improve this outcome. \textbf{Freeform} communication achieved 62.7\% success and \textbf{Structured} achieved 56.0\% success; neither result is statistically distinguishable from the baseline ($p > 0.5$). Furthermore, messaging failed to reduce physical conflicts. The Freeform condition averaged 18.9 collisions per run, compared to 18.7 in the baseline. These results confirm that simply providing a channel for intent does not automatically resolve multi-agent interference.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/communication_agent_success_vs_baseline.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/communication_collision_rate_vs_baseline.png}
+    \end{minipage}
+    \caption{Inefficacy of Explicit Communication. Messaging strategies did not significantly improve success rates (Left) and failed to reduce collision rates compared to the silent baseline (Right).}
+    \label{fig:comm_collisions}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Collision Dynamics in Shared Representation}
+In the Global Map Sharing condition, agents experienced 7.1 collisions per run, statistically identical to the 6.6 collisions observed in the blind Baseline B ($p=0.83$). While shared representation granted agents perfect knowledge of the maze structure, it did not grant them knowledge of each other's future actions. Because $R_{vis}=1$, agents separated by empty space cannot see one another. When the global map reveals a single optimal bottleneck, multiple agents optimize independently for that path and converge on it simultaneously. This indicates that static map knowledge, no matter how perfect, does not substitute for dynamic coordination mechanisms.
+
+\subsection{Phenomenological Analysis of Communication}
+Qualitative analysis of the decision logs offers an explanation for why explicit communication failed to outperform the baseline. The fundamental friction appears to be the interplay between the 1-turn message latency and the turn-based logic.
+
+In Structured communication runs (e.g., Seed 15), agents frequently entered deadlock loops. Agent A would signal a yield; Agent B would receive this signal one turn later and signal a reciprocal yield; Agent A would receive the reciprocal yield and wait again. This stop-and-chat behavior consumed turns that could have been used for movement, neutralizing the efficiency gains of avoiding collisions.
+
+Freeform communication (Seed 13) showed more promise in terms of content—agents sent complex instructions like "please hold at (9,1)." However, these interactions suffered the same operational drag. The necessity of pausing to verify safety meant that communicating agents moved slower than agents who simply pushed through collisions. The latency forced agents to treat communication as a blocking operation, which proved too costly in a 100-turn budget.
+
+\section{Conclusion}
+
+Our results delineate the distinct roles of shared state and explicit messaging in multi-agent systems. Shared representations (Maps) achieve perfect search performance, eliminating the 16\% of failures observed in the blind baseline. However, they do not solve the Coordination problem; agents with perfect maps collide just as frequently as blind agents because they optimize independently for the same paths.
+
+Explicit communication, while theoretically capable of resolving this contention, did not yield statistically significant performance improvements in our setup. Qualitative analysis suggests that the realistic 1-turn latency ($T+1$) imposes a synchronization cost: agents often pause to broadcast and await confirmation, consuming turns that might otherwise be used for movement.
+
+Beyond these specific findings, this study demonstrates \texttt{LLMGrid}'s utility as a diagnostic instrument for agent coordination research. The environment's modularity—tunable grid size, obstacle density, agent count, visibility radius, and communication bandwidth—enables researchers to stress-test coordination protocols under precisely controlled conditions. Unlike richer but noisier simulation platforms, the grid isolates mechanical friction (latency, bandwidth limits, spatial contention), enabling causal diagnosis of protocol failures. Future work can leverage this testbed to investigate synchronous communication architectures, hierarchical coordination protocols, or scaling behavior in swarms of 10+ agents. We provide complete experimental data, analysis scripts, and implementation details in the appendix to facilitate reproducibility and extension of this work.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\appendix
+
+\section{Reproducibility: Data and Code Locations}
+
+This appendix provides exact locations for all experimental data and analysis scripts. The two experimental paradigms live on separate Git branches with distinct implementations.
+
+\subsection{Communication Branch Experiments (Git Branch: \texttt{main})}
+
+\textbf{Implementation:} The Communication experiments use the \texttt{main} branch codebase, which implements:
+\begin{itemize}
+    \item \texttt{goal\_sensor} field in agent observations (bearing + strength hints)
+    \item ASCII map interface (\texttt{world\_map\_ascii})
+    \item Explicit message passing (INTENT, REQUEST, CHAT protocols)
+    \item 117-line dynamic prompt with communication rules
+\end{itemize}
+
+\textbf{Git Reference:} Branch \texttt{main}, commit \texttt{03c4763}
+
+\textbf{Experiment Directory:} \texttt{experiments/cross\_seed\_baseline\_20251112T143355Z/}
+
+\textbf{Data Runs (N=45):}
+\begin{itemize}
+    \item Seeds 13--17, 3 strategies (none, structured, freeform), 3 replicas each
+    \item Episode data: \texttt{runs/*/results/episode.json}
+    \item Transcripts: \texttt{runs/*/results/transcript.jsonl} (includes \texttt{goal\_sensor} observations)
+    \item Per-run metrics: \texttt{runs/*/results/metrics.json}
+\end{itemize}
+
+\textbf{Aggregated Data:}
+\begin{itemize}
+    \item \texttt{run\_inventory.json} - Complete run metadata with message counts
+    \item \texttt{aggregate\_stats.json} - Computed statistics across all 45 runs
+\end{itemize}
+
+\textbf{Direct Link:} \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/main/experiments/cross_seed_baseline_20251112T143355Z}
+
+\subsection{Map-Sharing Branch Experiments (Git Branch: \texttt{map-share})}
+
+\textbf{Implementation:} The Map-Sharing experiments use the \texttt{map-share} branch codebase, which implements:
+\begin{itemize}
+    \item No \texttt{goal\_sensor} field (agents explore blindly)
+    \item Full grid JSON interface (\texttt{grid.rows} 2D array)
+    \item No explicit messaging (communication disabled)
+    \item Map synchronization modes: \texttt{none}, \texttt{radio\_sync}, \texttt{global}
+    \item 76-line static prompt without communication rules
+\end{itemize}
+
+\textbf{Git Reference:} Branch \texttt{map-share}, commit \texttt{117ebaa}
+
+\textbf{Experiment Directory:} \texttt{experiments/mapshare\_long\_corridor\_20251119T202017Z/}
+
+\textbf{Data Runs (N=45):}
+\begin{itemize}
+    \item \texttt{none/runs/*} - Baseline (no map sharing, N=15)
+    \item \texttt{radio\_sync/runs/*} - Radio-range map merging (N=15)
+    \item \texttt{global/runs/*} - Global map sharing (N=15)
+    \item All runs include: \texttt{transcript.jsonl}, \texttt{episode\_stream.jsonl}, \texttt{config.yaml}
+\end{itemize}
+
+\textbf{Direct Link:} \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/map-share/experiments/mapshare_long_corridor_20251119T202017Z}
+
+\subsection{Analysis Scripts (Branch: \texttt{main})}
+
+All statistical analysis scripts live on the \texttt{main} branch and are branch-agnostic (work with data from both experiments):
+
+\begin{itemize}
+    \item \texttt{analysis/extract\_raw\_data.py} - Branch-agnostic data extraction
+    \begin{itemize}
+        \item Parses \texttt{episode.json} (uses \texttt{finished} list for map-share, \texttt{status} field for communication)
+        \item Parses \texttt{transcript.jsonl} for collision counts (handles both \texttt{last\_move\_outcome} and \texttt{last\_result.kind})
+        \item Outputs: \texttt{analysis/raw\_data.json} (N=90: 45 communication + 45 map-share)
+    \end{itemize}
+    \item \texttt{analysis/statistical\_tests.py} - Mann-Whitney U tests
+    \begin{itemize}
+        \item One-tailed tests (\texttt{alternative='greater'}) for Map-Sharing
+        \item Two-tailed tests (\texttt{alternative='two-sided'}) for Communication
+        \item Outputs: \texttt{analysis/statistical\_results.json} with all p-values
+    \end{itemize}
+\end{itemize}
+
+\textbf{Plot Generation:}
+\begin{itemize}
+    \item Communication plots (branch \texttt{main}):
+    \begin{itemize}
+        \item Source: \texttt{experiments/cross\_seed\_baseline\_20251112T143355Z/plots/}
+        \item Script: \texttt{experiments/.../generate\_plots\_45runs.py}
+    \end{itemize}
+    \item Map-Sharing plots (branch \texttt{main}):
+    \begin{itemize}
+        \item Source: \texttt{analysis/mapshare/plots/}
+        \item Script: \texttt{analysis/mapshare/generate\_plots.py}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Quick Reference: Direct GitHub Links}
+
+\textbf{Communication (Branch \texttt{main}):}
+\begin{itemize}
+    \item Experiment data: \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/main/experiments/cross_seed_baseline_20251112T143355Z}
+    \item README with full results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/experiments/cross_seed_baseline_20251112T143355Z/README.md}
+\end{itemize}
+
+\textbf{Map-Sharing (Branch \texttt{map-share}):}
+\begin{itemize}
+    \item Experiment data: \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/map-share/experiments/mapshare_long_corridor_20251119T202017Z}
+    \item README with full results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/map-share/experiments/mapshare_long_corridor_20251119T202017Z/README.md}
+\end{itemize}
+
+\textbf{Analysis Scripts (Branch \texttt{main}):}
+\begin{itemize}
+    \item Statistical tests: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/statistical_tests.py}
+    \item Data extraction: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/extract_raw_data.py}
+    \item Raw data (N=90): \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/raw_data.json}
+    \item Test results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/statistical_results.json}
+\end{itemize}
+
+\end{document}

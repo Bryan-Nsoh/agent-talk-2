@@ -1,0 +1,13 @@
+# LaTeX artifacts - do not commit
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.pdf
+*.bbl
+*.blg
+*.toc
+*.lof
+*.lot
