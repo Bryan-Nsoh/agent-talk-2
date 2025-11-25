@@ -1,14 +1,11 @@
-\documentclass[12pt]{article}
-\usepackage[margin=1in]{geometry}
+\documentclass[10pt,twocolumn]{article}
+\usepackage[margin=0.75in]{geometry}
 \usepackage{natbib}
-\usepackage{setspace}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{float}
-
-\doublespacing
 
 \title{Comparing Shared Representations and Explicit Communication in LLM Agents}
 \author{\small Bryan Nsoh, Gagandeep Kaur, Joseph Gyasi Bronyah, Sobhan Bahrami}
@@ -58,24 +55,24 @@ The two experimental branches differ in navigation affordances, not merely commu
 
 In the Shared Representation branch, the \texttt{goal\_sensor} is removed entirely. Agents must explore the grid blindly until they visually discover the goal symbol. The message channel is also disabled; instead, the internal map state is automatically synchronized with other agents (either upon contact in the Radio condition, or globally in the Global condition). This design tests whether shared environmental knowledge can substitute for both goal guidance and explicit messaging.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/schema_structured_freeform.png}
     \caption{The Coordination Interface. Left: The agent receives a sparse observation containing a $3 \times 3$ local patch ($R=1$), an inbox containing messages sent by peers in the previous turn ($T-1$), and a world map showing discovered tiles. Right: The output schema varies by condition. Structured agents must select from a rigid set of intents or requests, while Freeform agents generate natural language strings. Only the message payload (red box) enters the message bus at turn $T+1$.}
     \label{fig:schema}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/grid_snapshot_freeform.png}
     \caption{The ``Long Corridor'' Environment in Action. Snapshot from a Communication baseline run (Freeform condition) showing 5 agents navigating the maze. The Among Us sprites with directional indicators show agent positions and orientations. Visibility auras (colored overlays) indicate each agent's limited $R_{vis}=1$ perception range. The goal gradient (green intensity) shows distance to the target. Note: This visualization is from the Communication branch; the Map-Sharing branch uses identical maze topology but different agent interfaces.}
     \label{fig:grid}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/fog_of_war_example.png}
-    \caption{Partial Observability (Fog of War). Agents perceive only their immediate neighborhood (visibility radius = 1). Gray cells represent unknown territory, demonstrating the exploration challenge agents face without shared representations.}
+    \includegraphics[width=\columnwidth]{figures/fog_of_war_example.png}
+    \caption{Partial Observability (Fog of War). Agents perceive only their immediate neighborhood (visibility radius = 1). Gray cells represent unknown territory.}
     \label{fig:interface}
 \end{figure}
 
@@ -91,47 +88,47 @@ We executed 90 total episodes ($N=15$ per condition). The variability in the exp
 
 We group the six conditions into two investigation branches. Each branch utilizes a specific control baseline matching its interface (Sensor vs. ASCII Map) to ensure fair comparison.
 
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \small
 \caption{Unified Experimental Design Matrix ($N=15$ runs per condition)}
 \label{tab:design}
-\begin{tabular}{p{1.2cm}p{1.8cm}p{1.2cm}p{1cm}p{4cm}p{3.5cm}}
+\begin{tabular}{llllll}
 \toprule
-\textbf{Paradigm} & \textbf{Condition} & \textbf{Map} & \textbf{Comm.} & \textbf{Protocol / Constraints} & \textbf{Hypothesis} \\
+\textbf{Paradigm} & \textbf{Condition} & \textbf{Map} & \textbf{Comm.} & \textbf{Protocol} & \textbf{Hypothesis} \\
 \midrule
-\textit{Branch 1} (Explicit) & Baseline A & Local & None & Silent control (Sensor). & Control for Comms. \\
-& Structured & Local & $r=2$ & Schema: \texttt{INTENT} / \texttt{REQUEST}. & Strict schemas reduce ambiguity. \\
-& Freeform & Local & $r=2$ & Natural Language ($<96$ chars). & Language handles edge cases best. \\
+\textit{Branch 1} (Explicit) & Baseline A & Local & None & Silent control (Sensor) & Control for Comms \\
+& Structured & Local & $r=2$ & Schema: INTENT/REQUEST & Strict schemas reduce ambiguity \\
+& Freeform & Local & $r=2$ & Natural Language ($<$96 chars) & Language handles edge cases \\
 \midrule
-\textit{Branch 2} (Implicit) & Baseline B & Local & None & Silent control (ASCII Map). & Control for Search. \\
-& Radio Sync & Radio & None & Maps merge on contact. & Local sharing aids discovery. \\
-& Global & Infinite & None & Oracle map shared instantly. & Perfect info maximizes efficiency. \\
+\textit{Branch 2} (Implicit) & Baseline B & Local & None & Silent control (ASCII Map) & Control for Search \\
+& Radio Sync & Radio & None & Maps merge on contact & Local sharing aids discovery \\
+& Global & Infinite & None & Oracle map shared instantly & Perfect info maximizes efficiency \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \section{Results}
 
 We present statistical outcomes for both branches using the Mann-Whitney U test, comparing each experimental condition against its respective baseline. The choice between one-tailed and two-tailed tests was driven by the hypothesis directionality. For Map Sharing (search problem), we used one-tailed tests (alternative='greater') because the hypothesis was specifically directional: does shared knowledge improve search? We were testing if Global/Radio was better than Baseline. For Communication (coordination problem), we used two-tailed tests (alternative='two-sided') because the effect was uncertain. Explicit communication could plausibly help (by coordinating) or hurt (by wasting turns on message latency). We needed to detect significant deviation in either direction. Table \ref{tab:stats} provides a consolidated view of all statistical tests performed.
 
-\begin{table}[H]
+\begin{table}[h]
 \centering
 \small
-\caption{Statistical Summary of Key Comparisons (Mann-Whitney U)}
+\caption{Statistical Summary (Mann-Whitney U)}
 \label{tab:stats}
-\begin{tabular}{p{3.2cm}p{4.2cm}p{2.5cm}p{1.5cm}p{1.8cm}}
+\begin{tabular}{llll}
 \toprule
-\textbf{Test Hypothesis} & \textbf{Conditions Compared} & \textbf{Metric} & \textbf{p-value} & \textbf{Significance} \\
+\textbf{Comparison} & \textbf{Metric} & \textbf{p} & \textbf{Sig.} \\
 \midrule
-\textbf{Search Efficacy} & Global vs. Baseline B & Agents Finished & $<0.001$ & *** \\
-& Radio Sync vs. Baseline B & Agents Finished & $0.18$ & n.s. \\
+Global vs. Base B & Finished & $<$.001 & *** \\
+Radio vs. Base B & Finished & .18 & n.s. \\
 \midrule
-\textbf{Coordination Efficacy} & Freeform vs. Baseline A & Success Rate & $0.58$ & n.s. \\
-& Structured vs. Baseline A & Success Rate & $0.93$ & n.s. \\
+Freeform vs. Base A & Success & .58 & n.s. \\
+Structured vs. Base A & Success & .93 & n.s. \\
 \midrule
-\textbf{Collision Reduction} & Freeform vs. Baseline A & Collision Count & $0.95$ & n.s. \\
-& Global vs. Baseline B & Collision Count & $0.83$ & n.s. \\
+Freeform vs. Base A & Collisions & .95 & n.s. \\
+Global vs. Base B & Collisions & .83 & n.s. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -141,9 +138,9 @@ In the Map Sharing branch, agents must explore blindly without a goal sensor. Th
 
 Radio Sync provided a marginal improvement (88.0\% completion), but the benefit did not reach statistical significance ($p = 0.18$). As illustrated in Figure \ref{fig:map_success}, this is due to a ``Knowledge Plateau'': knowledge sharing creates an initial burst of discovery, but as agents disperse beyond the radio range ($r=2$), the collective intelligence fractures into isolated exploration.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/mapshare_agent_success_vs_baseline.png}
+    \includegraphics[width=\columnwidth]{figures/mapshare_agent_success_vs_baseline.png}
     \caption{Impact of Map Sharing on Task Completion. Global sharing guarantees success, while Radio synchronization fails to maintain connectivity sufficient to outperform the baseline significantly.}
     \label{fig:map_success}
 \end{figure}
@@ -153,7 +150,7 @@ In the Communication branch, agents possess a goal sensor, resulting in a baseli
 
 Explicit communication failed to improve this outcome. \textbf{Freeform} communication achieved 62.7\% success and \textbf{Structured} achieved 56.0\% success; neither result is statistically distinguishable from the baseline ($p > 0.5$). Furthermore, messaging failed to reduce physical conflicts. The Freeform condition averaged 18.9 collisions per run, compared to 18.7 in the baseline. These results confirm that simply providing a channel for intent does not automatically resolve multi-agent interference.
 
-\begin{figure}[H]
+\begin{figure*}[t]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
@@ -166,7 +163,7 @@ Explicit communication failed to improve this outcome. \textbf{Freeform} communi
     \end{minipage}
     \caption{Inefficacy of Explicit Communication. Messaging strategies did not significantly improve success rates (Left) and failed to reduce collision rates compared to the silent baseline (Right).}
     \label{fig:comm_collisions}
-\end{figure}
+\end{figure*}
 
 \section{Discussion}
 
