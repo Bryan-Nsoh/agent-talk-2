@@ -2,7 +2,7 @@
 \usepackage[margin=0.75in]{geometry}
 \usepackage{natbib}
 \usepackage{url}
-\usepackage{hyperref}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{float}
@@ -53,7 +53,7 @@ Agents interact with the environment via a structured JSON prompt-response loop.
 
 The two experimental branches differ in navigation affordances, not merely communication channels. In the Communication branch, agents receive a \texttt{goal\_sensor} that provides noisy bearing information (octants: N, NE, E, etc.) and distance buckets (FAR, MID, NEAR). This allows agents to navigate toward the goal even before discovering it visually. The agent's output includes an explicit \texttt{message} payload that is broadcast to teammates within radio range.
 
-In the Shared Representation branch, the \texttt{goal\_sensor} is removed entirely. Agents must explore the grid blindly until they visually discover the goal symbol. The message channel is also disabled; instead, the internal map state is automatically synchronized with other agents (either upon contact in the Radio condition, or globally in the Global condition). This design tests whether shared environmental knowledge can substitute for both goal guidance and explicit messaging.
+In the Shared Representation branch, the \texttt{goal\_sensor} is removed entirely. Agents must explore the grid blindly until they visually discover the goal symbol. The message channel is also disabled; instead, the internal map state is automatically synchronized with other agents (either upon contact in the Radio condition, or globally in the Global condition). This design tests whether shared environmental knowledge can substitute for both goal guidance and explicit messaging. Figure~\ref{fig:grid} shows the environment during a typical run, while Figure~\ref{fig:interface} illustrates the fog-of-war partial observability.
 
 \begin{figure*}[t]
     \centering
@@ -86,7 +86,7 @@ We executed 90 total episodes ($N=15$ per condition). The variability in the exp
     \item \textbf{Replicas ($N=3$):} For each Run Seed and Condition, we execute 3 independent runs. Since the engine is deterministic, variance between replicas is driven entirely by the probabilistic sampling of the LLM (Temperature $1.0$).
 \end{itemize}
 
-We group the six conditions into two investigation branches. Each branch utilizes a specific control baseline matching its interface (Sensor vs. ASCII Map) to ensure fair comparison.
+We group the six conditions into two investigation branches, summarized in Table~\ref{tab:design}. Each branch utilizes a specific control baseline matching its interface (Sensor vs. ASCII Map) to ensure fair comparison.
 
 \begin{table*}[t]
 \centering
@@ -148,7 +148,7 @@ Radio Sync provided a marginal improvement (88.0\% completion), but the benefit 
 \subsection{Explicit Communication Fails to Coordinate}
 In the Communication branch, agents possess a goal sensor, resulting in a baseline completion rate of 57.3\%. The lower baseline compared to Branch 2 is attributed to the goal sensor encouraging agents to crowd into optimal paths, creating contention that blind agents avoid by wandering.
 
-Explicit communication failed to improve this outcome. \textbf{Freeform} communication achieved 62.7\% success and \textbf{Structured} achieved 56.0\% success; neither result is statistically distinguishable from the baseline ($p > 0.5$). Furthermore, messaging failed to reduce physical conflicts. The Freeform condition averaged 18.9 collisions per run, compared to 18.7 in the baseline. These results confirm that simply providing a channel for intent does not automatically resolve multi-agent interference.
+Explicit communication failed to improve this outcome. \textbf{Freeform} communication achieved 62.7\% success and \textbf{Structured} achieved 56.0\% success; neither result is statistically distinguishable from the baseline ($p > 0.5$). Furthermore, messaging failed to reduce physical conflicts. The Freeform condition averaged 18.9 collisions per run, compared to 18.7 in the baseline. Figure~\ref{fig:comm_collisions} illustrates these null results. These results confirm that simply providing a channel for intent does not automatically resolve multi-agent interference.
 
 \begin{figure*}[t]
     \centering
