@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\title{LLMGrid Codebase Navigation Guide}
+\author{Supplementary Material for ``Telepathy vs. Talk''}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Reproducibility: Data and Code Locations}
+
+This guide provides exact locations for all experimental data and analysis scripts. The two experimental paradigms live on separate Git branches with distinct implementations.
+
+\subsection{Communication Branch Experiments (Git Branch: \texttt{main})}
+
+\textbf{Implementation:} The Communication experiments use the \texttt{main} branch codebase, which implements:
+\begin{itemize}
+    \item \texttt{goal\_sensor} field in agent observations (bearing + strength hints)
+    \item ASCII map interface (\texttt{world\_map\_ascii})
+    \item Explicit message passing (INTENT, REQUEST, CHAT protocols)
+    \item 117-line dynamic prompt with communication rules
+\end{itemize}
+
+\textbf{Git Reference:} Branch \texttt{main}, commit \texttt{03c4763}
+
+\textbf{Experiment Directory:} \texttt{experiments/cross\_seed\_baseline\_20251112T143355Z/}
+
+\textbf{Data Runs (N=45):}
+\begin{itemize}
+    \item Seeds 13--17, 3 strategies (none, structured, freeform), 3 replicas each
+    \item Episode data: \texttt{runs/*/results/episode.json}
+    \item Transcripts: \texttt{runs/*/results/transcript.jsonl} (includes \texttt{goal\_sensor} observations)
+    \item Per-run metrics: \texttt{runs/*/results/metrics.json}
+\end{itemize}
+
+\textbf{Aggregated Data:}
+\begin{itemize}
+    \item \texttt{run\_inventory.json} - Complete run metadata with message counts
+    \item \texttt{aggregate\_stats.json} - Computed statistics across all 45 runs
+\end{itemize}
+
+\textbf{Direct Link:} \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/main/experiments/cross_seed_baseline_20251112T143355Z}
+
+\subsection{Map-Sharing Branch Experiments (Git Branch: \texttt{map-share})}
+
+\textbf{Implementation:} The Map-Sharing experiments use the \texttt{map-share} branch codebase, which implements:
+\begin{itemize}
+    \item No \texttt{goal\_sensor} field (agents explore blindly)
+    \item Full grid JSON interface (\texttt{grid.rows} 2D array)
+    \item No explicit messaging (communication disabled)
+    \item Map synchronization modes: \texttt{none}, \texttt{radio\_sync}, \texttt{global}
+    \item 76-line static prompt without communication rules
+\end{itemize}
+
+\textbf{Git Reference:} Branch \texttt{map-share}, commit \texttt{117ebaa}
+
+\textbf{Experiment Directory:} \texttt{experiments/mapshare\_long\_corridor\_20251119T202017Z/}
+
+\textbf{Data Runs (N=45):}
+\begin{itemize}
+    \item \texttt{none/runs/*} - Baseline (no map sharing, N=15)
+    \item \texttt{radio\_sync/runs/*} - Radio-range map merging (N=15)
+    \item \texttt{global/runs/*} - Global map sharing (N=15)
+    \item All runs include: \texttt{transcript.jsonl}, \texttt{episode\_stream.jsonl}, \texttt{config.yaml}
+\end{itemize}
+
+\textbf{Direct Link:} \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/map-share/experiments/mapshare_long_corridor_20251119T202017Z}
+
+\subsection{Analysis Scripts (Branch: \texttt{main})}
+
+All statistical analysis scripts live on the \texttt{main} branch and are branch-agnostic (work with data from both experiments):
+
+\begin{itemize}
+    \item \texttt{analysis/extract\_raw\_data.py} - Branch-agnostic data extraction
+    \begin{itemize}
+        \item Parses \texttt{episode.json} (uses \texttt{finished} list for map-share, \texttt{status} field for communication)
+        \item Parses \texttt{transcript.jsonl} for collision counts (handles both \texttt{last\_move\_outcome} and \texttt{last\_result.kind})
+        \item Outputs: \texttt{analysis/raw\_data.json} (N=90: 45 communication + 45 map-share)
+    \end{itemize}
+    \item \texttt{analysis/statistical\_tests.py} - Mann-Whitney U tests
+    \begin{itemize}
+        \item One-tailed tests (\texttt{alternative='greater'}) for Map-Sharing
+        \item Two-tailed tests (\texttt{alternative='two-sided'}) for Communication
+        \item Outputs: \texttt{analysis/statistical\_results.json} with all p-values
+    \end{itemize}
+\end{itemize}
+
+\textbf{Plot Generation:}
+\begin{itemize}
+    \item Communication plots (branch \texttt{main}):
+    \begin{itemize}
+        \item Source: \texttt{experiments/cross\_seed\_baseline\_20251112T143355Z/plots/}
+        \item Script: \texttt{experiments/.../generate\_plots\_45runs.py}
+    \end{itemize}
+    \item Map-Sharing plots (branch \texttt{main}):
+    \begin{itemize}
+        \item Source: \texttt{analysis/mapshare/plots/}
+        \item Script: \texttt{analysis/mapshare/generate\_plots.py}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Quick Reference: Direct GitHub Links}
+
+\textbf{Communication (Branch \texttt{main}):}
+\begin{itemize}
+    \item Experiment data: \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/main/experiments/cross_seed_baseline_20251112T143355Z}
+    \item README with full results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/experiments/cross_seed_baseline_20251112T143355Z/README.md}
+\end{itemize}
+
+\textbf{Map-Sharing (Branch \texttt{map-share}):}
+\begin{itemize}
+    \item Experiment data: \url{https://github.com/Bryan-Nsoh/agent-talk-2/tree/map-share/experiments/mapshare_long_corridor_20251119T202017Z}
+    \item README with full results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/map-share/experiments/mapshare_long_corridor_20251119T202017Z/README.md}
+\end{itemize}
+
+\textbf{Analysis Scripts (Branch \texttt{main}):}
+\begin{itemize}
+    \item Statistical tests: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/statistical_tests.py}
+    \item Data extraction: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/extract_raw_data.py}
+    \item Raw data (N=90): \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/raw_data.json}
+    \item Test results: \url{https://github.com/Bryan-Nsoh/agent-talk-2/blob/main/analysis/statistical_results.json}
+\end{itemize}
+
+\end{document}
